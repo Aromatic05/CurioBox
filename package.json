@@ -1,0 +1,21 @@
+{
+  "name": "curiobox-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter client dev\" \"pnpm --filter server start:dev\"",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,css}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "prettier": "^3.6.2"
+  }
+}

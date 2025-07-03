@@ -1,0 +1,30 @@
+# IDE & System
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+# pnpm-lock.yaml 应该被提交到 git，所以不要忽略它！
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build output
+/client/dist
+/client/coverage
+/server/dist
+/server/coverage
+
+# Database
+/server/db.sqlite*
