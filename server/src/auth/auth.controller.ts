@@ -1,15 +1,18 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
-@Controller('auth') // 这个控制器下的所有路由都会以 /auth 开头
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
    * 用户注册端点
    * POST /auth/register
+   * @param createUserDto 包含用户名和密码的对象
    */
   @Post('register')
   signUp(@Body() createUserDto: CreateUserDto) {
@@ -19,10 +22,35 @@ export class AuthController {
   /**
    * 用户登录端点
    * POST /auth/login
+   * @param loginDto 包含用户名和密码的对象
    */
   @Post('login')
-  @HttpCode(HttpStatus.OK) // 默认POST是201, 登录成功我们返回200 OK
+  @HttpCode(HttpStatus.OK)
   signIn(@Body() loginDto: LoginDto) {
     return this.authService.signIn(loginDto);
+  }
+
+  /**
+   * 修改密码端点
+   * POST /auth/change-password
+   * @param req 请求对象，包含用户信息
+   * @param changePasswordDto 包含新密码的对象
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  changePassword(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.sub, changePasswordDto);
+  }
+
+  /**
+   * 用户登出端点
+   * @param req 请求对象，包含用户信息
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('logout')
+  logout(@Request() req: any) {
+    const token = req.headers.authorization.split(' ')[1];
+    return this.authService.logout(token);
   }
 }

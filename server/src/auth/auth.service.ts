@@ -5,6 +5,7 @@ import { User } from '../users/user.entity';
 
 // --- 模拟数据库 ---
 const users: User[] = [];
+export const blocklistedTokens = new Set<string>();
 
 @Injectable()
 export class AuthService {
@@ -58,5 +59,29 @@ export class AuthService {
             message: 'Login successful',
             accessToken: accessToken,
         };
+    }
+
+    async changePassword(userId: number, changePasswordDto: any) {
+        const { oldPassword, newPassword } = changePasswordDto;
+        const user = users.find(u => u.id === userId);
+
+        if (!user || !user.password) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isPasswordMatch) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        const salt = await bcrypt.genSalt();
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        return { message: 'Password changed successfully' };
+    }
+
+    async logout(token: string) {
+        blocklistedTokens.add(token);
+        return { message: 'Logged out successfully' };
     }
 }
