@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Item } from '../../items/entities/item.entity';
 
 @Entity()
 export class CurioBox {
@@ -17,9 +18,8 @@ export class CurioBox {
   @Column({ nullable: true })
   coverImage: string;
   
-  // 暂时先不实现复杂的items关联，先关注核心CRUD
-  // @Column('simple-json', { nullable: true })
-  // items: { name: string; probability: number }[];
+  @OneToMany(() => Item, (item) => item.curioBox)
+  items: Item[];
 
   @CreateDateColumn()
   createdAt: Date;
