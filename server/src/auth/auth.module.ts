@@ -3,16 +3,20 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm'; // 导入
+import { User } from '../users/user.entity';     // 导入
+import { JwtStrategy } from './jwt.strategy';     // 导入
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([User]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: 'yourSecretKey', // !!重要!! 在真实应用中，这个密钥绝不能硬编码，必须使用环境变量
-      signOptions: { expiresIn: '1h' }, // Token有效期1小时
+      secret: 'yourSecretKey',
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

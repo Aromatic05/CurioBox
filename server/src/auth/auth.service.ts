@@ -2,59 +2,66 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-// --- 模拟数据库 ---
-const users: User[] = [];
+// const users: User[] = [];
 export const blocklistedTokens = new Set<string>();
 
 @Injectable()
 export class AuthService {
-    constructor(private jwtService: JwtService) { }
+    // 注入User的Repository
+    constructor(
+        @InjectRepository(User)
+        private usersRepository: Repository<User>,
+        private jwtService: JwtService,
+    ) { }
 
-    async signUp(createUserDto: any): Promise<Omit<User, 'password'>> { // 返回类型也可以更精确
+    async signUp(createUserDto: any): Promise<Omit<User, 'password'>> {
         const { username, password } = createUserDto;
 
-        const userExists = users.find((user) => user.username === username);
+        const userExists = await this.usersRepository.findOne({ where: { username } });
         if (userExists) {
             throw new ConflictException('Username already exists');
         }
 
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
+        
+        // 创建一个新的用户实例
+        const newUser = this.usersRepository.create({
+            username,
+            password: hashedPassword,
+        });
 
-        const newUser: User = { id: users.length + 1, username, password: hashedPassword };
-        users.push(newUser);
+        // 保存到数据库
+        await this.usersRepository.save(newUser);
 
         const { password: _, ...result } = newUser;
         return result;
     }
 
-    /**
-     * 用户登录
-     * @param loginDto 包含用户名和密码的对象
-     */
     async signIn(loginDto: any) {
         const { username, password } = loginDto;
 
-        // 查找用户
-        const user = users.find((user) => user.username === username);
-        if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
+        // 查询用户时，需要显式地请求password字段
+        const user = await this.usersRepository
+            .createQueryBuilder('user')
+            .addSelect('user.password')
+            .where('user.username = :username', { username })
+            .getOne();
 
-        // 验证密码
-        if (!user.password) {
+        if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
+        
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
-
-        // 生成JWT
+        
         const payload = { sub: user.id, username: user.username };
         const accessToken = await this.jwtService.signAsync(payload);
-
         return {
             message: 'Login successful',
             accessToken: accessToken,
@@ -63,7 +70,12 @@ export class AuthService {
 
     async changePassword(userId: number, changePasswordDto: any) {
         const { oldPassword, newPassword } = changePasswordDto;
-        const user = users.find(u => u.id === userId);
+        
+        const user = await this.usersRepository
+            .createQueryBuilder('user')
+            .addSelect('user.password')
+            .where('user.id = :userId', { userId })
+            .getOne();
 
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
@@ -76,12 +88,14 @@ export class AuthService {
 
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(newPassword, salt);
+        
+        await this.usersRepository.save(user); // 保存更新
 
         return { message: 'Password changed successfully' };
     }
 
     async logout(token: string) {
         blocklistedTokens.add(token);
-        return { message: 'Logged out successfully' };
+        return { message: 'Logged out successfully (client should delete token)' };
     }
 }
