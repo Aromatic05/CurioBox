@@ -6,6 +6,7 @@ import { User } from './users/user.entity';
 import { CurioBox } from './curio-box/entities/curio-box.entity';
 import { ItemsModule } from './items/items.module';
 import { Item } from './items/entities/item.entity';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Item } from './items/entities/item.entity';
     CurioBoxModule,
     AuthModule,
     ItemsModule,
+    OrdersModule,
   ],
   controllers: [],
   providers: [],
