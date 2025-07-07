@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (token && blocklistedTokens.has(token)) {
       throw new UnauthorizedException('Token is blocklisted');
     }
-    return { sub: payload.sub, username: payload.username };
+    return { sub: payload.sub, username: payload.username, role: payload.role };
   }
 
   private extractTokenFromHeader(): string | undefined {

@@ -18,7 +18,7 @@ export class AuthService {
     ) { }
 
     async signUp(createUserDto: any): Promise<Omit<User, 'password'>> {
-        const { username, password } = createUserDto;
+        const { username, password, role } = createUserDto;
 
         const userExists = await this.usersRepository.findOne({ where: { username } });
         if (userExists) {
@@ -27,16 +27,14 @@ export class AuthService {
 
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
-        
-        // 创建一个新的用户实例
+
         const newUser = this.usersRepository.create({
             username,
             password: hashedPassword,
+            role: role || 'user',
         });
 
-        // 保存到数据库
         await this.usersRepository.save(newUser);
-
         const { password: _, ...result } = newUser;
         return result;
     }
@@ -60,7 +58,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
         
-        const payload = { sub: user.id, username: user.username };
+        const payload = { sub: user.id, username: user.username, role: user.role };
         const accessToken = await this.jwtService.signAsync(payload);
         return {
             message: 'Login successful',

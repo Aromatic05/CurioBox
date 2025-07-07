@@ -180,7 +180,7 @@ describe('AuthController (e2e)', () => {
         .send({ username, password })
         .expect(201)
         .expect((res) => {
-          expect(res.body.role).toBeUndefined(); // 默认不返回，需数据库验证
+          expect(res.body.role).toBe('user');
         });
       // 登录后查询数据库或通过接口验证角色为 user（如有用户信息接口）
     });
