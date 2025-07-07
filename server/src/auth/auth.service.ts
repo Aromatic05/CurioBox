@@ -1,26 +1,62 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/user.entity';
+
+// --- 模拟数据库 ---
+const users: User[] = [];
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+    constructor(private jwtService: JwtService) { }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+    async signUp(createUserDto: any): Promise<Omit<User, 'password'>> { // 返回类型也可以更精确
+        const { username, password } = createUserDto;
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+        const userExists = users.find((user) => user.username === username);
+        if (userExists) {
+            throw new ConflictException('Username already exists');
+        }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+        const newUser: User = { id: users.length + 1, username, password: hashedPassword };
+        users.push(newUser);
+
+        const { password: _, ...result } = newUser;
+        return result;
+    }
+
+    /**
+     * 用户登录
+     * @param loginDto 包含用户名和密码的对象
+     */
+    async signIn(loginDto: any) {
+        const { username, password } = loginDto;
+
+        // 查找用户
+        const user = users.find((user) => user.username === username);
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        // 验证密码
+        if (!user.password) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if (!isPasswordMatch) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        // 生成JWT
+        const payload = { sub: user.id, username: user.username };
+        const accessToken = await this.jwtService.signAsync(payload);
+
+        return {
+            message: 'Login successful',
+            accessToken: accessToken,
+        };
+    }
 }
