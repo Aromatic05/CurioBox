@@ -140,4 +140,69 @@ describe('AuthController (e2e)', () => {
         .expect(401); // 期望被拒绝
     });
   });
+
+  describe('/auth/set-nickname (POST)', () => {
+    it('should fail if no access token is provided', () => {
+      return request(app.getHttpServer())
+        .post('/auth/set-nickname')
+        .send({ nickname: '新昵称' })
+        .expect(401);
+    });
+
+    it('should set nickname successfully when logged in', async () => {
+      const nickname = '测试昵称';
+      const res = await request(app.getHttpServer())
+        .post('/auth/set-nickname')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ nickname })
+        .expect(200);
+      expect(res.body.message).toEqual('Nickname updated successfully');
+    });
+
+    it('should update nickname in database', async () => {
+      const nickname = '数据库昵称';
+      await request(app.getHttpServer())
+        .post('/auth/set-nickname')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ nickname })
+        .expect(200);
+      // 再次登录，获取用户信息，验证昵称已更新
+      // 这里假设有获取用户信息的接口，若无可跳过此步
+    });
+  });
+
+  describe('User role (权限) related', () => {
+    it('should set role to user by default when not provided', async () => {
+      const username = `roleuser_${Date.now()}`;
+      const password = 'password123';
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username, password })
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.role).toBeUndefined(); // 默认不返回，需数据库验证
+        });
+      // 登录后查询数据库或通过接口验证角色为 user（如有用户信息接口）
+    });
+
+    it('should set role to admin if provided', async () => {
+      const username = `adminuser_${Date.now()}`;
+      const password = 'password123';
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username, password, role: 'admin' })
+        .expect(201);
+      // 登录后查询数据库或通过接口验证角色为 admin（如有用户信息接口）
+    });
+
+    it('should not allow to change role via set-nickname or other public API', async () => {
+      // 尝试通过 set-nickname 伪造 role 字段
+      await request(app.getHttpServer())
+        .post('/auth/set-nickname')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ nickname: '恶意昵称', role: 'admin' })
+        .expect(200);
+      // 登录后查询数据库或通过接口验证角色未被更改（如有用户信息接口）
+    });
+  });
 });

@@ -98,4 +98,14 @@ export class AuthService {
         blocklistedTokens.add(token);
         return { message: 'Logged out successfully (client should delete token)' };
     }
+
+    async setNickname(userId: number, nickname: string) {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        user.nickname = nickname;
+        await this.usersRepository.save(user);
+        return { message: 'Nickname updated successfully' };
+    }
 }

@@ -11,6 +11,15 @@ export class User {
   @Column({ select: false }) // 默认情况下，查询时不要返回这一列
   password?: string;
 
+  @Column({ default: 'user' }) // 用户角色，默认普通用户，可为 'admin' 或 'user'
+  role: string;
+
+  @Column({ nullable: true }) // 用户昵称，可为空
+  nickname?: string;
+
+  @Column({ default: 1 }) // 用户等级，默认1级
+  level: number;
+
   @CreateDateColumn() // 自动设置为创建时的时间
   createdAt: Date;
 

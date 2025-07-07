@@ -53,4 +53,17 @@ export class AuthController {
     const token = req.headers.authorization.split(' ')[1];
     return this.authService.logout(token);
   }
+
+  /**
+   * 设置昵称端点
+   * POST /auth/set-nickname
+   * @param req 请求对象，包含用户信息
+   * @param body 包含新昵称的对象
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('set-nickname')
+  @HttpCode(HttpStatus.OK)
+  setNickname(@Request() req: any, @Body() body: { nickname: string }) {
+    return this.authService.setNickname(req.user.sub, body.nickname);
+  }
 }
