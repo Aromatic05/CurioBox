@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,7 +19,13 @@ export class OrdersController {
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-        return this.ordersService.findOneForUser(id, req.user);
+    async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
+        const currentUserId = req.user.id ?? req.user.sub;
+        const user = { id: currentUserId } as any;
+        const order = await this.ordersService.findOneForUser(id, user);
+        if (!order || order.userId !== currentUserId) {
+            throw new NotFoundException('Order not found or access denied');
+        }
+        return order;
     }
 }
