@@ -16,11 +16,9 @@ export class ItemsService {
     ) { }
 
     async create(createItemDto: CreateItemDto): Promise<Item> {
-        console.log('CreateItemDto:', createItemDto);
         const { name, image, weight, curioBoxId } = createItemDto;
         const curioBox = await this.curioBoxRepository.findOne({ where: { id: curioBoxId } });
         if (!curioBox) {
-            console.error(`CurioBox with ID "${curioBoxId}" not found.`);
             throw new NotFoundException(`CurioBox with ID "${curioBoxId}" not found.`);
         }
         const newItem = this.itemRepository.create({
@@ -32,10 +30,8 @@ export class ItemsService {
         });
         try {
             const saved = await this.itemRepository.save(newItem);
-            console.log('Saved Item:', saved);
             return saved;
         } catch (err) {
-            console.error('Error saving item:', err);
             throw err;
         }
     }

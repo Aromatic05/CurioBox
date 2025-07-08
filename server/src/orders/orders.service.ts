@@ -57,10 +57,6 @@ export class OrdersService {
         }
         // --- 算法结束 ---
 
-        // 创建订单记录
-        console.log('drawnItem:', drawnItem);
-        console.log('curioBox:', curioBox);
-        console.log('user:', user);
         const order = this.orderRepository.create({
             price: curioBox.price,
             user: dbUser,
@@ -70,10 +66,8 @@ export class OrdersService {
             drawnItem: drawnItem,
             drawnItemId: drawnItem.id,
         });
-        console.log('order to save:', order);
         try {
             const savedOrder = await this.orderRepository.save(order);
-            console.log('saved order:', savedOrder);
             // 用 plainToInstance 转换返回对象，保证 price 为字符串
             const result = plainToInstance(Order, {
                 ...savedOrder,
@@ -81,7 +75,6 @@ export class OrdersService {
             });
             return result;
         } catch (err) {
-            console.error('Error saving order:', err);
             throw err;
         }
     }

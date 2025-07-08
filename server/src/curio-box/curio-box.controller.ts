@@ -14,7 +14,6 @@ export class CurioBoxController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     create(@Body() createCurioBoxDto: CreateCurioBoxDto) {
-        console.log('[CurioBoxController][create] dto:', createCurioBoxDto);
         return this.curioBoxService.create(createCurioBoxDto);
     }
 

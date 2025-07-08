@@ -132,7 +132,7 @@ describe('OrdersController (e2e)', () => {
         .expect(200);
     });
 
-    it.skip('should return a list of orders for the current user', async () => {
+    it('should return a list of orders for the current user', async () => {
       const res = await request(app.getHttpServer())
         .get('/orders')
         .set('Authorization', `Bearer ${userToken}`)
@@ -149,7 +149,7 @@ describe('OrdersController (e2e)', () => {
       return request(app.getHttpServer()).get(`/orders/${createdOrderId || 1}`).expect(401);
     });
 
-    it.skip('should return a single order by id', async () => {
+    it('should return a single order by id', async () => {
       const res = await request(app.getHttpServer())
         .get(`/orders/${createdOrderId}`)
         .set('Authorization', `Bearer ${userToken}`)
@@ -159,7 +159,7 @@ describe('OrdersController (e2e)', () => {
       expect(res.body.user).toBeDefined(); // 确认关联加载
     });
     
-    it.skip('should return 404 when trying to access another user\'s order', () => {
+    it('should return 404 when trying to access another user\'s order', () => {
       // 使用管理员的Token去访问普通用户的订单
       return request(app.getHttpServer())
         .get(`/orders/${createdOrderId}`)
