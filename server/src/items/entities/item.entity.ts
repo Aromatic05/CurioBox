@@ -1,24 +1,27 @@
 import { CurioBox } from '../../curio-box/entities/curio-box.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity()
 export class Item {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  name: string;
+    @Column()
+    name: string;
 
-  @Column()
-  image: string;
+    @Column()
+    image: string;
 
-  @Column({
-    type: 'int',
-    comment: '权重，用于抽奖算法，权重越大概率越高',
-  })
-  weight: number;
+    @Column({
+        type: 'int',
+        comment: '权重，用于抽奖算法，权重越大概率越高',
+    })
+    weight: number;
 
-  // 定义与 CurioBox 的多对一关系
-  @ManyToOne(() => CurioBox, (curioBox) => curioBox.items)
-  curioBox: CurioBox;
+    @Column()
+    curioBoxId: number;
+
+    @ManyToOne(() => CurioBox, (curioBox) => curioBox.items)
+    @JoinColumn({ name: 'curioBoxId' })
+    curioBox: CurioBox;
 }

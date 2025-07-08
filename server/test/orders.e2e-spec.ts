@@ -97,7 +97,7 @@ describe('OrdersController (e2e)', () => {
     // 注意：此测试依赖于你已向 CurioBox 中添加了 Items。
     // 如果没有实现添加 Item 的接口，可以手动在测试前通过 service 添加。
     // 这里我们先跳过实际抽奖，假设接口能被调用
-    it.skip('should create an order when drawing a box', async () => {
+    it('should create an order when drawing a box', async () => {
       const res = await request(app.getHttpServer())
         .post('/orders/draw')
         .set('Authorization', `Bearer ${userToken}`)

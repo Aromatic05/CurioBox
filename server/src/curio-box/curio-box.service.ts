@@ -7,51 +7,51 @@ import { UpdateCurioBoxDto } from './dto/update-curio-box.dto';
 
 @Injectable()
 export class CurioBoxService {
-  constructor(
-    @InjectRepository(CurioBox)
-    private readonly curioBoxRepository: Repository<CurioBox>,
-  ) {}
+    constructor(
+        @InjectRepository(CurioBox)
+        private readonly curioBoxRepository: Repository<CurioBox>,
+    ) { }
 
-  create(createCurioBoxDto: CreateCurioBoxDto): Promise<CurioBox> {
-    const curioBox = this.curioBoxRepository.create(createCurioBoxDto);
-    return this.curioBoxRepository.save(curioBox);
-  }
-
-  findAll(): Promise<CurioBox[]> {
-    return this.curioBoxRepository.find();
-  }
-
-  async findOne(id: number): Promise<CurioBox> {
-    const curioBox = await this.curioBoxRepository.findOne({ where: { id } });
-    if (!curioBox) {
-      throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+    create(createCurioBoxDto: CreateCurioBoxDto): Promise<CurioBox> {
+        const curioBox = this.curioBoxRepository.create(createCurioBoxDto);
+        return this.curioBoxRepository.save(curioBox);
     }
-    return curioBox;
-  }
 
-  async update(id: number, updateCurioBoxDto: UpdateCurioBoxDto): Promise<CurioBox> {
-    const curioBox = await this.curioBoxRepository.preload({
-      id: id,
-      ...updateCurioBoxDto,
-    });
-    if (!curioBox) {
-      throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+    findAll(): Promise<CurioBox[]> {
+        return this.curioBoxRepository.find();
     }
-    return this.curioBoxRepository.save(curioBox);
-  }
 
-  async remove(id: number): Promise<void> {
-    const result = await this.curioBoxRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+    async findOne(id: number): Promise<CurioBox> {
+        const curioBox = await this.curioBoxRepository.findOne({ where: { id } });
+        if (!curioBox) {
+            throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+        }
+        return curioBox;
     }
-  }
-  
-  search(query: string): Promise<CurioBox[]> {
-    return this.curioBoxRepository.find({
-      where: {
-        name: Like(`%${query}%`),
-      },
-    });
-  }
+
+    async update(id: number, updateCurioBoxDto: UpdateCurioBoxDto): Promise<CurioBox> {
+        const curioBox = await this.curioBoxRepository.preload({
+            id: id,
+            ...updateCurioBoxDto,
+        });
+        if (!curioBox) {
+            throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+        }
+        return this.curioBoxRepository.save(curioBox);
+    }
+
+    async remove(id: number): Promise<void> {
+        const result = await this.curioBoxRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+        }
+    }
+
+    search(query: string): Promise<CurioBox[]> {
+        return this.curioBoxRepository.find({
+            where: {
+                name: Like(`%${query}%`),
+            },
+        });
+    }
 }

@@ -3,27 +3,27 @@ import { Item } from '../../items/entities/item.entity';
 
 @Entity()
 export class CurioBox {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  name: string;
+    @Column()
+    name: string;
 
-  @Column('text')
-  description: string;
+    @Column('text')
+    description: string;
 
-  @Column('decimal')
-  price: number;
+    @Column('decimal')
+    price: number;
 
-  @Column({ nullable: true })
-  coverImage: string;
-  
-  @OneToMany(() => Item, (item) => item.curioBox)
-  items: Item[];
+    @Column({ nullable: true })
+    coverImage: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @OneToMany(() => Item, (item) => item.curioBox)
+    items: Item[];
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
