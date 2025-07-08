@@ -6,10 +6,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm'; // 导入
 import { User } from '../users/user.entity';     // 导入
 import { JwtStrategy } from './jwt.strategy';     // 导入
+import { BlocklistedToken } from './entities/blocklisted-token.entity';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, BlocklistedToken]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'yourSecretKey',
@@ -17,6 +19,7 @@ import { JwtStrategy } from './jwt.strategy';     // 导入
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, RolesGuard],
+  exports: [RolesGuard],
 })
 export class AuthModule {}

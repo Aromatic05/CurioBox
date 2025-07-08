@@ -4,9 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
-// const users: User[] = [];
-export const blocklistedTokens = new Set<string>();
+import { BlocklistedToken } from './entities/blocklisted-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +13,8 @@ export class AuthService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         private jwtService: JwtService,
+        @InjectRepository(BlocklistedToken)
+        private blocklistedTokenRepository: Repository<BlocklistedToken>,
     ) { }
 
     async signUp(createUserDto: any): Promise<Omit<User, 'password'>> {
@@ -93,8 +93,8 @@ export class AuthService {
     }
 
     async logout(token: string) {
-        blocklistedTokens.add(token);
-        return { message: 'Logged out successfully (client should delete token)' };
+        await this.blocklistedTokenRepository.save({ token });
+        return { message: 'Logged out successfully' };
     }
 
     async setNickname(userId: number, nickname: string) {

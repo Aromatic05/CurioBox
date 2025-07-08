@@ -33,9 +33,15 @@ describe('OrdersController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
     
-    // 清理并准备数据库用户
-    const dataSource = app.get(DataSource);
-    await dataSource.getRepository(User).save([adminUser, regularUser]);
+    // 注册管理员和普通用户，保证密码加密
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send(adminUser)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send(regularUser)
+      .expect(201);
 
     // 1. 管理员登录获取Token
     const adminLoginRes = await request(app.getHttpServer())
@@ -57,17 +63,17 @@ describe('OrdersController (e2e)', () => {
 
     // 3. 管理员向Box中添加Items (需要先实现Items的创建接口)
     // 假设你已经在ItemsController中实现了POST /items接口
-    // for (let i = 1; i <= 3; i++) {
-    //   await request(app.getHttpServer())
-    //     .post('/items')
-    //     .set('Authorization', `Bearer ${adminToken}`)
-    //     .send({
-    //       name: `Item ${i}`,
-    //       image: `http://example.com/item${i}.png`,
-    //       weight: 10 * i,
-    //       curioBoxId: curioBoxId
-    //     });
-    // }
+    for (let i = 1; i <= 3; i++) {
+      await request(app.getHttpServer())
+        .post('/items')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: `Item ${i}`,
+          image: `http://example.com/item${i}.png`,
+          weight: 10 * i,
+          curioBoxId: curioBoxId
+        });
+    }
 
     // 4. 普通用户登录获取Token
     const userLoginRes = await request(app.getHttpServer())
@@ -117,6 +123,13 @@ describe('OrdersController (e2e)', () => {
   describe('/orders (GET)', () => {
     it('should fail if not authenticated', () => {
       return request(app.getHttpServer()).get('/orders').expect(401);
+    });
+
+    it('should verify userToken is valid', async () => {
+      await request(app.getHttpServer())
+        .get('/orders')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(200);
     });
 
     it.skip('should return a list of orders for the current user', async () => {
