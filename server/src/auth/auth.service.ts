@@ -5,6 +5,7 @@ import { User } from '../users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlocklistedToken } from './entities/blocklisted-token.entity';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -58,7 +59,7 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
         
-        const payload = { sub: user.id, username: user.username, role: user.role };
+        const payload = { sub: user.id, username: user.username, role: user.role, jti: randomUUID() };
         const accessToken = await this.jwtService.signAsync(payload);
         return {
             message: 'Login successful',
