@@ -6,6 +6,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { User } from '../users/user.entity';
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
 import { OrderStatus } from './entities/order.entity';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class OrdersService {
@@ -14,13 +15,19 @@ export class OrdersService {
         private readonly orderRepository: Repository<Order>,
         @InjectRepository(CurioBox)
         private readonly curioBoxRepository: Repository<CurioBox>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
     ) { }
 
     /**
      * 核心抽奖逻辑
      */
-    async draw(createOrderDto: CreateOrderDto, user: User): Promise<Order> {
+    async draw(createOrderDto: CreateOrderDto, user: any): Promise<Order> {
         const { curioBoxId } = createOrderDto;
+
+        // 查找用户
+        const dbUser = await this.userRepository.findOne({ where: { id: user.id || user.sub } });
+        if (!dbUser) throw new NotFoundException('User not found');
 
         // 查找盲盒，并加载其中包含的所有物品
         const curioBox = await this.curioBoxRepository.findOne({
@@ -56,8 +63,10 @@ export class OrdersService {
         console.log('user:', user);
         const order = this.orderRepository.create({
             price: curioBox.price,
-            user: user,
+            user: dbUser,
+            userId: dbUser.id,
             curioBox: curioBox,
+            curioBoxId: curioBox.id,
             drawnItem: drawnItem,
             drawnItemId: drawnItem.id,
         });
@@ -65,7 +74,12 @@ export class OrdersService {
         try {
             const savedOrder = await this.orderRepository.save(order);
             console.log('saved order:', savedOrder);
-            return savedOrder;
+            // 用 plainToInstance 转换返回对象，保证 price 为字符串
+            const result = plainToInstance(Order, {
+                ...savedOrder,
+                price: savedOrder.price.toString(),
+            });
+            return result;
         } catch (err) {
             console.error('Error saving order:', err);
             throw err;
