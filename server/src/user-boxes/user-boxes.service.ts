@@ -22,69 +22,69 @@ export class UserBoxesService {
     ) {}
 
     // 批量购买盲盒 - 在购买时就确定内容
-    async purchaseBoxes(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<UserBox[]> {
-        const { curioBoxId, quantity = 1 } = createUserBoxDto;
+    // async purchaseBoxes(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<UserBox[]> {
+    //     const { curioBoxId, quantity = 1 } = createUserBoxDto;
 
-        const curioBox = await this.curioBoxRepository.findOne({
-            where: { id: curioBoxId },
-            relations: ['items'],
-        });
+    //     const curioBox = await this.curioBoxRepository.findOne({
+    //         where: { id: curioBoxId },
+    //         relations: ['items'],
+    //     });
 
-        if (!curioBox) {
-            throw new NotFoundException(`CurioBox #${curioBoxId} not found`);
-        }
+    //     if (!curioBox) {
+    //         throw new NotFoundException(`CurioBox #${curioBoxId} not found`);
+    //     }
 
-        if (!curioBox.items || curioBox.items.length === 0) {
-            throw new BadRequestException(`CurioBox #${curioBoxId} has no items`);
-        }
+    //     if (!curioBox.items || curioBox.items.length === 0) {
+    //         throw new BadRequestException(`CurioBox #${curioBoxId} has no items`);
+    //     }
 
-        // 使用事务确保库存一致性
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+    //     // 使用事务确保库存一致性
+    //     const queryRunner = this.dataSource.createQueryRunner();
+    //     await queryRunner.connect();
+    //     await queryRunner.startTransaction();
 
-        try {
-            const userBoxes: UserBox[] = [];
+    //     try {
+    //         const userBoxes: UserBox[] = [];
 
-            for (let i = 0; i < quantity; i++) {
-                // 在购买时执行抽奖
-                const drawnItem = await this.drawItem(curioBox);
+    //         for (let i = 0; i < quantity; i++) {
+    //             // 在购买时执行抽奖
+    //             const drawnItem = await this.drawItem(curioBox);
                 
-                // 检查库存
-                if (drawnItem.stock <= 0) {
-                    throw new BadRequestException(`Item ${drawnItem.name} is out of stock`);
-                }
+    //             // 检查库存
+    //             if (drawnItem.stock <= 0) {
+    //                 throw new BadRequestException(`Item ${drawnItem.name} is out of stock`);
+    //             }
 
-                // 减少库存
-                drawnItem.stock--;
-                await queryRunner.manager.save(drawnItem);
+    //             // 减少库存
+    //             drawnItem.stock--;
+    //             await queryRunner.manager.save(drawnItem);
 
-                // 创建用户盲盒，已经包含确定的物品
-                const userBox = queryRunner.manager.create(UserBox, {
-                    userId,
-                    curioBoxId,
-                    status: UserBoxStatus.UNOPENED,
-                    itemId: drawnItem.id,
-                });
+    //             // 创建用户盲盒，已经包含确定的物品
+    //             const userBox = queryRunner.manager.create(UserBox, {
+    //                 userId,
+    //                 curioBoxId,
+    //                 status: UserBoxStatus.UNOPENED,
+    //                 itemId: drawnItem.id,
+    //             });
 
-                const savedUserBox = await queryRunner.manager.save(userBox);
-                userBoxes.push(savedUserBox);
-            }
+    //             const savedUserBox = await queryRunner.manager.save(userBox);
+    //             userBoxes.push(savedUserBox);
+    //         }
 
-            await queryRunner.commitTransaction();
-            // 事务提交后，重新查一遍 userBoxes，确保能查到
-            const savedUserBoxes = await this.userBoxRepository.find({
-                where: { userId, curioBoxId, status: UserBoxStatus.UNOPENED },
-                order: { id: 'ASC' },
-            });
-            return savedUserBoxes.slice(0, quantity);
-        } catch (err) {
-            await queryRunner.rollbackTransaction();
-            throw err;
-        } finally {
-            await queryRunner.release();
-        }
-    }
+    //         await queryRunner.commitTransaction();
+    //         // 事务提交后，重新查一遍 userBoxes，确保能查到
+    //         const savedUserBoxes = await this.userBoxRepository.find({
+    //             where: { userId, curioBoxId, status: UserBoxStatus.UNOPENED },
+    //             order: { id: 'ASC' },
+    //         });
+    //         return savedUserBoxes.slice(0, quantity);
+    //     } catch (err) {
+    //         await queryRunner.rollbackTransaction();
+    //         throw err;
+    //     } finally {
+    //         await queryRunner.release();
+    //     }
+    // }
 
     // 获取用户未开启的盲盒列表
     async findUserUnopenedBoxes(userId: number): Promise<UserBox[]> {
