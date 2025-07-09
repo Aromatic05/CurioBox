@@ -1,3 +1,11 @@
 packages:
-  - 'client'
-  - 'server'
+  - client
+  - server
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@swc/core'
+  - bcrypt
+  - better-sqlite3
+  - esbuild
+  - sqlite3
