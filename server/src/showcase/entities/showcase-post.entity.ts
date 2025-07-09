@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/user.entity';
+import { Tag } from './tag.entity';
 import { Comment } from './comment.entity';
 
 @Entity('showcase_posts')
@@ -36,6 +37,14 @@ export class ShowcasePost {
 
   @Column('float', { default: 0 })
   hotScore: number;
+
+  @ManyToMany(() => Tag)
+  @JoinTable({
+    name: 'post_tags',
+    joinColumn: { name: 'postId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tagId', referencedColumnName: 'id' },
+  })
+  tags: Tag[];
 
   @OneToMany(() => Comment, comment => comment.post)
   comments: Comment[];

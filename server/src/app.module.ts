@@ -11,6 +11,8 @@ import { Order } from './orders/entities/order.entity';
 import { BlocklistedToken } from './auth/entities/blocklisted-token.entity';
 import { ShowcaseModule } from './showcase/showcase.module';
 import { ShowcasePost } from './showcase/entities/showcase-post.entity';
+import { Comment } from './showcase/entities/comment.entity';
+import { Tag } from './showcase/entities/tag.entity';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { ShowcasePost } from './showcase/entities/showcase-post.entity';
         Order, 
         BlocklistedToken,
         ShowcasePost,
+        Comment,
+        Tag
       ],
       synchronize: true,
     }),
