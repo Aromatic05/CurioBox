@@ -13,6 +13,11 @@ describe('ShowcaseController (e2e)', () => {
   let testPostId: number;
   let testCommentId: number;
   let testTagId: number;
+  // 增加随机后缀，保证每次测试唯一
+  const randomSuffix = Math.random().toString(36).substring(2, 10);
+  const testUsername = `test-showcase-user-${randomSuffix}`;
+  const testTagName = `test-tag-${randomSuffix}`;
+  const testPostTitle = `test post ${randomSuffix}`;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -26,12 +31,12 @@ describe('ShowcaseController (e2e)', () => {
 
     // 创建测试用户并获取token
     await authService.signUp({
-      username: 'test-showcase-user',
+      username: testUsername,
       password: 'test123',
     });
 
     const result = await authService.signIn({
-      username: 'test-showcase-user',
+      username: testUsername,
       password: 'test123',
     });
     userToken = result.accessToken;
@@ -43,13 +48,13 @@ describe('ShowcaseController (e2e)', () => {
         .post('/showcase/tags')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
-          name: 'test-tag',
+          name: testTagName,
           description: 'test tag description',
         });
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('id');
-      expect(response.body.name).toBe('test-tag');
+      expect(response.body.name).toBe(testTagName);
       testTagId = parseInt(response.body.id, 10);
     }, 10000);
 
@@ -65,7 +70,7 @@ describe('ShowcaseController (e2e)', () => {
   describe('帖子管理', () => {
     it('应该创建一个新帖子', async () => {
       const createPostDto: CreatePostDto = {
-        title: 'test post',
+        title: testPostTitle,
         content: 'test post content',
         images: ['test-image-1.jpg', 'test-image-2.jpg'],
         tagIds: [testTagId],
