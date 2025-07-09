@@ -12,14 +12,14 @@ export class Item {
     @Column()
     image: string;
 
-    @Column({
-        type: 'int',
-        comment: '权重，用于抽奖算法，权重越大概率越高',
-    })
-    weight: number;
+    @Column({ comment: '物品类别' })
+    category: string;
 
-    @Column()
-    curioBoxId: number;
+    @Column({ type: 'int', comment: '库存数量' })
+    stock: number;
+
+    @Column({ comment: '稀有度' })
+    rarity: string;
 
     @ManyToOne(() => CurioBox, (curioBox) => curioBox.items)
     @JoinColumn({ name: 'curioBoxId' })
