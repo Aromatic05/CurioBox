@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/user.entity';
+import { Comment } from './comment.entity';
 
 @Entity('showcase_posts')
 export class ShowcasePost {
@@ -35,6 +36,9 @@ export class ShowcasePost {
 
   @Column('float', { default: 0 })
   hotScore: number;
+
+  @OneToMany(() => Comment, comment => comment.post)
+  comments: Comment[];
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   lastActivityAt: Date;
