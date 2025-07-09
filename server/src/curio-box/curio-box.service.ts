@@ -17,24 +17,38 @@ export class CurioBoxService {
     ) { }
 
     async create(createCurioBoxDto: CreateCurioBoxDto): Promise<CurioBox> {
-        await this.validateItemProbabilities(createCurioBoxDto.itemProbabilities, createCurioBoxDto.itemIds);
-        // 查出 items 实体数组
-        const dbItems = await this.itemRepository.find({ where: { id: In(createCurioBoxDto.itemIds) } });
-        if (dbItems.length !== createCurioBoxDto.itemIds.length) {
-            throw new Error('部分 itemId 不存在');
+        // 兼容 itemIds/itemProbabilities 可选
+        const itemIds = createCurioBoxDto.itemIds ?? [];
+        const itemProbabilities = createCurioBoxDto.itemProbabilities ?? [];
+        if (itemIds.length > 0 || itemProbabilities.length > 0) {
+            await this.validateItemProbabilities(itemProbabilities, itemIds);
+            // 查出 items 实体数组
+            const dbItems = await this.itemRepository.find({ where: { id: In(itemIds) } });
+            if (dbItems.length !== itemIds.length) {
+                throw new Error('部分 itemId 不存在');
+            }
+            const curioBox = this.curioBoxRepository.create({
+                ...createCurioBoxDto,
+                items: dbItems,
+                itemProbabilities: itemProbabilities,
+            });
+            return this.curioBoxRepository.save(curioBox);
+        } else {
+            // 允许无 items/概率创建
+            const curioBox = this.curioBoxRepository.create({
+                ...createCurioBoxDto,
+                items: [],
+                itemProbabilities: [],
+            });
+            return this.curioBoxRepository.save(curioBox);
         }
-        const curioBox = this.curioBoxRepository.create({
-            ...createCurioBoxDto,
-            items: dbItems,
-            itemProbabilities: createCurioBoxDto.itemProbabilities,
-        });
-        return this.curioBoxRepository.save(curioBox);
     }
 
     // 校验 itemProbabilities
     private async validateItemProbabilities(itemProbabilities: { itemId: number; probability: number }[], items: Item[] | number[]) {
         if (!itemProbabilities || itemProbabilities.length === 0) {
-            throw new Error('itemProbabilities 不能为空');
+            // 允许无概率时跳过校验
+            return;
         }
         // 概率和为1
         const total = itemProbabilities.reduce((sum, i) => sum + i.probability, 0);
@@ -113,10 +127,23 @@ export class CurioBoxService {
     }
 
     async remove(id: number): Promise<void> {
-        const result = await this.curioBoxRepository.delete(id);
-        if (result.affected === 0) {
+        // 先查出当前 curioBox 及其 items
+        const curioBox = await this.curioBoxRepository.findOne({ where: { id }, relations: ['items'] });
+        if (!curioBox) {
             throw new NotFoundException(`CurioBox with ID "${id}" not found`);
         }
+        // 解除所有 item 的关联（需重新查出每个 item 的 curioBoxes 关系）
+        if (curioBox.items && curioBox.items.length > 0) {
+            for (const item of curioBox.items) {
+                // 查出 item 的 curioBoxes 关系，防止 curioBoxes 为 undefined
+                const fullItem = await this.itemRepository.findOne({ where: { id: item.id }, relations: ['curioBoxes'] });
+                if (fullItem) {
+                    fullItem.curioBoxes = fullItem.curioBoxes?.filter(cb => cb.id !== id) || [];
+                    await this.itemRepository.save(fullItem);
+                }
+            }
+        }
+        await this.curioBoxRepository.remove(curioBox);
     }
 
     search(query: string): Promise<CurioBox[]> {

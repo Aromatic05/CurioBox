@@ -17,9 +17,12 @@ export class ItemsService {
 
     async create(createItemDto: CreateItemDto): Promise<Item> {
         const { name, image, category, stock, rarity, curioBoxIds } = createItemDto;
-        const curioBoxes = await this.curioBoxRepository.find({ where: { id: In(curioBoxIds) } });
-        if (curioBoxes.length !== curioBoxIds.length) {
-            throw new NotFoundException('部分 CurioBox 不存在');
+        let curioBoxes: CurioBox[] = [];
+        if (curioBoxIds && curioBoxIds.length > 0) {
+            curioBoxes = await this.curioBoxRepository.find({ where: { id: In(curioBoxIds) } });
+            if (curioBoxes.length !== curioBoxIds.length) {
+                throw new NotFoundException('部分 CurioBox 不存在');
+            }
         }
         const newItem = this.itemRepository.create({
             name,
@@ -56,11 +59,15 @@ export class ItemsService {
         }
         // 支持多对多关系更新
         if (updateItemDto.curioBoxIds) {
-            const curioBoxes = await this.curioBoxRepository.find({ where: { id: In(updateItemDto.curioBoxIds) } });
-            if (curioBoxes.length !== updateItemDto.curioBoxIds.length) {
-                throw new NotFoundException('部分 CurioBox 不存在');
+            if (updateItemDto.curioBoxIds.length === 0) {
+                item.curioBoxes = [];
+            } else {
+                const curioBoxes = await this.curioBoxRepository.find({ where: { id: In(updateItemDto.curioBoxIds) } });
+                if (curioBoxes.length !== updateItemDto.curioBoxIds.length) {
+                    throw new NotFoundException('部分 CurioBox 不存在');
+                }
+                item.curioBoxes = curioBoxes;
             }
-            item.curioBoxes = curioBoxes;
         }
         Object.assign(item, { ...updateItemDto, curioBoxIds: undefined });
         return this.itemRepository.save(item);

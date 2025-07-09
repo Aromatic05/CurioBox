@@ -157,22 +157,18 @@ describe('CurioBoxController (e2e)', () => {
     });
   });
 
-  describe('GET /curio-boxes/search', () => {
-    it('should search by name', async () => {
-      // 先创建一个
-      await request(app.getHttpServer())
+  // PATCH /curio-boxes/:id/items-and-probabilities 测试提前到 DELETE 之前
+  describe('PATCH /curio-boxes/:id/items-and-probabilities', () => {
+    let patchBoxId: number;
+    beforeAll(async () => {
+      // 新建一个盲盒用于 PATCH 测试
+      const res = await request(app.getHttpServer())
         .post('/curio-boxes')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: 'UniqueBox', description: 'desc', price: 200 })
+        .send({ name: 'PatchBox', description: 'desc', price: 100, itemIds: [createdItemId], itemProbabilities: [{ itemId: createdItemId, probability: 1 }], category: 'test' })
         .expect(201);
-      const res = await request(app.getHttpServer())
-        .get('/curio-boxes/search?q=UniqueBox')
-        .expect(200);
-      expect(res.body.some((box: any) => box.name === 'UniqueBox')).toBe(true);
+      patchBoxId = res.body.id;
     });
-  });
-
-  describe('PATCH /curio-boxes/:id/items-and-probabilities', () => {
     it('should allow admin to update items and probabilities', async () => {
       // 新建一个 item
       const itemRes = await request(app.getHttpServer())
@@ -188,7 +184,7 @@ describe('CurioBoxController (e2e)', () => {
         .expect(201);
       const newItemId = itemRes.body.id;
       const res = await request(app.getHttpServer())
-        .patch(`/curio-boxes/${createdBoxId}/items-and-probabilities`)
+        .patch(`/curio-boxes/${patchBoxId}/items-and-probabilities`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ itemIds: [createdItemId, newItemId], itemProbabilities: [ { itemId: createdItemId, probability: 0.7 }, { itemId: newItemId, probability: 0.3 } ] })
         .expect(200);

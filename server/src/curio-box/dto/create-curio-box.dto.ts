@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsUrl, IsArray, ValidateNested, ArrayNotEmpty, IsNumber as IsNumberField, IsPositive, IsDefined } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsUrl, IsArray, ValidateNested, IsNumber as IsNumberField, IsPositive, IsDefined } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ItemProbabilityDto {
@@ -30,14 +30,14 @@ export class CreateCurioBoxDto {
   @IsNotEmpty()
   category: string;
 
+  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @IsNumberField({}, { each: true })
-  itemIds: number[];
+  itemIds?: number[];
 
+  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => ItemProbabilityDto)
-  itemProbabilities: ItemProbabilityDto[];
+  itemProbabilities?: ItemProbabilityDto[];
 }

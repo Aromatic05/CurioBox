@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsUrl, IsArray, ArrayNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsUrl, IsArray, IsOptional } from 'class-validator';
 
 export class CreateItemDto {
   @IsString()
@@ -20,8 +20,8 @@ export class CreateItemDto {
   @IsNotEmpty()
   rarity: string;
 
+  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @IsNumber({}, { each: true })
-  curioBoxIds: number[];
+  curioBoxIds?: number[];
 }
