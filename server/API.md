@@ -397,37 +397,112 @@
 
 ---
 
-## **4. 订单模块 (Orders)**
+## **4. 订单与盲盒仓库模块**
 
-此模块处理用户购买盲盒（抽奖）和查询订单的操作。
+此模块处理用户的盲盒购买、个人仓库管理和开箱操作。
 
-### **4.1. 抽盲盒（创建订单）**
+### **4.1. 购买盲盒**
 
-* **Endpoint:** `POST /orders/draw`
-* **描述:** 用户通过抽取一个盲盒来创建一个新订单。
+* **Endpoint:** `POST /orders/purchase`
+* **描述:** 购买盲盒到个人仓库（不立即开启）。
 * **认证:** 需要用户 Bearer Token。
 * **请求体 (Body):**
     ```json
     {
-      "curioBoxId": 1 
+        "curioBoxId": 1,
+        "quantity": 2  // 可选，默认为1
     }
     ```
-     * 要抽取的盲盒ID
 * **成功响应 (201 Created):**
     ```json
     {
-      "id": 123,
-      "price": "9.99",
-      "curioBox": { "id": 1 },
-      "drawnItem": { "id": 45, "name": "抽中的物品" }
+        "message": "购买成功",
+        "order": {
+            "id": 123,
+            "price": "19.98",
+            "status": "completed"
+        },
+        "userBoxes": [
+            {
+                "id": 1,
+                "curioBoxId": 1,
+                "status": "unopened",
+                "purchaseDate": "2024-01-01T00:00:00Z"
+            },
+            {
+                "id": 2,
+                "curioBoxId": 1,
+                "status": "unopened",
+                "purchaseDate": "2024-01-01T00:00:00Z"
+            }
+        ]
     }
     ```
-    * `id` 为订单ID
 * **错误响应:**
     * `401 Unauthorized`: 未登录。
-    * `404 Not Found`: `curioBoxId` 不存在。
+    * `404 Not Found`: 盲盒不存在。
 
-### **4.2. 获取当前用户的所有订单**
+### **4.2. 查看个人盲盒仓库**
+
+* **Endpoint:** `GET /me/boxes`
+* **描述:** 获取当前用户未开启的盲盒列表。
+* **认证:** 需要用户 Bearer Token。
+* **成功响应 (200 OK):**
+    ```json
+    {
+        "boxes": [
+            {
+                "id": 1,
+                "curioBox": {
+                    "id": 1,
+                    "name": "神秘盲盒",
+                    "description": "...",
+                    "price": "9.99"
+                },
+                "status": "unopened",
+                "purchaseDate": "2024-01-01T00:00:00Z"
+            }
+        ]
+    }
+    ```
+
+### **4.3. 开启盲盒**
+
+* **Endpoint:** `POST /me/boxes/open`
+* **描述:** 开启指定的盲盒，执行抽奖逻辑。
+* **认证:** 需要用户 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+        "userBoxId": 1,        // 单个开启
+        "userBoxIds": [1, 2]   // 批量开启（优先级高于userBoxId）
+    }
+    ```
+* **成功响应 (200 OK):**
+    ```json
+    {
+        "results": [
+            {
+                "userBoxId": 1,
+                "drawnItem": {
+                    "id": 45,
+                    "name": "稀有物品",
+                    "image": "http://...",
+                    "rarity": "rare"
+                },
+                "success": true
+            }
+        ],
+        "totalOpened": 1,
+        "allSuccess": true
+    }
+    ```
+* **错误响应:**
+    * `401 Unauthorized`: 未登录。
+    * `404 Not Found`: 盲盒不存在。
+    * `400 Bad Request`: 盲盒已被开启。
+
+### **4.4. 获取当前用户的所有订单**
 
 * **Endpoint:** `GET /orders`
 * **描述:** 获取当前登录用户的所有订单列表。
@@ -436,7 +511,7 @@
 * **错误响应:**
     * `401 Unauthorized`: 未登录。
 
-### **4.3. 获取单个订单详情**
+### **4.5. 获取单个订单详情**
 
 * **Endpoint:** `GET /orders/:id`
 * **描述:** 获取单个订单的详细信息。用户只能查询自己的订单。
