@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateUserBoxDto } from '../user-boxes/dto/create-user-box.dto';
@@ -34,8 +34,15 @@ export class OrdersController {
 
     // 获取订单详情
     @Get('orders/:id')
-    findOne(@Param('id') id: string, @Request() req) {
+    async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
         const userId = req.user.id || req.user.sub;
-        return this.ordersService.findOne(+id, userId);
+        if (isNaN(id)) {
+            throw new NotFoundException('订单ID无效');
+        }
+        const order = await this.ordersService.findOne(id, userId);
+        if (!order) {
+            throw new NotFoundException('订单不存在');
+        }
+        return order;
     }
 }

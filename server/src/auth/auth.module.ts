@@ -8,6 +8,7 @@ import { User } from '../users/user.entity';     // 导入
 import { JwtStrategy } from './jwt.strategy';     // 导入
 import { BlocklistedToken } from './entities/blocklisted-token.entity';
 import { RolesGuard } from './roles.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -19,7 +20,11 @@ import { RolesGuard } from './roles.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesGuard],
-  exports: [RolesGuard],
+  providers: [AuthService, JwtStrategy, RolesGuard, JwtAuthGuard],
+  exports: [
+    RolesGuard,
+    JwtAuthGuard,
+    TypeOrmModule, // 关键：导出 TypeOrmModule
+  ],
 })
 export class AuthModule {}

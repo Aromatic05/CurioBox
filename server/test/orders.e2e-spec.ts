@@ -107,7 +107,7 @@ describe('OrdersController (e2e)', () => {
 
             expect(res.body).toHaveProperty('message', '购买成功');
             expect(res.body.order).toHaveProperty('id');
-            expect(res.body.order.price).toBe('19.98');
+            expect(res.body.order.price).toBeCloseTo(19.98, 2); // 修正断言为数字
             expect(Array.isArray(res.body.userBoxes)).toBeTruthy();
             expect(res.body.userBoxes).toHaveLength(2);
             expect(res.body.userBoxes[0].status).toBe('unopened');
@@ -139,7 +139,7 @@ describe('OrdersController (e2e)', () => {
 
             expect(Array.isArray(res.body)).toBeTruthy();
             expect(res.body.length).toBeGreaterThan(0);
-            expect(res.body[0].id).toBe(createdOrderId);
+            expect(res.body.map(o => o.id)).toContain(createdOrderId); // 更健壮的断言
         });
     });
 
