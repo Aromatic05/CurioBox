@@ -230,8 +230,8 @@
       ]
     }
     ```
-    * `itemIds`：盲盒包含的物品ID数组。
-    * `itemProbabilities`：每个物品的概率，概率之和需为1。
+    * `itemIds`、`itemProbabilities` 字段均为可选，允许不传或为空数组，表示创建空盲盒。
+    * `itemProbabilities` 概率之和需为1，若有物品。
 * **成功响应 (201 Created):** 返回创建的盲盒对象，包含 `id`、`items`、`itemProbabilities`。
 * **错误响应:**
     * `403 Forbidden`: 普通用户尝试操作。
@@ -253,8 +253,8 @@
       ]
     }
     ```
-    * `itemIds`：盲盒包含的物品ID数组。
-    * `itemProbabilities`：每个物品的概率，概率之和需为1。
+    * `itemIds`、`itemProbabilities` 字段均为可选，允许不传或为空数组，表示清空盲盒物品。
+    * `itemProbabilities` 概率之和需为1，若有物品。
 * **成功响应 (200 OK):** 返回更新后的盲盒对象，包含 `items`、`itemProbabilities`。
 * **错误响应:**
     * `403 Forbidden`: 普通用户尝试操作。
