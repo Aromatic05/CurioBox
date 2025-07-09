@@ -9,6 +9,7 @@ import { Item } from './items/entities/item.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/order.entity';
 import { BlocklistedToken } from './auth/entities/blocklisted-token.entity';
+import { ShowcaseModule } from './showcase/showcase.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BlocklistedToken } from './auth/entities/blocklisted-token.entity';
     AuthModule,
     ItemsModule,
     OrdersModule,
+    ShowcaseModule,
   ],
   controllers: [],
   providers: [],
