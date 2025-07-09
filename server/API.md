@@ -1,0 +1,329 @@
+# **API 文档**
+
+本文档详细说明了应用程序的各个API接口，包括认证、用户社区、盲盒管理和订单系统。
+
+---
+
+## **1. 认证模块 (Auth)**
+
+此模块处理所有与用户账户相关的操作，如注册、登录、密码修改等。
+
+### **1.1. 用户注册**
+
+* **Endpoint:** `POST /auth/register`
+* **描述:** 创建一个新用户账户。
+* **请求体 (Body):**
+    ```json
+    {
+      "username": "your_username",
+      "password": "your_password",
+      "role": "user" 
+    }
+    ```
+    * `role` 是可选字段, 默认为 'user'。
+* **成功响应 (201 Created):**
+    ```json
+    {
+      "id": 1,
+      "username": "your_username",
+      "role": "user"
+    }
+    ```
+* **错误响应:**
+    * `409 Conflict`: 用户名已存在。
+    * `400 Bad Request`: 请求数据不合法（例如，缺少 `password` 字段）。
+
+### **1.2. 用户登录**
+
+* **Endpoint:** `POST /auth/login`
+* **描述:** 用户登录并获取用于后续请求的 `accessToken`。
+* **请求体 (Body):**
+    ```json
+    {
+      "username": "your_username",
+      "password": "your_password"
+    }
+    ```
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "accessToken": "your_jwt_token"
+    }
+    ```
+* **错误响应:**
+    * `401 Unauthorized`: 用户名或密码错误。
+
+### **1.3. 修改密码**
+
+* **Endpoint:** `POST /auth/change-password`
+* **描述:** 修改当前已登录用户的密码。
+* **认证:** 需要 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "oldPassword": "current_password",
+      "newPassword": "new_password"
+    }
+    ```
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "message": "Password changed successfully"
+    }
+    ```
+* **错误响应:**
+    * `401 Unauthorized`: 未提供Token、Token无效或旧密码错误。
+
+### **1.4. 设置昵称**
+
+* **Endpoint:** `POST /auth/set-nickname`
+* **描述:** 为当前登录用户设置或更新昵称。
+* **认证:** 需要 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "nickname": "新的昵称"
+    }
+    ```
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "message": "Nickname updated successfully"
+    }
+    ```
+* **注意:** 此接口无法用于修改用户角色(`role`)等其他受保护字段。
+* **错误响应:**
+    * `401 Unauthorized`: 未提供Token或Token无效。
+
+### **1.5. 退出登录**
+
+* **Endpoint:** `GET /auth/logout`
+* **描述:** 使当前用户的 `accessToken` 失效。
+* **认证:** 需要 Bearer Token。
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "message": "Logged out successfully"
+    }
+    ```
+* **错误响应:**
+    * `401 Unauthorized`: 未提供Token或Token无效。
+
+---
+
+## **2. 用户社区模块 (Showcase)**
+
+此模块用于管理用户发布的内容，包括帖子、评论和标签。
+
+### **2.1. 标签管理**
+
+#### **2.1.1. 创建标签**
+
+* **Endpoint:** `POST /showcase/tags`
+* **描述:** 创建一个新的标签。
+* **认证:** 需要 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "name": "标签名称",
+      "description": "标签描述"
+    }
+    ```
+* **成功响应 (201 Created):** 返回创建的标签对象，包含 `id`, `name`, `description`。
+
+#### **2.1.2. 获取所有标签**
+
+* **Endpoint:** `GET /showcase/tags`
+* **描述:** 获取所有可用标签的列表。
+* **成功响应 (200 OK):** 返回一个包含标签对象的数组。
+
+### **2.2. 帖子管理**
+
+#### **2.2.1. 创建帖子**
+
+* **Endpoint:** `POST /showcase/posts`
+* **描述:** 用户发布一个新帖子。
+* **认证:** 需要 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "title": "帖子标题",
+      "content": "帖子内容",
+      "images": ["image1.jpg", "image2.jpg"],
+      "tagIds": [1, 2]
+    }
+    ```
+    * 关联的标签ID数组
+* **成功响应 (201 Created):** 返回创建的帖子对象，包含其 `id`。
+
+#### **2.2.2. 获取帖子列表**
+
+* **Endpoint:** `GET /showcase/posts`
+* **描述:** 分页和排序获取帖子列表。
+* **查询参数 (Query Parameters):**
+    * `sortBy`: 排序方式 (例如: 'latest')。
+    * `page`: 页码 (例如: 1)。
+    * `pageSize`: 每页数量 (例如: 10)。
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "items": [],
+      "meta": {}
+    }
+    ```
+    * `items` 为帖子对象数组，`meta` 为分页信息。
+
+#### **2.2.3. 获取单个帖子详情**
+
+* **Endpoint:** `GET /showcase/posts/:id`
+* **描述:** 根据ID获取单个帖子的详细信息。
+* **成功响应 (200 OK):** 返回完整的帖子对象。
+
+### **2.3. 评论管理**
+
+#### **2.3.1. 发表评论或回复**
+
+* **Endpoint:** `POST /showcase/comments`
+* **描述:** 对帖子发表评论，或对已有评论进行回复。
+* **认证:** 需要 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "content": "评论内容",
+      "postId": 1, 
+      "parentId": 2 
+    }
+    ```
+    * `postId` 为必需，关联的帖子ID
+    * `parentId` 为可选，如果回复的是某条评论，则为父评论的ID
+* **成功响应 (201 Created):** 返回创建的评论对象。
+
+#### **2.3.2. 获取帖子的评论列表**
+
+* **Endpoint:** `GET /showcase/posts/:id/comments`
+* **描述:** 获取指定帖子的所有评论和回复。
+* **成功响应 (200 OK):** 返回一个评论对象的数组（通常是树状结构）。
+
+---
+
+## **3. 盲盒模块 (CurioBox)**
+
+此模块用于管理盲盒商品，大部分操作需要管理员权限。
+
+### **3.1. 创建盲盒**
+
+* **Endpoint:** `POST /curio-boxes`
+* **描述:** 创建一个新的盲盒产品。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "name": "盲盒名称",
+      "description": "盲盒描述",
+      "price": 99.99
+    }
+    ```
+* **成功响应 (201 Created):** 返回创建的盲盒对象，包含 `id`。
+* **错误响应:**
+    * `403 Forbidden`: 普通用户尝试操作。
+
+### **3.2. 获取所有盲盒**
+
+* **Endpoint:** `GET /curio-boxes`
+* **描述:** 获取所有盲盒的列表，无需登录。
+* **成功响应 (200 OK):** 返回一个包含盲盒对象的数组。
+
+### **3.3. 获取单个盲盒**
+
+* **Endpoint:** `GET /curio-boxes/:id`
+* **描述:** 根据ID获取单个盲盒的详细信息。
+* **成功响应 (200 OK):** 返回单个盲盒对象。
+* **错误响应:**
+    * `404 Not Found`: 盲盒不存在。
+
+### **3.4. 更新盲盒**
+
+* **Endpoint:** `PATCH /curio-boxes/:id`
+* **描述:** 更新指定盲盒的信息。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "name": "新的盲盒名称"
+    }
+    ```
+* **成功响应 (200 OK):** 返回更新后的盲盒对象。
+* **错误响应:**
+    * `403 Forbidden`: 普通用户尝试操作。
+
+### **3.5. 删除盲盒**
+
+* **Endpoint:** `DELETE /curio-boxes/:id`
+* **描述:** 删除一个盲盒。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **成功响应 (200 OK):** 操作成功。
+* **错误响应:**
+    * `403 Forbidden`: 普通用户尝试操作。
+    * `404 Not Found`: 删除后再次查询时返回。
+
+### **3.6. 搜索盲盒**
+
+* **Endpoint:** `GET /curio-boxes/search`
+* **描述:** 根据关键词搜索盲盒。
+* **查询参数 (Query Parameters):**
+    * `q`: 搜索关键词 (例如: 'UniqueBox')。
+* **成功响应 (200 OK):** 返回匹配搜索关键词的盲盒对象数组。
+
+---
+
+## **4. 订单模块 (Orders)**
+
+此模块处理用户购买盲盒（抽奖）和查询订单的操作。
+
+### **4.1. 抽盲盒（创建订单）**
+
+* **Endpoint:** `POST /orders/draw`
+* **描述:** 用户通过抽取一个盲盒来创建一个新订单。
+* **认证:** 需要用户 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "curioBoxId": 1 
+    }
+    ```
+     * 要抽取的盲盒ID
+* **成功响应 (201 Created):**
+    ```json
+    {
+      "id": 123,
+      "price": "9.99",
+      "curioBox": { "id": 1 },
+      "drawnItem": { "id": 45, "name": "抽中的物品" }
+    }
+    ```
+    * `id` 为订单ID
+* **错误响应:**
+    * `401 Unauthorized`: 未登录。
+    * `404 Not Found`: `curioBoxId` 不存在。
+
+### **4.2. 获取当前用户的所有订单**
+
+* **Endpoint:** `GET /orders`
+* **描述:** 获取当前登录用户的所有订单列表。
+* **认证:** 需要用户 Bearer Token。
+* **成功响应 (200 OK):** 返回一个订单对象的数组。
+* **错误响应:**
+    * `401 Unauthorized`: 未登录。
+
+### **4.3. 获取单个订单详情**
+
+* **Endpoint:** `GET /orders/:id`
+* **描述:** 获取单个订单的详细信息。用户只能查询自己的订单。
+* **认证:** 需要用户 Bearer Token。
+* **成功响应 (200 OK):** 返回包含详细信息的单个订单对象（包括关联的用户信息）。
+* **错误响应:**
+    * `401 Unauthorized`: 未登录。
+    * `404 Not Found`: 订单不存在，或尝试访问不属于自己的订单。
