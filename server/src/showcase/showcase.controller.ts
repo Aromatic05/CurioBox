@@ -1,34 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Put, Delete } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ShowcaseService } from './showcase.service';
-import { CreateShowcaseDto } from './dto/create-showcase.dto';
-import { UpdateShowcaseDto } from './dto/update-showcase.dto';
+import { CreatePostDto } from './dto/create-post.dto';
+import { QueryPostsDto } from './dto/query-posts.dto';
 
 @Controller('showcase')
 export class ShowcaseController {
-  constructor(private readonly showcaseService: ShowcaseService) {}
+  constructor(
+    private readonly showcaseService: ShowcaseService,
+  ) {}
 
-  @Post()
-  create(@Body() createShowcaseDto: CreateShowcaseDto) {
-    return this.showcaseService.create(createShowcaseDto);
+  // 帖子相关接口
+  @Post('posts')
+  @UseGuards(JwtAuthGuard)
+  createPost(@Request() req, @Body() createPostDto: CreatePostDto) {
+    return this.showcaseService.createPost(req.user.sub, createPostDto);
   }
 
-  @Get()
-  findAll() {
-    return this.showcaseService.findAll();
+  @Get('posts')
+  getPosts(@Query() queryDto: QueryPostsDto) {
+    return this.showcaseService.getPosts(queryDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.showcaseService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShowcaseDto: UpdateShowcaseDto) {
-    return this.showcaseService.update(+id, updateShowcaseDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.showcaseService.remove(+id);
+  @Get('posts/:id')
+  getPostById(@Param('id') id: string) {
+    return this.showcaseService.getPostById(Number(id));
   }
 }

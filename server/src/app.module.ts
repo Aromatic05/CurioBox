@@ -10,13 +10,21 @@ import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/order.entity';
 import { BlocklistedToken } from './auth/entities/blocklisted-token.entity';
 import { ShowcaseModule } from './showcase/showcase.module';
+import { ShowcasePost } from './showcase/entities/showcase-post.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'curiobox.db',
-      entities: [User, CurioBox, Item, Order, BlocklistedToken],
+      entities: [ 
+        User,
+        CurioBox, 
+        Item, 
+        Order, 
+        BlocklistedToken,
+        ShowcasePost,
+      ],
       synchronize: true,
     }),
     CurioBoxModule,
