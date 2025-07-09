@@ -3,13 +3,13 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AuthService } from '../src/auth/auth.service';
+import { DataSource } from 'typeorm';
 
 describe('UserBoxes (e2e)', () => {
     let app: INestApplication;
     let authService: AuthService;
     let userToken: string;
     let adminToken: string;
-    let testUsername: string;
     let curioBoxId: number;
     let userBoxId: number;
 
@@ -22,15 +22,24 @@ describe('UserBoxes (e2e)', () => {
         authService = moduleFixture.get<AuthService>(AuthService);
         await app.init();
 
-        // 创建唯一测试用户和管理员并获取token
-        testUsername = 'test_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-        const adminName = 'admin_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-        await authService.signUp({ username: adminName, password: 'admin', role: 'admin' });
-        adminToken = (await authService.signIn({ username: adminName, password: 'admin' })).accessToken;
-        await authService.signUp({ username: testUsername, password: 'test' });
-        userToken = (await authService.signIn({ username: testUsername, password: 'test' })).accessToken;
+        // 清空数据库，避免用户名冲突
+        const dataSource = moduleFixture.get<DataSource>(DataSource);
+        await dataSource.synchronize(true);
 
-        // 用管理员 token 创建盲盒
+        // 创建管理员用户
+        await authService.signUp({ username: 'admin', password: 'admin', role: 'admin' });
+        const adminLogin = await authService.signIn({ username: 'admin', password: 'admin' });
+        adminToken = adminLogin.accessToken;
+
+        // 生成唯一测试用户名，避免重复
+        const uniqueUsername = `test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+        // 创建测试用户并获取token
+        await authService.signUp({ username: uniqueUsername, password: 'test' });
+        const { accessToken } = await authService.signIn({ username: uniqueUsername, password: 'test' });
+        userToken = accessToken;
+
+        // 创建测试盲盒和物品
         const curioBoxRes = await request(app.getHttpServer())
             .post('/curio-boxes')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -38,38 +47,35 @@ describe('UserBoxes (e2e)', () => {
                 name: 'Test Box',
                 description: 'A box for testing',
                 price: 9.99,
-                coverImage: 'http://example.com/image.png',
                 category: 'test'
             });
         curioBoxId = curioBoxRes.body.id;
 
-        // 用管理员 token 给盲盒添加物品
-        const itemIds: number[] = [];
-        for (let i = 1; i <= 3; i++) {
-            const itemRes = await request(app.getHttpServer())
-                .post('/items')
-                .set('Authorization', `Bearer ${adminToken}`)
-                .send({
-                    name: `Item ${i}`,
-                    image: `http://example.com/item${i}.png`,
-                    category: 'test',
-                    stock: 100,
-                    rarity: 'common',
-                    curioBoxIds: [curioBoxId] // 关键：用 curioBoxIds 数组
-                });
-            itemIds.push(itemRes.body.id);
-        }
-        // PATCH 盲盒，设置 itemProbabilities
-        const probability = 1 / itemIds.length;
-        await request(app.getHttpServer())
-            .patch(`/curio-boxes/${curioBoxId}`)
+        // 创建测试物品
+        const itemRes = await request(app.getHttpServer())
+            .post('/items')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
-                itemProbabilities: itemIds.map(id => ({ itemId: id, probability }))
+                name: 'Test Item',
+                image: 'http://example.com/item.png',
+                category: 'test',
+                stock: 100,
+                rarity: 'common',
+            });
+
+        // 更新盲盒的物品和概率
+        await request(app.getHttpServer())
+            .patch(`/curio-boxes/${curioBoxId}/items-and-probabilities`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({
+                itemIds: [itemRes.body.id],
+                itemProbabilities: [
+                    { itemId: itemRes.body.id, probability: 1.0 }
+                ]
             });
     });
 
-    it('应该能够购买盲盒', async () => {
+    it('应该能够购买盲盒（购买时确定内容）', async () => {
         const res = await request(app.getHttpServer())
             .post('/orders/purchase')
             .set('Authorization', `Bearer ${userToken}`)
@@ -78,67 +84,78 @@ describe('UserBoxes (e2e)', () => {
                 quantity: 2
             })
             .expect(201);
+
         expect(res.body.message).toBe('购买成功');
         expect(res.body.order).toBeDefined();
         expect(Array.isArray(res.body.userBoxes)).toBeTruthy();
         expect(res.body.userBoxes).toHaveLength(2);
         expect(res.body.userBoxes[0].status).toBe('unopened');
+        
         userBoxId = res.body.userBoxes[0].id;
     });
 
     it('应该能查看未开启的盲盒列表', async () => {
-        // 先购买盲盒
-        await request(app.getHttpServer())
-            .post('/orders/purchase')
-            .set('Authorization', `Bearer ${userToken}`)
-            .send({ curioBoxId, quantity: 1 })
-            .expect(201);
-        // 查询未开启盲盒
         const res = await request(app.getHttpServer())
-            .get('/user-boxes')
+            .get('/me/boxes')
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200);
-        expect(Array.isArray(res.body)).toBeTruthy();
-        res.body.forEach(box => {
+
+        expect(res.body.boxes).toBeDefined();
+        expect(Array.isArray(res.body.boxes)).toBeTruthy();
+        res.body.boxes.forEach(box => {
             expect(box.status).toBe('unopened');
             expect(box.curioBox).toBeDefined();
         });
-        userBoxId = res.body[0].id;
     });
 
-    it('应该能开启盲盒', async () => {
-        // 先购买盲盒
+    it('应该能开启盲盒（显示购买时确定的内容）', async () => {
+        // 先购买盲盒，获取 userBoxId
         const purchaseRes = await request(app.getHttpServer())
             .post('/orders/purchase')
             .set('Authorization', `Bearer ${userToken}`)
-            .send({ curioBoxId, quantity: 1 })
+            .send({
+                curioBoxId,
+                quantity: 1
+            })
             .expect(201);
-        userBoxId = purchaseRes.body.userBoxes[0].id;
-        // 开盲盒
+
+        const userBoxId = purchaseRes.body.userBoxes[0].id;
+
         const res = await request(app.getHttpServer())
-            .post('/user-boxes/open')
+            .post('/me/boxes/open')
             .set('Authorization', `Bearer ${userToken}`)
-            .send({ userBoxId })
+            .send({
+                userBoxId
+            })
             .expect(200);
+
+
         expect(res.body.results).toBeDefined();
         expect(res.body.results[0].success).toBeTruthy();
         expect(res.body.results[0].drawnItem).toBeDefined();
+        expect(res.body.results[0].drawnItem.name).toBe('Test Item');
     });
 
     it('应该能批量开启盲盒', async () => {
-        // 先购买盲盒
+        // 先购买更多盲盒
         const purchaseRes = await request(app.getHttpServer())
             .post('/orders/purchase')
             .set('Authorization', `Bearer ${userToken}`)
-            .send({ curioBoxId, quantity: 2 })
-            .expect(201);
+            .send({
+                curioBoxId,
+                quantity: 2
+            });
+
         const userBoxIds = purchaseRes.body.userBoxes.map(box => box.id);
-        // 批量开盲盒
+
         const res = await request(app.getHttpServer())
-            .post('/user-boxes/open')
+            .post('/me/boxes/open')
             .set('Authorization', `Bearer ${userToken}`)
-            .send({ userBoxIds })
+            .send({
+                userBoxIds
+            })
             .expect(200);
+
         expect(res.body.results).toBeDefined();
         expect(res.body.results).toHaveLength(2);
         expect(res.body.totalOpened).toBe(2);

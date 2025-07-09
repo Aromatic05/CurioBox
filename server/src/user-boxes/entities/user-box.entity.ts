@@ -38,10 +38,11 @@ export class UserBox {
     @CreateDateColumn({ comment: '购买日期' })
     purchaseDate: Date;
 
-    @ManyToOne(() => Item, { nullable: true })
-    @JoinColumn({ name: 'drawnItemId' })
-    drawnItem: Item;
+    // 将抽中的物品在购买时就确定
+    @ManyToOne(() => Item, { nullable: false })  // 改为非空
+    @JoinColumn({ name: 'itemId' })
+    item: Item;
 
-    @Column({ nullable: true, comment: '开启后得到的物品ID' })
-    drawnItemId: number;
+    @Column({ nullable: false })  // 改为非空
+    itemId: number;
 }

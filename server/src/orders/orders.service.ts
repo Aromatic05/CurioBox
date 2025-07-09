@@ -18,7 +18,7 @@ export class OrdersService {
         private readonly dataSource: DataSource,
     ) {}
 
-    // 购买盲盒
+    // 购买盲盒 - 在购买时就确定内容并扣减库存
     async purchase(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<{order: Order, userBoxes: any[]}> {
         const { curioBoxId, quantity = 1 } = createUserBoxDto;
         
@@ -46,7 +46,7 @@ export class OrdersService {
             });
             await queryRunner.manager.save(order);
 
-            // 创建用户盒子
+            // 创建用户盒子（在购买时就确定内容）
             const userBoxes = await this.userBoxesService.purchaseBoxes(userId, createUserBoxDto);
 
             await queryRunner.commitTransaction();
@@ -63,7 +63,7 @@ export class OrdersService {
     async findAllByUser(userId: number): Promise<Order[]> {
         return this.orderRepository.find({
             where: { userId },
-            relations: ['curioBox', 'drawnItem'],
+            relations: ['curioBox'],
             order: { createdAt: 'DESC' },
         });
     }
@@ -72,7 +72,7 @@ export class OrdersService {
     async findOne(id: number, userId: number): Promise<Order | null> {
         return this.orderRepository.findOne({
             where: { id, userId },
-            relations: ['curioBox', 'drawnItem'],
+            relations: ['curioBox'],
         });
     }
 }

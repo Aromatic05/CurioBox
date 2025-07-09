@@ -2,7 +2,7 @@ import { Item } from '../../items/entities/item.entity';
 
 export class OpenBoxResultDto {
     userBoxId: number;
-    drawnItem: Item | null;
+    drawnItem: Item | null;  // 开启时显示已确定的物品
     success: boolean;
 }
 
