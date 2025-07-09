@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, HttpCode, Query } from '@nestjs/common';
 import { UserBoxesService } from './user-boxes.service';
 import { CreateUserBoxDto } from './dto/create-user-box.dto';
 import { OpenBoxDto } from './dto/open-box.dto';
@@ -9,12 +9,19 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class UserBoxesController {
     constructor(private readonly userBoxesService: UserBoxesService) {}
 
-    // 获取用户的盲盒列表
+    // 获取用户的盲盒列表（支持 status 查询参数，支持 all）
     @Get('me/boxes')
-    async getUno(@Request() req) {
-        return {
-            boxes: await this.userBoxesService.findUserUnopenedBoxes(req.user.id)
-        };
+    async getBoxes(@Request() req, @Query('status') status: string) {
+        let boxes;
+        if (status === 'OPENED') {
+            boxes = await this.userBoxesService.findUserBoxesByStatus(req.user.id, 'OPENED');
+        } else if (status === 'ALL' || status === 'all') {
+            boxes = await this.userBoxesService.findAllUserBoxes(req.user.id);
+        } else {
+            // 默认返回未开启
+            boxes = await this.userBoxesService.findUserBoxesByStatus(req.user.id, 'UNOPENED');
+        }
+        return { boxes };
     }
 
     // 开启盲盒

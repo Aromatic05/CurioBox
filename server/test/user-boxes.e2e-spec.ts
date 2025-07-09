@@ -165,6 +165,59 @@ describe('UserBoxes (e2e)', () => {
         });
     });
 
+    it('应该能通过 status=OPENED 查询已开启的盲盒', async () => {
+        // 先购买并开启盲盒
+        const purchaseRes = await request(app.getHttpServer())
+            .post('/orders/purchase')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ curioBoxId, quantity: 1 })
+            .expect(201);
+        const userBoxId = purchaseRes.body.userBoxes[0].id;
+        await request(app.getHttpServer())
+            .post('/me/boxes/open')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ userBoxId })
+            .expect(200);
+        // 查询已开启盲盒
+        const res = await request(app.getHttpServer())
+            .get('/me/boxes?status=OPENED')
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        expect(res.body.boxes).toBeDefined();
+        expect(Array.isArray(res.body.boxes)).toBeTruthy();
+        res.body.boxes.forEach(box => {
+            expect(box.status).toBe('opened');
+            expect(box.curioBox).toBeDefined();
+            expect(box.item).toBeDefined();
+        });
+    });
+
+    it('应该能通过 status=ALL 查询所有盲盒', async () => {
+        // 先购买盲盒并开启其中一个
+        const purchaseRes = await request(app.getHttpServer())
+            .post('/orders/purchase')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ curioBoxId, quantity: 2 })
+            .expect(201);
+        const userBoxIds = purchaseRes.body.userBoxes.map(box => box.id);
+        await request(app.getHttpServer())
+            .post('/me/boxes/open')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ userBoxId: userBoxIds[0] })
+            .expect(200);
+        // 查询所有盲盒
+        const res = await request(app.getHttpServer())
+            .get('/me/boxes?status=ALL')
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        expect(res.body.boxes).toBeDefined();
+        expect(Array.isArray(res.body.boxes)).toBeTruthy();
+        // 应该包含 opened 和 unopened
+        const statuses = res.body.boxes.map(box => box.status);
+        expect(statuses).toContain('opened');
+        expect(statuses).toContain('unopened');
+    });
+
     afterEach(async () => {
         await app.close();
     });

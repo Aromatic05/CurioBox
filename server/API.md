@@ -446,8 +446,13 @@
 ### **4.2. 查看个人盲盒仓库**
 
 * **Endpoint:** `GET /me/boxes`
-* **描述:** 获取当前用户未开启的盲盒列表。
+* **描述:** 获取当前用户盲盒仓库列表。支持通过 `status` 查询参数筛选：
+    * `status=UNOPENED`（默认）：未开启的盲盒
+    * `status=OPENED`：已开启的盲盒
+    * `status=ALL`：所有盲盒（无论开启与否）
 * **认证:** 需要用户 Bearer Token。
+* **查询参数 (Query Parameters):**
+    * `status`（可选）：`UNOPENED` | `OPENED` | `ALL`，不传时默认为 `UNOPENED`
 * **成功响应 (200 OK):**
     ```json
     {
@@ -460,12 +465,25 @@
                     "description": "...",
                     "price": "9.99"
                 },
-                "status": "unopened",
+                "item": {
+                    "id": 45,
+                    "name": "稀有物品",
+                    "image": "http://...",
+                    "rarity": "rare"
+                },
+                "status": "unopened", // 或 "opened"
                 "purchaseDate": "2024-01-01T00:00:00Z"
             }
         ]
     }
     ```
+* **说明：**
+    * `status=UNOPENED` 仅返回未开启的盲盒（原有行为）。
+    * `status=OPENED` 返回已开启的盲盒。
+    * `status=ALL` 返回所有盲盒。
+    * 每个盲盒对象包含其关联的 `curioBox` 和（如已开启）`item` 信息。
+* **错误响应:**
+    * `401 Unauthorized`: 未登录。
 
 ### **4.3. 开启盲盒**
 

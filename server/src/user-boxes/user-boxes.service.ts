@@ -98,6 +98,27 @@ export class UserBoxesService {
         });
     }
 
+    // 根据状态获取用户盲盒列表
+    async findUserBoxesByStatus(userId: number, status: 'UNOPENED' | 'OPENED'): Promise<UserBox[]> {
+        return this.userBoxRepository.find({
+            where: {
+                userId,
+                status: status === 'OPENED' ? UserBoxStatus.OPENED : UserBoxStatus.UNOPENED,
+            },
+            relations: ['curioBox', 'item'],
+            order: { purchaseDate: 'DESC' },
+        });
+    }
+
+    // 获取用户所有盲盒（不区分状态）
+    async findAllUserBoxes(userId: number): Promise<UserBox[]> {
+        return this.userBoxRepository.find({
+            where: { userId },
+            relations: ['curioBox', 'item'],
+            order: { purchaseDate: 'DESC' },
+        });
+    }
+
     // 开启单个盲盒 - 只修改状态，不再抽奖
     private async openSingleBox(userBoxId: number, userId: number): Promise<OpenBoxResultDto> {
         const userBox = await this.userBoxRepository.findOne({
