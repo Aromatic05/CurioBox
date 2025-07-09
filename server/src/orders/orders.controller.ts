@@ -1,31 +1,41 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateUserBoxDto } from '../user-boxes/dto/create-user-box.dto';
 
-@Controller('orders')
-@UseGuards(JwtAuthGuard) // 整个控制器下的所有路由都需要登录
+@Controller()
+@UseGuards(JwtAuthGuard)
 export class OrdersController {
-    constructor(private readonly ordersService: OrdersService) { }
+    constructor(private readonly ordersService: OrdersService) {}
 
-    @Post('draw')
-    draw(@Body() createOrderDto: CreateOrderDto, @Request() req) {
-        return this.ordersService.draw(createOrderDto, req.user);
+    // 购买盲盒（改造原有的抽盒接口）
+    @Post('orders/purchase')
+    async purchase(@Body() createUserBoxDto: CreateUserBoxDto, @Request() req) {
+        const userId = req.user.id || req.user.sub;
+        const result = await this.ordersService.purchase(userId, createUserBoxDto);
+        
+        return {
+            message: '购买成功',
+            order: {
+                id: result.order.id,
+                price: result.order.price,
+                status: result.order.status,
+            },
+            userBoxes: result.userBoxes,
+        };
     }
 
-    @Get()
-    findAll(@Request() req) {
-        return this.ordersService.findAllForUser(req.user);
+    // 获取用户订单列表
+    @Get('orders')
+    findAllByUser(@Request() req) {
+        const userId = req.user.id || req.user.sub;
+        return this.ordersService.findAllByUser(userId);
     }
 
-    @Get(':id')
-    async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-        const currentUserId = req.user.id ?? req.user.sub;
-        const user = { id: currentUserId } as any;
-        const order = await this.ordersService.findOneForUser(id, user);
-        if (!order || order.userId !== currentUserId) {
-            throw new NotFoundException('Order not found or access denied');
-        }
-        return order;
+    // 获取订单详情
+    @Get('orders/:id')
+    findOne(@Param('id') id: string, @Request() req) {
+        const userId = req.user.id || req.user.sub;
+        return this.ordersService.findOne(+id, userId);
     }
 }

@@ -13,21 +13,24 @@ import { ShowcaseModule } from './showcase/showcase.module';
 import { ShowcasePost } from './showcase/entities/showcase-post.entity';
 import { Comment } from './showcase/entities/comment.entity';
 import { Tag } from './showcase/entities/tag.entity';
+import { UserBoxesModule } from './user-boxes/user-boxes.module';
+import { UserBox } from './user-boxes/entities/user-box.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'curiobox.db',
-      entities: [ 
+      entities: [
         User,
-        CurioBox, 
-        Item, 
-        Order, 
+        CurioBox,
+        Item,
+        Order,
         BlocklistedToken,
         ShowcasePost,
         Comment,
-        Tag
+        Tag,
+        UserBox
       ],
       synchronize: true,
     }),
@@ -36,6 +39,7 @@ import { Tag } from './showcase/entities/tag.entity';
     ItemsModule,
     OrdersModule,
     ShowcaseModule,
+    UserBoxesModule,
   ],
   controllers: [],
   providers: [],

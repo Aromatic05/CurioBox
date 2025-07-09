@@ -1,12 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Order } from './entities/order.entity';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { Repository, DataSource } from 'typeorm';
+import { Order, OrderStatus } from './entities/order.entity';
 import { User } from '../users/user.entity';
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
-import { OrderStatus } from './entities/order.entity';
-import { plainToInstance } from 'class-transformer';
+import { UserBoxesService } from '../user-boxes/user-boxes.service';
+import { CreateUserBoxDto } from '../user-boxes/dto/create-user-box.dto';
 
 @Injectable()
 export class OrdersService {
@@ -15,130 +14,65 @@ export class OrdersService {
         private readonly orderRepository: Repository<Order>,
         @InjectRepository(CurioBox)
         private readonly curioBoxRepository: Repository<CurioBox>,
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-    ) { }
+        private readonly userBoxesService: UserBoxesService,
+        private readonly dataSource: DataSource,
+    ) {}
 
-    /**
-     * 核心抽奖逻辑
-     */
-    async draw(createOrderDto: CreateOrderDto, user: any): Promise<Order> {
-        const { curioBoxId } = createOrderDto;
-
-        // 查找用户
-        const dbUser = await this.userRepository.findOne({ where: { id: user.id || user.sub } });
-        if (!dbUser) throw new NotFoundException('User not found');
-
-        // 查找盲盒，并加载其中包含的所有物品及概率
+    // 购买盲盒
+    async purchase(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<{order: Order, userBoxes: any[]}> {
+        const { curioBoxId, quantity = 1 } = createUserBoxDto;
+        
+        // 查找盲盒
         const curioBox = await this.curioBoxRepository.findOne({
             where: { id: curioBoxId },
-            relations: ['items'],
         });
 
         if (!curioBox) {
-            throw new NotFoundException(`CurioBox with ID "${curioBoxId}" not found`);
+            throw new NotFoundException(`CurioBox #${curioBoxId} not found`);
         }
 
-        if (!curioBox.items || curioBox.items.length === 0) {
-            throw new BadRequestException(`CurioBox with ID "${curioBoxId}" has no items to draw from`);
-        }
-        if (!curioBox.itemProbabilities || curioBox.itemProbabilities.length === 0) {
-            throw new BadRequestException(`CurioBox with ID "${curioBoxId}" has no itemProbabilities`);
-        }
+        // 使用事务确保订单创建和用户盒子创建的一致性
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        // --- 概率抽奖算法 ---
-        // 构建概率区间
-        let sum = 0;
-        const ranges = curioBox.itemProbabilities.map(ip => {
-            sum += ip.probability;
-            return { itemId: ip.itemId, end: sum };
-        });
-        if (Math.abs(sum - 1) > 1e-6) {
-            throw new BadRequestException('itemProbabilities 概率和必须为1');
-        }
-        const rand = Math.random();
-        let drawnItemId = ranges[0].itemId;
-        for (const r of ranges) {
-            if (rand <= r.end) {
-                drawnItemId = r.itemId;
-                break;
-            }
-        }
-        const drawnItem = curioBox.items.find(i => i.id === drawnItemId);
-        if (!drawnItem) {
-            throw new BadRequestException('抽中的物品不存在于盲盒items中');
-        }
-        // --- 算法结束 ---
-
-        const order = this.orderRepository.create({
-            price: curioBox.price,
-            user: dbUser,
-            userId: dbUser.id,
-            curioBox: curioBox,
-            curioBoxId: curioBox.id,
-            drawnItem: drawnItem,
-            drawnItemId: drawnItem.id,
-        });
         try {
-            const savedOrder = await this.orderRepository.save(order);
-            // 用 plainToInstance 转换返回对象，保证 price 为字符串
-            const result = plainToInstance(Order, {
-                ...savedOrder,
-                price: savedOrder.price.toString(),
+            // 创建订单
+            const order = this.orderRepository.create({
+                userId,
+                curioBoxId,
+                price: curioBox.price * quantity,
+                status: OrderStatus.COMPLETED,
             });
-            return result;
+            await queryRunner.manager.save(order);
+
+            // 创建用户盒子
+            const userBoxes = await this.userBoxesService.purchaseBoxes(userId, createUserBoxDto);
+
+            await queryRunner.commitTransaction();
+            return { order, userBoxes };
         } catch (err) {
+            await queryRunner.rollbackTransaction();
             throw err;
+        } finally {
+            await queryRunner.release();
         }
     }
 
-    /**
-     * 查找当前用户的所有订单
-     */
-    findAllForUser(user: User): Promise<Order[]> {
+    // 查找用户的所有订单
+    async findAllByUser(userId: number): Promise<Order[]> {
         return this.orderRepository.find({
-            where: { user: { id: user.id } },
-            relations: ['curioBox', 'drawnItem'], // 同时加载关联信息
-            order: { createdAt: 'DESC' }, // 按创建时间降序
+            where: { userId },
+            relations: ['curioBox', 'drawnItem'],
+            order: { createdAt: 'DESC' },
         });
     }
 
-    /**
-     * 查找单个订单，并校验所有权
-     */
-    async findOneForUser(id: number, user: User): Promise<Order> {
-        const order = await this.orderRepository.findOne({
-            where: { id, user: { id: user.id } },
-            relations: ['curioBox', 'drawnItem', 'user'],
+    // 查找单个订单
+    async findOne(id: number, userId: number): Promise<Order | null> {
+        return this.orderRepository.findOne({
+            where: { id, userId },
+            relations: ['curioBox', 'drawnItem'],
         });
-
-        if (!order) {
-            throw new NotFoundException(`Order with ID "${id}" not found or you don't have access`);
-        }
-
-        return order;
-    }
-
-    /**
-     * 更新订单状态
-     */
-    async updateStatus(id: number, status: OrderStatus, user: User): Promise<Order> {
-        const order = await this.orderRepository.findOne({ where: { id, user: { id: user.id } } });
-        if (!order) {
-            throw new NotFoundException(`Order with ID "${id}" not found or you don't have access`);
-        }
-        order.status = status;
-        return this.orderRepository.save(order);
-    }
-
-    /**
-     * 删除订单（仅允许本人删除）
-     */
-    async remove(id: number, user: User): Promise<void> {
-        const order = await this.orderRepository.findOne({ where: { id, user: { id: user.id } } });
-        if (!order) {
-            throw new NotFoundException(`Order with ID "${id}" not found or you don't have access`);
-        }
-        await this.orderRepository.remove(order);
     }
 }
