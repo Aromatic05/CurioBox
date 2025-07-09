@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, HttpCode } from '@nestjs/common';
 import { UserBoxesService } from './user-boxes.service';
 import { OpenBoxDto } from './dto/open-box.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -17,6 +17,7 @@ export class UserBoxesController {
 
     // 开盲盒
     @Post('user-boxes/open')
+    @HttpCode(200)
     async openBox(@Body() openBoxDto: OpenBoxDto, @Request() req) {
         const userId = req.user.id || req.user.sub;
         return this.userBoxesService.openBoxes(userId, openBoxDto);

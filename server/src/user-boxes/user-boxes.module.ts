@@ -6,10 +6,12 @@ import { UserBox } from './entities/user-box.entity';
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
 import { Item } from '../items/entities/item.entity';
 import { User } from '../users/user.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([UserBox, CurioBox, Item, User]),
+        AuthModule,
     ],
     controllers: [UserBoxesController],
     providers: [UserBoxesService],
