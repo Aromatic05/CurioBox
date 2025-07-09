@@ -29,7 +29,7 @@ export class OrdersService {
         const dbUser = await this.userRepository.findOne({ where: { id: user.id || user.sub } });
         if (!dbUser) throw new NotFoundException('User not found');
 
-        // 查找盲盒，并加载其中包含的所有物品
+        // 查找盲盒，并加载其中包含的所有物品及概率
         const curioBox = await this.curioBoxRepository.findOne({
             where: { id: curioBoxId },
             relations: ['items'],
@@ -42,18 +42,31 @@ export class OrdersService {
         if (!curioBox.items || curioBox.items.length === 0) {
             throw new BadRequestException(`CurioBox with ID "${curioBoxId}" has no items to draw from`);
         }
+        if (!curioBox.itemProbabilities || curioBox.itemProbabilities.length === 0) {
+            throw new BadRequestException(`CurioBox with ID "${curioBoxId}" has no itemProbabilities`);
+        }
 
-        // --- 加权随机算法 ---
-        const totalWeight = curioBox.items.reduce((sum, item) => sum + item.weight, 0);
-        let randomWeight = Math.random() * totalWeight;
-
-        let drawnItem = curioBox.items[0]; // 默认值
-        for (const item of curioBox.items) {
-            randomWeight -= item.weight;
-            if (randomWeight <= 0) {
-                drawnItem = item;
+        // --- 概率抽奖算法 ---
+        // 构建概率区间
+        let sum = 0;
+        const ranges = curioBox.itemProbabilities.map(ip => {
+            sum += ip.probability;
+            return { itemId: ip.itemId, end: sum };
+        });
+        if (Math.abs(sum - 1) > 1e-6) {
+            throw new BadRequestException('itemProbabilities 概率和必须为1');
+        }
+        const rand = Math.random();
+        let drawnItemId = ranges[0].itemId;
+        for (const r of ranges) {
+            if (rand <= r.end) {
+                drawnItemId = r.itemId;
                 break;
             }
+        }
+        const drawnItem = curioBox.items.find(i => i.id === drawnItemId);
+        if (!drawnItem) {
+            throw new BadRequestException('抽中的物品不存在于盲盒items中');
         }
         // --- 算法结束 ---
 

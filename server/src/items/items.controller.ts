@@ -31,4 +31,9 @@ export class ItemsController {
     remove(@Param('id') id: string) {
         return this.itemsService.remove(+id);
     }
+
+    @Patch(':id/stock')
+    updateStock(@Param('id') id: string, @Body('stock') stock: number) {
+        return this.itemsService.updateStock(+id, stock);
+    }
 }

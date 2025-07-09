@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Item } from './entities/item.entity';
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
 
@@ -16,17 +16,18 @@ export class ItemsService {
     ) { }
 
     async create(createItemDto: CreateItemDto): Promise<Item> {
-        const { name, image, weight, curioBoxId } = createItemDto;
-        const curioBox = await this.curioBoxRepository.findOne({ where: { id: curioBoxId } });
-        if (!curioBox) {
-            throw new NotFoundException(`CurioBox with ID "${curioBoxId}" not found.`);
+        const { name, image, category, stock, rarity, curioBoxIds } = createItemDto;
+        const curioBoxes = await this.curioBoxRepository.find({ where: { id: In(curioBoxIds) } });
+        if (curioBoxes.length !== curioBoxIds.length) {
+            throw new NotFoundException('部分 CurioBox 不存在');
         }
         const newItem = this.itemRepository.create({
             name,
             image,
-            weight,
-            curioBoxId,
-            curioBox,
+            category,
+            stock,
+            rarity,
+            curioBoxes,
         });
         try {
             const saved = await this.itemRepository.save(newItem);
@@ -37,11 +38,11 @@ export class ItemsService {
     }
 
     async findAll(): Promise<Item[]> {
-        return this.itemRepository.find({ relations: ['curioBox'] });
+        return this.itemRepository.find({ relations: ['curioBoxes'] });
     }
 
     async findOne(id: number): Promise<Item> {
-        const item = await this.itemRepository.findOne({ where: { id }, relations: ['curioBox'] });
+        const item = await this.itemRepository.findOne({ where: { id }, relations: ['curioBoxes'] });
         if (!item) {
             throw new NotFoundException(`Item with ID "${id}" not found.`);
         }
@@ -49,11 +50,19 @@ export class ItemsService {
     }
 
     async update(id: number, updateItemDto: UpdateItemDto): Promise<Item> {
-        const item = await this.itemRepository.findOne({ where: { id } });
+        const item = await this.itemRepository.findOne({ where: { id }, relations: ['curioBoxes'] });
         if (!item) {
             throw new NotFoundException(`Item with ID "${id}" not found.`);
         }
-        Object.assign(item, updateItemDto);
+        // 支持多对多关系更新
+        if (updateItemDto.curioBoxIds) {
+            const curioBoxes = await this.curioBoxRepository.find({ where: { id: In(updateItemDto.curioBoxIds) } });
+            if (curioBoxes.length !== updateItemDto.curioBoxIds.length) {
+                throw new NotFoundException('部分 CurioBox 不存在');
+            }
+            item.curioBoxes = curioBoxes;
+        }
+        Object.assign(item, { ...updateItemDto, curioBoxIds: undefined });
         return this.itemRepository.save(item);
     }
 
@@ -63,5 +72,15 @@ export class ItemsService {
             throw new NotFoundException(`Item with ID "${id}" not found.`);
         }
         await this.itemRepository.remove(item);
+    }
+
+    // 新增：修改库存数量
+    async updateStock(id: number, stock: number): Promise<Item> {
+        const item = await this.itemRepository.findOne({ where: { id } });
+        if (!item) {
+            throw new NotFoundException(`Item with ID "${id}" not found.`);
+        }
+        item.stock = stock;
+        return this.itemRepository.save(item);
     }
 }

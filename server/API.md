@@ -221,12 +221,44 @@
     {
       "name": "盲盒名称",
       "description": "盲盒描述",
-      "price": 99.99
+      "price": 99.99,
+      "category": "类别",
+      "itemIds": [1, 2],
+      "itemProbabilities": [
+        { "itemId": 1, "probability": 0.7 },
+        { "itemId": 2, "probability": 0.3 }
+      ]
     }
     ```
-* **成功响应 (201 Created):** 返回创建的盲盒对象，包含 `id`。
+    * `itemIds`：盲盒包含的物品ID数组。
+    * `itemProbabilities`：每个物品的概率，概率之和需为1。
+* **成功响应 (201 Created):** 返回创建的盲盒对象，包含 `id`、`items`、`itemProbabilities`。
 * **错误响应:**
     * `403 Forbidden`: 普通用户尝试操作。
+    * `400 Bad Request`: 概率和不为1或itemId非法。
+
+### **3.1.1. 批量更新盲盒物品及概率**
+
+* **Endpoint:** `PATCH /curio-boxes/:id/items-and-probabilities`
+* **描述:** 批量更新指定盲盒的物品及其概率。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "itemIds": [1, 2],
+      "itemProbabilities": [
+        { "itemId": 1, "probability": 0.7 },
+        { "itemId": 2, "probability": 0.3 }
+      ]
+    }
+    ```
+    * `itemIds`：盲盒包含的物品ID数组。
+    * `itemProbabilities`：每个物品的概率，概率之和需为1。
+* **成功响应 (200 OK):** 返回更新后的盲盒对象，包含 `items`、`itemProbabilities`。
+* **错误响应:**
+    * `403 Forbidden`: 普通用户尝试操作。
+    * `400 Bad Request`: 概率和不为1或itemId非法。
 
 ### **3.2. 获取所有盲盒**
 
@@ -276,6 +308,92 @@
 * **查询参数 (Query Parameters):**
     * `q`: 搜索关键词 (例如: 'UniqueBox')。
 * **成功响应 (200 OK):** 返回匹配搜索关键词的盲盒对象数组。
+
+---
+
+## **3.7. 物品模块 (Item)**
+
+此模块用于管理盲盒内的物品，支持多对多关联。
+
+### **3.7.1. 创建物品**
+
+* **Endpoint:** `POST /items`
+* **描述:** 创建一个新物品，可关联到多个盲盒。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "name": "物品名称",
+      "image": "http://example.com/item.png",
+      "category": "类别",
+      "stock": 10,
+      "rarity": "稀有度",
+      "curioBoxIds": [1, 2]
+    }
+    ```
+    * `curioBoxIds`：该物品所属的盲盒ID数组，可为空。
+* **成功响应 (201 Created):** 返回创建的物品对象，包含 `id`、`curioBoxes`。
+* **错误响应:**
+    * `400 Bad Request`: 参数不合法。
+
+### **3.7.2. 获取所有物品**
+
+* **Endpoint:** `GET /items`
+* **描述:** 获取所有物品及其所属盲盒。
+* **成功响应 (200 OK):** 返回物品对象数组，每个对象包含 `curioBoxes`。
+
+### **3.7.3. 获取单个物品**
+
+* **Endpoint:** `GET /items/:id`
+* **描述:** 获取单个物品的详细信息。
+* **成功响应 (200 OK):** 返回物品对象，包含 `curioBoxes`。
+* **错误响应:**
+    * `404 Not Found`: 物品不存在。
+
+### **3.7.4. 更新物品**
+
+* **Endpoint:** `PATCH /items/:id`
+* **描述:** 更新物品信息及其所属盲盒。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "name": "新物品名称",
+      "curioBoxIds": [1, 2]
+    }
+    ```
+    * 可选字段，支持部分更新。
+* **成功响应 (200 OK):** 返回更新后的物品对象。
+* **错误响应:**
+    * `404 Not Found`: 物品不存在。
+
+### **3.7.5. 删除物品**
+
+* **Endpoint:** `DELETE /items/:id`
+* **描述:** 删除指定物品。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **成功响应 (200 OK):** 操作成功。
+* **错误响应:**
+    * `404 Not Found`: 物品不存在。
+
+### **3.7.6. 修改物品库存**
+
+* **Endpoint:** `PATCH /items/:id/stock`
+* **描述:** 修改指定物品的库存数量。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "stock": 20
+    }
+    ```
+* **成功响应 (200 OK):** 返回更新后的物品对象。
+* **错误响应:**
+    * `404 Not Found`: 物品不存在。
 
 ---
 

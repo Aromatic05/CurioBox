@@ -17,10 +17,10 @@ export class CurioBoxService {
     ) { }
 
     async create(createCurioBoxDto: CreateCurioBoxDto): Promise<CurioBox> {
-        await this.validateItemProbabilities(createCurioBoxDto.itemProbabilities, createCurioBoxDto.items);
+        await this.validateItemProbabilities(createCurioBoxDto.itemProbabilities, createCurioBoxDto.itemIds);
         // 查出 items 实体数组
-        const dbItems = await this.itemRepository.find({ where: { id: In(createCurioBoxDto.items) } });
-        if (dbItems.length !== createCurioBoxDto.items.length) {
+        const dbItems = await this.itemRepository.find({ where: { id: In(createCurioBoxDto.itemIds) } });
+        if (dbItems.length !== createCurioBoxDto.itemIds.length) {
             throw new Error('部分 itemId 不存在');
         }
         const curioBox = this.curioBoxRepository.create({
@@ -75,12 +75,12 @@ export class CurioBoxService {
             throw new NotFoundException(`CurioBox with ID "${id}" not found`);
         }
         // items 和 itemProbabilities 兼容部分字段未传
-        const items = updateCurioBoxDto.items ?? (oldCurioBox.items?.map(i => i.id) ?? []);
+        const itemIds = updateCurioBoxDto.itemIds ?? (oldCurioBox.items?.map(i => i.id) ?? []);
         const itemProbabilities = updateCurioBoxDto.itemProbabilities ?? oldCurioBox.itemProbabilities;
-        await this.validateItemProbabilities(itemProbabilities, items);
+        await this.validateItemProbabilities(itemProbabilities, itemIds);
         // 查出 items 实体数组
-        const dbItems = await this.itemRepository.find({ where: { id: In(items) } });
-        if (dbItems.length !== items.length) {
+        const dbItems = await this.itemRepository.find({ where: { id: In(itemIds) } });
+        if (dbItems.length !== itemIds.length) {
             throw new Error('部分 itemId 不存在');
         }
         const curioBox = await this.curioBoxRepository.preload({
@@ -96,14 +96,14 @@ export class CurioBoxService {
     }
 
     // 新增：修改items和概率列表的方法
-    async updateItemsAndProbabilities(id: number, items: number[], itemProbabilities: { itemId: number; probability: number }[]): Promise<CurioBox> {
+    async updateItemsAndProbabilities(id: number, itemIds: number[], itemProbabilities: { itemId: number; probability: number }[]): Promise<CurioBox> {
         const curioBox = await this.curioBoxRepository.findOne({ where: { id }, relations: ['items'] });
         if (!curioBox) {
             throw new NotFoundException(`CurioBox with ID "${id}" not found`);
         }
         // 查询 items
-        const dbItems = await this.itemRepository.find({ where: { id: In(items) } });
-        if (dbItems.length !== items.length) {
+        const dbItems = await this.itemRepository.find({ where: { id: In(itemIds) } });
+        if (dbItems.length !== itemIds.length) {
             throw new Error('部分 itemId 不存在');
         }
         await this.validateItemProbabilities(itemProbabilities, dbItems);

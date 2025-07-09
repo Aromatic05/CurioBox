@@ -33,7 +33,7 @@ export class CreateCurioBoxDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsNumberField({}, { each: true })
-  items: number[];
+  itemIds: number[];
 
   @IsArray()
   @ArrayNotEmpty()

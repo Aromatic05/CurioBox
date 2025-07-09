@@ -17,6 +17,7 @@ const normalUser = {
 let adminToken: string;
 let userToken: string;
 let createdBoxId: number;
+let createdItemId: number;
 
 
 describe('CurioBoxController (e2e)', () => {
@@ -54,6 +55,20 @@ describe('CurioBoxController (e2e)', () => {
       .send({ username: normalUser.username, password: normalUser.password })
       .expect(200);
     userToken = userRes.body.accessToken;
+
+    // 创建一个 item 供盲盒使用
+    const itemRes = await request(app.getHttpServer())
+      .post('/items')
+      .send({
+        name: 'TestItem',
+        image: 'http://test.com/item.png',
+        category: 'test',
+        stock: 10,
+        rarity: 'rare',
+        curioBoxIds: [],
+      })
+      .expect(201);
+    createdItemId = itemRes.body.id;
   });
 
   afterAll(async () => {
@@ -65,16 +80,18 @@ describe('CurioBoxController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/curio-boxes')
         .set('Authorization', `Bearer ${userToken}`)
-        .send({ name: 'TestBox', description: 'desc', price: 100 })
+        .send({ name: 'TestBox', description: 'desc', price: 100, itemIds: [createdItemId], itemProbabilities: [{ itemId: createdItemId, probability: 1 }], category: 'test' })
         .expect(403);
     });
     it('should allow admin to create', async () => {
       const res = await request(app.getHttpServer())
         .post('/curio-boxes')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: 'TestBox', description: 'desc', price: 100 })
+        .send({ name: 'TestBox', description: 'desc', price: 100, itemIds: [createdItemId], itemProbabilities: [{ itemId: createdItemId, probability: 1 }], category: 'test' })
         .expect(201);
       expect(res.body).toHaveProperty('id');
+      expect(res.body.items.length).toBe(1);
+      expect(res.body.itemProbabilities.length).toBe(1);
       createdBoxId = res.body.id;
     });
   });
@@ -152,6 +169,31 @@ describe('CurioBoxController (e2e)', () => {
         .get('/curio-boxes/search?q=UniqueBox')
         .expect(200);
       expect(res.body.some((box: any) => box.name === 'UniqueBox')).toBe(true);
+    });
+  });
+
+  describe('PATCH /curio-boxes/:id/items-and-probabilities', () => {
+    it('should allow admin to update items and probabilities', async () => {
+      // 新建一个 item
+      const itemRes = await request(app.getHttpServer())
+        .post('/items')
+        .send({
+          name: 'TestItem2',
+          image: 'http://test.com/item2.png',
+          category: 'test',
+          stock: 5,
+          rarity: 'epic',
+          curioBoxIds: [],
+        })
+        .expect(201);
+      const newItemId = itemRes.body.id;
+      const res = await request(app.getHttpServer())
+        .patch(`/curio-boxes/${createdBoxId}/items-and-probabilities`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ itemIds: [createdItemId, newItemId], itemProbabilities: [ { itemId: createdItemId, probability: 0.7 }, { itemId: newItemId, probability: 0.3 } ] })
+        .expect(200);
+      expect(res.body.items.length).toBe(2);
+      expect(res.body.itemProbabilities.length).toBe(2);
     });
   });
 });

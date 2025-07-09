@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsUrl } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsUrl, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class CreateItemDto {
   @IsString()
@@ -8,10 +8,20 @@ export class CreateItemDto {
   @IsUrl()
   image: string;
 
-  @IsNumber()
-  weight: number;
+  @IsString()
+  @IsNotEmpty()
+  category: string;
 
   @IsNumber()
   @IsNotEmpty()
-  curioBoxId: number; // <-- 新增此字段
+  stock: number;
+
+  @IsString()
+  @IsNotEmpty()
+  rarity: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  curioBoxIds: number[];
 }

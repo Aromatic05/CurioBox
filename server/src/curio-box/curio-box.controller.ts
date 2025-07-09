@@ -45,4 +45,15 @@ export class CurioBoxController {
     remove(@Param('id', ParseIntPipe) id: number) {
         return this.curioBoxService.remove(id);
     }
+
+    @Patch(':id/items-and-probabilities')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
+    updateItemsAndProbabilities(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('itemIds') itemIds: number[],
+        @Body('itemProbabilities') itemProbabilities: { itemId: number; probability: number }[],
+    ) {
+        return this.curioBoxService.updateItemsAndProbabilities(id, itemIds, itemProbabilities);
+    }
 }

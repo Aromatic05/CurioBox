@@ -1,5 +1,5 @@
 import { CurioBox } from '../../curio-box/entities/curio-box.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
 
 @Entity()
 export class Item {
@@ -21,7 +21,7 @@ export class Item {
     @Column({ comment: '稀有度' })
     rarity: string;
 
-    @ManyToOne(() => CurioBox, (curioBox) => curioBox.items)
-    @JoinColumn({ name: 'curioBoxId' })
-    curioBox: CurioBox;
+    @ManyToMany(() => CurioBox, (curioBox) => curioBox.items)
+    @JoinTable({ name: 'item_curio_boxes' })
+    curioBoxes: CurioBox[];
 }
