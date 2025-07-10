@@ -212,8 +212,40 @@
 
 ### **3.1. 创建盲盒**
 
+* **Endpoint:** `POST /curio-boxes/upload`
+* **描述:** 创建一个新盲盒并上传封面图片。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (multipart/form-data):**
+    * 字段 `coverImage`：盲盒封面图片文件（支持 png、jpeg、jpg、gif、webp、bmp，最大5MB）
+    * 其他字段同 `CreateCurioBoxDto`，如：
+        - `name`: 盲盒名称
+        - `description`: 盲盒描述
+        - `price`: 价格
+        - `category`: 类别
+        - `itemIds`: 物品ID数组（可选）
+        - `itemProbabilities`: 物品概率数组（可选）
+* **示例请求 (form-data):**
+    | key            | value                |
+    |----------------|----------------------|
+    | name           | "盲盒名称"           |
+    | description    | "盲盒描述"           |
+    | price          | 99.99                |
+    | category       | "类别"               |
+    | itemIds        | [1,2]                |
+    | itemProbabilities | [{{"itemId":1,"probability":0.7}}, ...] |
+    | coverImage     | (选择图片文件)        |
+
+* **成功响应 (201 Created):** 返回创建的盲盒对象，包含 `id`、`coverImage`（图片URL）、`items`、`itemProbabilities`。
+* **错误响应:**
+    * `400 Bad Request`: 参数不合法或图片类型/大小不符合要求。
+    * `401 Unauthorized`: 未登录。
+    * `403 Forbidden`: 权限不足。
+
+---
+
 * **Endpoint:** `POST /curio-boxes`
-* **描述:** 创建一个新的盲盒产品。
+* **描述:** 创建一个新盲盒（不带封面图片，仅用于兼容老接口或特殊场景）。
 * **权限:** 仅限管理员 (`admin`)。
 * **认证:** 需要管理员的 Bearer Token。
 * **请求体 (Body):**
@@ -317,8 +349,38 @@
 
 ### **3.7.1. 创建物品**
 
+* **Endpoint:** `POST /items/upload`
+* **描述:** 创建一个新物品并上传图片，可关联到多个盲盒。
+* **权限:** 仅限管理员 (`admin`)。
+* **认证:** 需要管理员的 Bearer Token。
+* **请求体 (multipart/form-data):**
+    * 字段 `image`：物品图片文件（支持 png、jpeg、jpg、gif、webp、bmp，最大5MB）
+    * 其他字段同 `CreateItemDto`，如：
+        - `name`: 物品名称
+        - `category`: 类别
+        - `stock`: 库存
+        - `rarity`: 稀有度
+        - `curioBoxIds`: 该物品所属的盲盒ID数组（可选）
+* **示例请求 (form-data):**
+    | key         | value                |
+    |-------------|----------------------|
+    | name        | "物品名称"           |
+    | category    | "类别"               |
+    | stock       | 10                   |
+    | rarity      | "rare"               |
+    | curioBoxIds | [1,2]                |
+    | image       | (选择图片文件)        |
+
+* **成功响应 (201 Created):** 返回创建的物品对象，包含 `id`、`image`（图片URL）、`curioBoxes`。
+* **错误响应:**
+    * `400 Bad Request`: 参数不合法或图片类型/大小不符合要求。
+    * `401 Unauthorized`: 未登录。
+    * `403 Forbidden`: 权限不足。
+
+---
+
 * **Endpoint:** `POST /items`
-* **描述:** 创建一个新物品，可关联到多个盲盒。
+* **描述:** 创建一个新物品（不带图片，仅用于兼容老接口或特殊场景）。
 * **权限:** 仅限管理员 (`admin`)。
 * **认证:** 需要管理员的 Bearer Token。
 * **请求体 (Body):**

@@ -1,14 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
 import { CurioBoxService } from './curio-box.service';
 import { CreateCurioBoxDto } from './dto/create-curio-box.dto';
 import { UpdateCurioBoxDto } from './dto/update-curio-box.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('curio-boxes') // 路由前缀统一为复数形式
 export class CurioBoxController {
     constructor(private readonly curioBoxService: CurioBoxService) { }
+
+    @Post('upload')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
+    @UseInterceptors(
+      FileInterceptor('coverImage', {
+        storage: diskStorage({
+          destination: './uploads',
+          filename: (req, file, cb) => {
+            const randomName = Array(32)
+              .fill(null)
+              .map(() => Math.round(Math.random() * 16).toString(16))
+              .join('');
+            return cb(null, `${randomName}${extname(file.originalname)}`);
+          },
+        }),
+      }),
+    )
+    async createWithCover(
+      @UploadedFile(
+        new ParseFilePipe({
+          validators: [
+            new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+            new FileTypeValidator({ fileType: '.(png|jpeg|jpg|gif|webp|bmp)' }),
+          ],
+          fileIsRequired: true,
+        }),
+      ) file: Express.Multer.File,
+      @Body() createCurioBoxDto: CreateCurioBoxDto,
+    ) {
+      const coverImage = `/static/${file.filename}`;
+      return this.curioBoxService.create({
+        ...createCurioBoxDto,
+        coverImage,
+      });
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)

@@ -28,3 +28,6 @@ node_modules/
 
 # Database
 /server/db.sqlite*
+
+# 上传文件目录
+/server/uploads/
