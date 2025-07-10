@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 // 测试用 admin 和普通用户
 const adminUser = {
@@ -21,14 +23,16 @@ let createdItemId: number;
 
 
 describe('CurioBoxController (e2e)', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication<NestExpressApplication>();
+    // 注册静态资源目录，兼容 e2e 测试图片访问
+    app.useStaticAssets(join(__dirname, '../uploads'), { prefix: '/static/' });
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
@@ -56,17 +60,15 @@ describe('CurioBoxController (e2e)', () => {
       .expect(200);
     userToken = userRes.body.accessToken;
 
-    // 创建一个 item 供盲盒使用
+    // 创建一个 item 供盲盒使用（用图片上传接口）
     const itemRes = await request(app.getHttpServer())
-      .post('/items')
-      .send({
-        name: 'TestItem',
-        image: 'http://test.com/item.png',
-        category: 'test',
-        stock: 10,
-        rarity: 'rare',
-        curioBoxIds: [],
-      })
+      .post('/items/upload')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .field('name', 'TestItem')
+      .field('category', 'test')
+      .field('stock', 10)
+      .field('rarity', 'rare')
+      .attach('image', __dirname + '/1.jpg')
       .expect(201);
     createdItemId = itemRes.body.id;
   });
@@ -83,16 +85,31 @@ describe('CurioBoxController (e2e)', () => {
         .send({ name: 'TestBox', description: 'desc', price: 100, itemIds: [createdItemId], itemProbabilities: [{ itemId: createdItemId, probability: 1 }], category: 'test' })
         .expect(403);
     });
-    it('should allow admin to create', async () => {
+    it('should allow admin to create with cover image', async () => {
       const res = await request(app.getHttpServer())
-        .post('/curio-boxes')
+        .post('/curio-boxes/upload')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: 'TestBox', description: 'desc', price: 100, itemIds: [createdItemId], itemProbabilities: [{ itemId: createdItemId, probability: 1 }], category: 'test' })
+        .field('name', 'TestBox')
+        .field('description', 'desc')
+        .field('price', 100)
+        .field('category', 'test')
+        .field('itemIds', JSON.stringify([createdItemId]))
+        .field('itemProbabilities', JSON.stringify([{ itemId: createdItemId, probability: 1 }]))
+        .attach('coverImage', __dirname + '/1.jpg')
         .expect(201);
       expect(res.body).toHaveProperty('id');
       expect(res.body.items.length).toBe(1);
       expect(res.body.itemProbabilities.length).toBe(1);
+      expect(res.body.coverImage).toMatch(/\/static\//);
       createdBoxId = res.body.id;
+
+      // 新增：测试图片能否正常访问
+      const imageUrl = res.body.coverImage;
+      const imageRes = await request(app.getHttpServer())
+        .get(imageUrl)
+        .expect(200);
+      expect(imageRes.headers['content-type']).toMatch(/^image\//);
+      expect(imageRes.body.length).toBeGreaterThan(0);
     });
   });
 

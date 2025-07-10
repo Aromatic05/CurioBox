@@ -14,6 +14,8 @@ async function bootstrap() {
     prefix: '/static/',
   });
 
+  console.log('Static assets dir:', join(__dirname, '..', 'uploads'));
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

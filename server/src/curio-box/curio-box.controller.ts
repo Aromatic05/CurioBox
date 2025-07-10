@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
 import { CurioBoxService } from './curio-box.service';
 import { CreateCurioBoxDto } from './dto/create-curio-box.dto';
 import { UpdateCurioBoxDto } from './dto/update-curio-box.dto';
@@ -35,18 +35,27 @@ export class CurioBoxController {
         new ParseFilePipe({
           validators: [
             new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
-            new FileTypeValidator({ fileType: '.(png|jpeg|jpg|gif|webp|bmp)' }),
           ],
           fileIsRequired: true,
         }),
       ) file: Express.Multer.File,
       @Body() createCurioBoxDto: CreateCurioBoxDto,
     ) {
+      console.log('Uploaded file:', file.filename);
       const coverImage = `/static/${file.filename}`;
-      return this.curioBoxService.create({
-        ...createCurioBoxDto,
+      // 兼容 multipart/form-data 字段为字符串的情况
+      const dto = { ...createCurioBoxDto };
+      if (typeof dto.itemIds === 'string') {
+        dto.itemIds = JSON.parse(dto.itemIds);
+      }
+      if (typeof dto.itemProbabilities === 'string') {
+        dto.itemProbabilities = JSON.parse(dto.itemProbabilities);
+      }
+      const result = await this.curioBoxService.create({
+        ...dto,
         coverImage,
       });
+      return result;
     }
 
     @Post()
