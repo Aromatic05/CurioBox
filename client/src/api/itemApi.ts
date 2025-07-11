@@ -53,3 +53,14 @@ export const deleteItem = (id: number): Promise<AxiosResponse<void>> => {
 export const updateItemStock = (id: number, stock: number): Promise<AxiosResponse<IItem>> => {
     return apiClient.patch(`/items/${id}/stock`, { stock });
 };
+
+export const uploadItemImage = async (formData: FormData): Promise<AxiosResponse<{ url: string }>> => {
+    const res = await apiClient.post('/items/upload-image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    // 自动补全 baseURL，避免重复斜杠
+    let baseURL = apiClient.defaults.baseURL || '';
+    if (baseURL.endsWith('/')) baseURL = baseURL.slice(0, -1);
+    const url = res.data.url.startsWith('/') ? baseURL + res.data.url : res.data.url;
+    return { ...res, data: { url } };
+};

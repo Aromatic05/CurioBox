@@ -9,6 +9,8 @@ import AdminRoute from './AdminRoute';
 import AdminHomePage from '../pages/admin/AdminHomePage';
 import BoxManagementPage from '../pages/admin/BoxManagementPage';
 import BoxEditPage from '../pages/admin/BoxEditPage';
+import ItemManagementPage from '../pages/admin/ItemManagementPage';
+import ItemEditPage from '../pages/admin/ItemEditPage';
 
 const router = createBrowserRouter([
     {
@@ -48,7 +50,9 @@ const router = createBrowserRouter([
                     { path: 'boxes', element: <BoxManagementPage /> },
                     { path: 'box/edit', element: <BoxEditPage /> }, // 新建盲盒
                     { path: 'box/edit/:id', element: <BoxEditPage /> }, // 编辑盲盒
-                    // { path: 'items', element: <ItemManagementPage /> },
+                    { path: 'items', element: <ItemManagementPage /> },
+                    { path: 'item/edit', element: <ItemEditPage /> }, // 新建物品
+                    { path: 'item/edit/:id', element: <ItemEditPage /> }, // 编辑物品
                     // { index: true, element: <AdminDashboard /> }
                 ]
             }
