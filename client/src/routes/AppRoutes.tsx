@@ -11,6 +11,10 @@ import BoxManagementPage from '../pages/admin/BoxManagementPage';
 import BoxEditPage from '../pages/admin/BoxEditPage';
 import ItemManagementPage from '../pages/admin/ItemManagementPage';
 import ItemEditPage from '../pages/admin/ItemEditPage';
+import ShowcasePage from '../pages/showcase/ShowcasePage';
+import PostDetailPage from '../pages/showcase/PostDetailPage';
+// import CreatePostPage from '../pages/showcase/CreatePostPage';
+import PrivateRoute from './PrivateRoute';
 
 const router = createBrowserRouter([
     {
@@ -30,10 +34,23 @@ const router = createBrowserRouter([
                 path: 'register',
                 element: <RegisterPage />,
             },
-            // {
-            //   path: 'admin/boxes',
-            //   element: <BoxManagementPage />,
-            // }
+            {
+                path: 'showcase',
+                element: <ShowcasePage />,
+            },
+            {
+                path: 'showcase/:id',
+                element: <PostDetailPage />,
+            },
+            {
+                element: <PrivateRoute />,
+                // children: [
+                //     {
+                //         path: 'showcase/create',
+                //         element: <CreatePostPage />,
+                //     }
+                // ]
+            },
             // 你可以在这里继续添加其他使用 MainLayout 的页面
             // { path: 'showcase', element: <ShowcasePage /> },
         ],
