@@ -69,9 +69,14 @@ export const createCurioBoxWithCover = (formData: FormData): Promise<AxiosRespon
     });
 };
 
-// 上传盲盒图片（返回图片URL）
-export const uploadCurioBoxImage = (formData: FormData): Promise<AxiosResponse<{ url: string }>> => {
-    return apiClient.post('/curio-boxes/upload-image', formData, {
+// 上传盲盒图片（返回完整图片URL，自动补全 baseURL）
+export const uploadCurioBoxImage = async (formData: FormData): Promise<AxiosResponse<{ url: string }>> => {
+    const res = await apiClient.post('/curio-boxes/upload-image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
+    // 自动补全 baseURL，避免重复斜杠
+    let baseURL = apiClient.defaults.baseURL || '';
+    if (baseURL.endsWith('/')) baseURL = baseURL.slice(0, -1);
+    const url = res.data.url.startsWith('/') ? baseURL + res.data.url : res.data.url;
+    return { ...res, data: { url } };
 };
