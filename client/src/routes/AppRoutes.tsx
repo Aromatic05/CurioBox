@@ -6,6 +6,7 @@ import RegisterPage from '../pages/auth/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import AdminLayout from '../components/layout/AdminLayout';
 import AdminRoute from './AdminRoute';
+import AdminHomePage from '../pages/admin/AdminHomePage';
 import BoxManagementPage from '../pages/admin/BoxManagementPage';
 import BoxEditPage from '../pages/admin/BoxEditPage';
 
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
             {
                 element: <AdminLayout />, // 然后应用后台专用布局
                 children: [
+                    { index: true, element: <AdminHomePage /> }, // 管理后台首页
                     { path: 'boxes', element: <BoxManagementPage /> },
                     { path: 'box/edit', element: <BoxEditPage /> }, // 新建盲盒
                     { path: 'box/edit/:id', element: <BoxEditPage /> }, // 编辑盲盒
