@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
-import HomePage from '../pages/HomePage';
+import StorePage from '../pages/store/StorePage'; // 新主页
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <HomePage />,
+                element: <StorePage />, // 主页改为商店页面
             },
             {
                 path: 'login',
