@@ -11,20 +11,20 @@ import { RolesGuard } from './roles.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, BlocklistedToken]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: 'yourSecretKey',
-      signOptions: { expiresIn: '1h' },
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesGuard, JwtAuthGuard],
-  exports: [
-    RolesGuard,
-    JwtAuthGuard,
-    TypeOrmModule, // 关键：导出 TypeOrmModule
-  ],
+    imports: [
+        TypeOrmModule.forFeature([User, BlocklistedToken]),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
+        JwtModule.register({
+            secret: 'yourSecretKey',
+            signOptions: { expiresIn: '1h' },
+        }),
+    ],
+    controllers: [AuthController],
+    providers: [AuthService, JwtStrategy, RolesGuard, JwtAuthGuard],
+    exports: [
+        RolesGuard,
+        JwtAuthGuard,
+        TypeOrmModule, // 关键：导出 TypeOrmModule
+    ],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -4,33 +4,33 @@ import { ShowcasePost } from './showcase-post.entity';
 
 @Entity('comments')
 export class Comment {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column('text')
-  content: string;
+    @Column('text')
+    content: string;
 
-  @Column()
-  userId: number;
+    @Column()
+    userId: number;
 
-  @ManyToOne(() => User)
-  user: User;
+    @ManyToOne(() => User)
+    user: User;
 
-  @Column()
-  postId: number;
+    @Column()
+    postId: number;
 
-  @ManyToOne(() => ShowcasePost, post => post.comments)
-  post: ShowcasePost;
+    @ManyToOne(() => ShowcasePost, post => post.comments)
+    post: ShowcasePost;
 
-  @Column({ nullable: true })
-  parentId: number;
+    @Column({ nullable: true })
+    parentId: number;
 
-  @ManyToOne(() => Comment, { nullable: true })
-  parent: Comment;
+    @ManyToOne(() => Comment, { nullable: true })
+    parent: Comment;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

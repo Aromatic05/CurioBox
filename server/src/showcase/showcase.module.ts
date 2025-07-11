@@ -10,16 +10,16 @@ import { TagService } from './tag.service';
 import { CommentService } from './comment.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ShowcasePost, 
-      Tag, 
-      Comment, 
-      BlocklistedToken
-    ]),
-  ],
-  controllers: [ShowcaseController],
-  providers: [ShowcaseService, TagService, CommentService],
-  exports: [ShowcaseService, TagService, CommentService],
+    imports: [
+        TypeOrmModule.forFeature([
+            ShowcasePost,
+            Tag,
+            Comment,
+            BlocklistedToken
+        ]),
+    ],
+    controllers: [ShowcaseController],
+    providers: [ShowcaseService, TagService, CommentService],
+    exports: [ShowcaseService, TagService, CommentService],
 })
-export class ShowcaseModule {}
+export class ShowcaseModule { }

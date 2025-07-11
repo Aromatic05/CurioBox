@@ -17,31 +17,31 @@ import { UserBoxesModule } from './user-boxes/user-boxes.module';
 import { UserBox } from './user-boxes/entities/user-box.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'curiobox.db',
-      entities: [
-        User,
-        CurioBox,
-        Item,
-        Order,
-        BlocklistedToken,
-        ShowcasePost,
-        Comment,
-        Tag,
-        UserBox
-      ],
-      synchronize: true,
-    }),
-    CurioBoxModule,
-    AuthModule,
-    ItemsModule,
-    OrdersModule,
-    ShowcaseModule,
-    UserBoxesModule,
-  ],
-  controllers: [],
-  providers: [],
+    imports: [
+        TypeOrmModule.forRoot({
+            type: 'sqlite',
+            database: 'curiobox.db',
+            entities: [
+                User,
+                CurioBox,
+                Item,
+                Order,
+                BlocklistedToken,
+                ShowcasePost,
+                Comment,
+                Tag,
+                UserBox
+            ],
+            synchronize: true,
+        }),
+        CurioBoxModule,
+        AuthModule,
+        ItemsModule,
+        OrdersModule,
+        ShowcaseModule,
+        UserBoxesModule,
+    ],
+    controllers: [],
+    providers: [],
 })
-export class AppModule {}
+export class AppModule { }

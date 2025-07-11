@@ -1,6 +1,6 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete,
-  UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator
+    Controller, Get, Post, Body, Patch, Param, Delete,
+    UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -20,35 +20,35 @@ export class ItemsController {
 
     @Post('upload')
     @UseInterceptors(
-      FileInterceptor('image', {
-        storage: diskStorage({
-          destination: './uploads',
-          filename: (req, file, cb) => {
-            const randomName = Array(32)
-              .fill(null)
-              .map(() => Math.round(Math.random() * 16).toString(16))
-              .join('');
-            return cb(null, `${randomName}${extname(file.originalname)}`);
-          },
+        FileInterceptor('image', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                },
+            }),
         }),
-      }),
     )
     async uploadItem(
-      @UploadedFile(
-        new ParseFilePipe({
-          validators: [
-            new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
-          ],
-          fileIsRequired: true,
-        }),
-      ) file: Express.Multer.File,
-      @Body() createItemDto: CreateItemDto,
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                ],
+                fileIsRequired: true,
+            }),
+        ) file: Express.Multer.File,
+        @Body() createItemDto: CreateItemDto,
     ) {
-      const imageUrl = `/static/${file.filename}`;
-      return this.itemsService.create({
-        ...createItemDto,
-        image: imageUrl,
-      });
+        const imageUrl = `/static/${file.filename}`;
+        return this.itemsService.create({
+            ...createItemDto,
+            image: imageUrl,
+        });
     }
 
     @Get()

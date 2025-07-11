@@ -10,13 +10,13 @@ import { UserBoxesModule } from '../user-boxes/user-boxes.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order, CurioBox, UserBox, Item]),
-    UserBoxesModule,
-    AuthModule,
-  ],
-  controllers: [OrdersController],
-  providers: [OrdersService],
-  exports: [OrdersService],
+    imports: [
+        TypeOrmModule.forFeature([Order, CurioBox, UserBox, Item]),
+        UserBoxesModule,
+        AuthModule,
+    ],
+    controllers: [OrdersController],
+    providers: [OrdersService],
+    exports: [OrdersService],
 })
-export class OrdersModule {}
+export class OrdersModule { }

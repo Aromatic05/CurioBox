@@ -17,45 +17,45 @@ export class CurioBoxController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     @UseInterceptors(
-      FileInterceptor('coverImage', {
-        storage: diskStorage({
-          destination: './uploads',
-          filename: (req, file, cb) => {
-            const randomName = Array(32)
-              .fill(null)
-              .map(() => Math.round(Math.random() * 16).toString(16))
-              .join('');
-            return cb(null, `${randomName}${extname(file.originalname)}`);
-          },
+        FileInterceptor('coverImage', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                },
+            }),
         }),
-      }),
     )
     async createWithCover(
-      @UploadedFile(
-        new ParseFilePipe({
-          validators: [
-            new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
-          ],
-          fileIsRequired: true,
-        }),
-      ) file: Express.Multer.File,
-      @Body() createCurioBoxDto: CreateCurioBoxDto,
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                ],
+                fileIsRequired: true,
+            }),
+        ) file: Express.Multer.File,
+        @Body() createCurioBoxDto: CreateCurioBoxDto,
     ) {
-      console.log('Uploaded file:', file.filename);
-      const coverImage = `/static/${file.filename}`;
-      // 兼容 multipart/form-data 字段为字符串的情况
-      const dto = { ...createCurioBoxDto };
-      if (typeof dto.itemIds === 'string') {
-        dto.itemIds = JSON.parse(dto.itemIds);
-      }
-      if (typeof dto.itemProbabilities === 'string') {
-        dto.itemProbabilities = JSON.parse(dto.itemProbabilities);
-      }
-      const result = await this.curioBoxService.create({
-        ...dto,
-        coverImage,
-      });
-      return result;
+        console.log('Uploaded file:', file.filename);
+        const coverImage = `/static/${file.filename}`;
+        // 兼容 multipart/form-data 字段为字符串的情况
+        const dto = { ...createCurioBoxDto };
+        if (typeof dto.itemIds === 'string') {
+            dto.itemIds = JSON.parse(dto.itemIds);
+        }
+        if (typeof dto.itemProbabilities === 'string') {
+            dto.itemProbabilities = JSON.parse(dto.itemProbabilities);
+        }
+        const result = await this.curioBoxService.create({
+            ...dto,
+            coverImage,
+        });
+        return result;
     }
 
     @Post()

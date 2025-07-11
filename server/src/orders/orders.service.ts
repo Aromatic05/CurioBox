@@ -20,12 +20,12 @@ export class OrdersService {
         @InjectRepository(Item)
         private readonly itemRepository: Repository<Item>,
         private readonly dataSource: DataSource,
-    ) {}
+    ) { }
 
     // 购买盲盒 - 在购买时就确定内容并扣减库存
-    async purchase(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<{order: Order, userBoxes: any[]}> {
+    async purchase(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<{ order: Order, userBoxes: any[] }> {
         const { curioBoxId, quantity = 1 } = createUserBoxDto;
-        
+
         // 查找盲盒
         const curioBox = await this.curioBoxRepository.findOne({
             where: { id: curioBoxId },
