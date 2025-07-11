@@ -83,7 +83,7 @@ const BoxEditPage: React.FC = () => {
             } else {
                 await createCurioBox(payload);
             }
-            navigate('/admin');
+            navigate('/admin/boxes');
         } catch (err) {
             setError('提交失败，请重试');
         } finally {
