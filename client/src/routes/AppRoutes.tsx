@@ -4,6 +4,9 @@ import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import AdminLayout from '../components/layout/AdminLayout';
+import AdminRoute from './AdminRoute';
+import BoxManagementPage from '../pages/admin/BoxManagementPage';
 
 const router = createBrowserRouter([
   {
@@ -12,7 +15,7 @@ const router = createBrowserRouter([
     errorElement: <NotFoundPage />, // 错误页面
     children: [
       {
-        index: true, // index: true 表示这是父路由 '/' 的默认子路由
+        index: true,
         element: <HomePage />,
       },
       {
@@ -23,12 +26,29 @@ const router = createBrowserRouter([
         path: 'register',
         element: <RegisterPage />,
       },
+      // {
+      //   path: 'admin/boxes',
+      //   element: <BoxManagementPage />,
+      // }
       // 你可以在这里继续添加其他使用 MainLayout 的页面
       // { path: 'showcase', element: <ShowcasePage /> },
     ],
   },
-  // 在这里可以添加其他不使用 MainLayout 的路由，例如独立的后台登录页
-  // { path: '/admin/login', element: <AdminLoginPage /> }
+  // 添加后台管理路由
+  {
+    path: '/admin',
+    element: <AdminRoute />, // 首先通过管理员守卫
+    children: [
+      {
+        element: <AdminLayout />, // 然后应用后台专用布局
+        children: [
+          { path: 'boxes', element: <BoxManagementPage /> },
+          // { path: 'items', element: <ItemManagementPage /> },
+          // { index: true, element: <AdminDashboard /> }
+        ]
+      }
+    ]
+  }
 ]);
 
 export default router;

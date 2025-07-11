@@ -29,6 +29,9 @@ importers:
       '@mui/material':
         specifier: ^7.2.0
         version: 7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mui/x-data-grid':
+        specifier: ^8.8.0
+        version: 8.8.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@mui/material@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mui/system@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tailwindcss/cli':
         specifier: ^4.1.11
         version: 4.1.11
@@ -1062,6 +1065,29 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@mui/x-data-grid@8.8.0':
+    resolution: {integrity: sha512-xWoBmxHi5JvT0QvAYGYJYNy4DEi+Lez+lrsqw3YV7z0jEYyJoV9vjFCiFE4QmG6IPg62B1gZHYE5AkDLFCvPkw==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@emotion/react': ^11.9.0
+      '@emotion/styled': ^11.8.1
+      '@mui/material': ^5.15.14 || ^6.0.0 || ^7.0.0
+      '@mui/system': ^5.15.14 || ^6.0.0 || ^7.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/react':
+        optional: true
+      '@emotion/styled':
+        optional: true
+
+  '@mui/x-internals@8.8.0':
+    resolution: {integrity: sha512-qTRK5oINkAjZ7sIHpSnESLNq1xtQUmmfmGscYUSEP0uHoYh6pKkNWH9+7yzggRHuTv+4011VBwN9s+efrk+xZg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@mui/system': ^5.15.14 || ^6.0.0 || ^7.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@napi-rs/nice-android-arm-eabi@1.0.4':
     resolution: {integrity: sha512-OZFMYUkih4g6HCKTjqJHhMUlgvPiDuSLZPbPBWHLjKmFTv74COzRlq/gwHtmEVaR39mJQ6ZyttDl2HNMUbLVoA==}
@@ -4238,6 +4264,9 @@ packages:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
 
+  reselect@5.1.1:
+    resolution: {integrity: sha512-K/BG6eIky/SBpzfHZv/dd+9JBFiS4SWV7FIujVyJRux6e45+73RaUHXLmIR1f7WOMaQ0U1km6qwklRQxpJJY0w==}
+
   resolve-alpn@1.2.1:
     resolution: {integrity: sha512-0a1F4l73/ZFZOakJnQ3FvkJ2+gSTQWz/r2KE5OdDY0TxPm5h4GkqkWWfM47T7HsbnOtcJVEF4epCVy6u7Q3K+g==}
 
@@ -4872,6 +4901,11 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  use-sync-external-store@1.5.0:
+    resolution: {integrity: sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -5968,6 +6002,34 @@ snapshots:
       react-is: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.8
+
+  '@mui/x-data-grid@8.8.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@mui/material@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mui/system@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@babel/runtime': 7.27.6
+      '@mui/material': 7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mui/system': 7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
+      '@mui/utils': 7.2.0(@types/react@19.1.8)(react@19.1.0)
+      '@mui/x-internals': 8.8.0(@mui/system@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
+      clsx: 2.1.1
+      prop-types: 15.8.1
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      use-sync-external-store: 1.5.0(react@19.1.0)
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@19.1.8)(react@19.1.0)
+      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@mui/x-internals@8.8.0(@mui/system@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)':
+    dependencies:
+      '@babel/runtime': 7.27.6
+      '@mui/system': 7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
+      '@mui/utils': 7.2.0(@types/react@19.1.8)(react@19.1.0)
+      react: 19.1.0
+      reselect: 5.1.1
+    transitivePeerDependencies:
+      - '@types/react'
 
   '@napi-rs/nice-android-arm-eabi@1.0.4':
     optional: true
@@ -9384,6 +9446,8 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
+  reselect@5.1.1: {}
+
   resolve-alpn@1.2.1: {}
 
   resolve-cwd@3.0.0:
@@ -10060,6 +10124,10 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  use-sync-external-store@1.5.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
 
   util-deprecate@1.0.2: {}
 

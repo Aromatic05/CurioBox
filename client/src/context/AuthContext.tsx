@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import apiClient from '../api/apiClient';
+import { fetchUserData } from '../api/authApi';
 
 // 1. 定义数据类型
 interface IUser {
@@ -31,12 +32,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      // 当 token 存在时，设置 apiClient 的默认请求头
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // 在真实项目中，你可能需要在这里添加一个 API 调用来获取用户信息
-      // setUser(fetchedUserData); 
+      // 自动获取用户信息
+      fetchUserData()
+        .then(res => setUser(res.data))
+        .catch(() => setUser(null));
     } else {
       delete apiClient.defaults.headers.common['Authorization'];
+      setUser(null);
     }
   }, [token]);
 
