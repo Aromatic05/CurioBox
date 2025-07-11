@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { loginUser, fetchUserData } from '../../api/authApi';
-import { useNavigate, useLocation } from 'react-router-dom';
-
-// 引入 MUI 组件
+import { registerUser } from '../../api/authApi';
+import { useNavigate } from 'react-router-dom';
 import {
     Container,
     Box,
@@ -13,40 +10,25 @@ import {
     CircularProgress,
     Alert,
 } from '@mui/material';
-import apiClient from '../../api/apiClient';
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-
-    const auth = useAuth();
     const navigate = useNavigate();
-    const location = useLocation();
-    const from = location.state?.from?.pathname || '/';
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setLoading(true);
         setError(null);
-
+        setSuccess(null);
         try {
-            const loginResponse = await loginUser({ username, password });
-            const { accessToken } = loginResponse.data;
-
-            // 登录成功后，用新 token 获取用户信息
-            apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-            const userResponse = await fetchUserData();
-
-            // 更新全局状态
-            auth.login(accessToken, userResponse.data);
-
-            // 跳转到之前的页面或首页
-            navigate(from, { replace: true });
-
+            await registerUser({ username, password });
+            setSuccess('注册成功，请返回登录页面登录！');
         } catch (err: any) {
-            setError(err.response?.data?.message || '登录失败，请检查您的用户名和密码');
+            setError(err.response?.data?.message || '注册失败，请重试');
         } finally {
             setLoading(false);
         }
@@ -62,14 +44,15 @@ const LoginPage: React.FC = () => {
                     alignItems: 'center',
                     padding: 4,
                     borderRadius: 2,
-                    boxShadow: 3, // 使用 MUI 的 elevation 效果
+                    boxShadow: 3,
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    登录 CurioBox
+                    注册 CurioBox 账号
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                     {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
+                    {success && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{success}</Alert>}
                     <TextField
                         margin="normal"
                         required
@@ -90,7 +73,7 @@ const LoginPage: React.FC = () => {
                         label="密码"
                         type="password"
                         id="password"
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
@@ -101,20 +84,20 @@ const LoginPage: React.FC = () => {
                         sx={{ mt: 3, mb: 2 }}
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} color="inherit" /> : '登 录'}
+                        {loading ? <CircularProgress size={24} color="inherit" /> : '注 册'}
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="text"
+                        sx={{ mb: 1 }}
+                        onClick={() => navigate('/login')}
+                    >
+                        返回登录
                     </Button>
                 </Box>
-                <Button
-                    fullWidth
-                    variant="text"
-                    sx={{ mb: 1 }}
-                    onClick={() => navigate('/register')}
-                >
-                    没有账号？请先注册
-                </Button>
             </Box>
         </Container>
     );
 };
 
-export default LoginPage;
+export default RegisterPage;

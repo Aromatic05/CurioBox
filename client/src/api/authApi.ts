@@ -29,9 +29,10 @@ export const loginUser = (data: LoginPayload): Promise<AxiosResponse<LoginRespon
     return apiClient.post('/auth/login', data);
 };
 
-// 注册用户
+// 注册用户（前端强制 role 为 'user'，防止注册管理员）
 export const registerUser = (data: { username: string; password: string; role?: string }): Promise<AxiosResponse<IUser>> => {
-    return apiClient.post('/auth/register', data);
+    const safeData = { ...data, role: 'user' };
+    return apiClient.post('/auth/register', safeData);
 };
 
 // 修改密码
