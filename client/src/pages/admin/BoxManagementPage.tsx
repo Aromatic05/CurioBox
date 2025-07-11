@@ -54,7 +54,7 @@ const BoxManagementPage: React.FC = () => {
         { field: 'price', headerName: '价格', type: 'number', width: 110 },
         { field: 'description', headerName: '描述', flex: 1 },
         {
-            field: 'image',
+            field: 'coverImage', // 修正为 coverImage 字段
             headerName: '图片',
             width: 120,
             renderCell: (params) => (
