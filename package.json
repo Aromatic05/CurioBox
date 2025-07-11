@@ -13,7 +13,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.13.1",
   "devDependencies": {
     "concurrently": "^9.2.0",
     "prettier": "^3.6.2"
