@@ -39,6 +39,14 @@ const BoxManagementPage: React.FC = () => {
     }
   };
 
+  // 新增和编辑跳转逻辑
+  const handleAdd = () => {
+    window.location.href = '/admin/box/edit';
+  };
+  const handleEdit = (id: number) => {
+    window.location.href = `/admin/box/edit/${id}`;
+  };
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: '盲盒名称', width: 200 },
@@ -46,13 +54,25 @@ const BoxManagementPage: React.FC = () => {
     { field: 'price', headerName: '价格', type: 'number', width: 110 },
     { field: 'description', headerName: '描述', flex: 1 },
     {
+      field: 'image',
+      headerName: '图片',
+      width: 120,
+      renderCell: (params) => (
+        params.value ? (
+          <img src={params.value} alt="盲盒图片" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }} />
+        ) : (
+          <span style={{ color: '#aaa' }}>无图片</span>
+        )
+      ),
+    },
+    {
       field: 'actions',
       headerName: '操作',
       sortable: false,
       width: 150,
       renderCell: (params) => (
         <>
-          <IconButton onClick={() => console.log('Edit', params.row.id)}>
+          <IconButton onClick={() => handleEdit(params.row.id)}>
             <EditIcon />
           </IconButton>
           <IconButton onClick={() => handleDelete(params.row.id as number)}>
@@ -68,7 +88,7 @@ const BoxManagementPage: React.FC = () => {
       <Typography variant="h4" sx={{ mb: 2 }}>
         盲盒管理
       </Typography>
-      <Button variant="contained" sx={{ mb: 2 }}>
+      <Button variant="contained" sx={{ mb: 2 }} onClick={handleAdd}>
         新增盲盒
       </Button>
       <DataGrid
