@@ -33,29 +33,14 @@ export class CurioBoxController {
     async createWithCover(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [
-                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
-                ],
+                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
                 fileIsRequired: true,
             }),
         ) file: Express.Multer.File,
         @Body() createCurioBoxDto: CreateCurioBoxDto,
     ) {
-        console.log('Uploaded file:', file.filename);
-        const coverImage = `/static/${file.filename}`;
-        // 兼容 multipart/form-data 字段为字符串的情况
-        const dto = { ...createCurioBoxDto };
-        if (typeof dto.itemIds === 'string') {
-            dto.itemIds = JSON.parse(dto.itemIds);
-        }
-        if (typeof dto.itemProbabilities === 'string') {
-            dto.itemProbabilities = JSON.parse(dto.itemProbabilities);
-        }
-        const result = await this.curioBoxService.create({
-            ...dto,
-            coverImage,
-        });
-        return result;
+        // 具体逻辑交给 service
+        return this.curioBoxService.createWithCover(file, createCurioBoxDto);
     }
 
     @Post()
@@ -103,5 +88,35 @@ export class CurioBoxController {
         @Body('itemProbabilities') itemProbabilities: { itemId: number; probability: number }[],
     ) {
         return this.curioBoxService.updateItemsAndProbabilities(id, itemIds, itemProbabilities);
+    }
+
+    // 上传图片并返回图片链接（不创建盲盒，仅返回图片URL）
+    @Post('upload-image')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                },
+            }),
+        }),
+    )
+    async uploadImage(
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                fileIsRequired: true,
+            }),
+        ) file: Express.Multer.File,
+    ) {
+        // 具体逻辑交给 service
+        return this.curioBoxService.uploadImage(file);
     }
 }

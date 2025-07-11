@@ -51,6 +51,34 @@ export class ItemsController {
         });
     }
 
+    // 单独上传图片并返回图片链接（不创建物品，仅返回图片URL）
+    @Post('upload-image')
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                },
+            }),
+        }),
+    )
+    async uploadImage(
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                fileIsRequired: true,
+            }),
+        ) file: Express.Multer.File,
+    ) {
+        const url = `/static/${file.filename}`;
+        return { url };
+    }
+
     @Get()
     findAll() {
         return this.itemsService.findAll();

@@ -153,4 +153,27 @@ export class CurioBoxService {
             },
         });
     }
+
+    // 上传图片并返回图片链接（不创建盲盒，仅返回图片URL）
+    async uploadImage(file: Express.Multer.File): Promise<{ url: string }> {
+        const url = `/static/${file.filename}`;
+        return { url };
+    }
+
+    // 带图片创建盲盒（multipart/form-data）
+    async createWithCover(file: Express.Multer.File, createCurioBoxDto: CreateCurioBoxDto): Promise<CurioBox> {
+        const coverImage = `/static/${file.filename}`;
+        // 兼容 multipart/form-data 字段为字符串的情况
+        const dto = { ...createCurioBoxDto };
+        if (typeof dto.itemIds === 'string') {
+            dto.itemIds = JSON.parse(dto.itemIds);
+        }
+        if (typeof dto.itemProbabilities === 'string') {
+            dto.itemProbabilities = JSON.parse(dto.itemProbabilities);
+        }
+        return this.create({
+            ...dto,
+            coverImage,
+        });
+    }
 }
