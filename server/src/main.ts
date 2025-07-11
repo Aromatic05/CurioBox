@@ -16,6 +16,12 @@ async function bootstrap() {
 
   console.log('Static assets dir:', join(__dirname, '..', 'uploads'));
 
+  // 启用 CORS，允许前端跨域访问
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
