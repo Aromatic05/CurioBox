@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { loginUser } from '../../api/authApi';
+import { loginUser, fetchUserData } from '../../api/authApi';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // 引入 MUI 组件
@@ -13,7 +13,7 @@ import {
     CircularProgress,
     Alert,
 } from '@mui/material';
-// import apiClient from '../../api/apiClient';
+import apiClient from '../../api/apiClient';
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -35,8 +35,12 @@ const LoginPage: React.FC = () => {
             const loginResponse = await loginUser({ username, password });
             const { accessToken } = loginResponse.data;
 
-            // 登录成功后，直接用用户名更新全局状态（后端登录响应不含用户信息时）
-            auth.login(accessToken, { id: 0, username, role: 'user' });
+            // 登录成功后，用新 token 获取用户信息
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+            const userResponse = await fetchUserData();
+
+            // 更新全局状态
+            auth.login(accessToken, userResponse.data);
 
             // 跳转到之前的页面或首页
             navigate(from, { replace: true });

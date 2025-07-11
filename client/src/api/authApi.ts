@@ -19,9 +19,10 @@ interface IUser {
 }
 
 // 我们假设登录成功后，除了token，还需要一个接口来获取用户信息
-// export const fetchUserData = (): Promise<AxiosResponse<IUser>> => {
-//     return apiClient.get('/auth/me');
-// }
+export const fetchUserData = (): Promise<AxiosResponse<IUser>> => {
+    // 假设有一个 /auth/me 的接口根据token返回用户信息
+    return apiClient.get('/auth/me');
+}
 
 
 export const loginUser = (data: LoginPayload): Promise<AxiosResponse<LoginResponse>> => {

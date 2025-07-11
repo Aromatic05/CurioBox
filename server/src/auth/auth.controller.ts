@@ -66,4 +66,20 @@ export class AuthController {
   setNickname(@Request() req: any, @Body() body: { nickname: string }) {
     return this.authService.setNickname(req.user.sub, body.nickname);
   }
+
+  /**
+   * 获取当前用户信息
+   * GET /auth/me
+   * @param req 请求对象，包含用户信息
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getProfile(@Request() req: any) {
+    return {
+      id: req.user.sub,
+      username: req.user.username,
+      role: req.user.role,
+      // 可根据实际需求返回更多字段
+    };
+  }
 }
