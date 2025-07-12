@@ -102,7 +102,7 @@ function Navbar() {
                             <Tooltip title="个人中心">
                                 <IconButton 
                                     component={Link} 
-                                    to="/profile"
+                                    to="/user"
                                     sx={{
                                         '&:hover': {
                                             transform: 'scale(1.05)'

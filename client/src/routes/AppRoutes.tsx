@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
 import StorePage from '../pages/store/StorePage'; // 新主页
 import LoginPage from '../pages/auth/LoginPage';
@@ -16,6 +16,10 @@ import PostDetailPage from '../pages/showcase/PostDetailPage';
 import CurioBoxDetailPage from '../pages/store/CurioBoxDetailPage'; // 引入详情页组件
 import CreatePostPage from '../pages/showcase/CreatePostPage';
 import PrivateRoute from './PrivateRoute';
+import UserDashboardLayout from '../pages/user/UserDashboardLayout';
+import WarehousePage from '../pages/user/WarehousePage';
+import MyPostsPage from '../pages/user/MyPostsPage';
+// import HistoryPage from '../pages/user/HistoryPage'; // 假设你已创建
 
 const router = createBrowserRouter([
     {
@@ -53,6 +57,21 @@ const router = createBrowserRouter([
                     {
                         path: 'showcase/create',
                         element: <CreatePostPage />,
+                    }
+                ]
+            },
+            {
+                path: 'user',
+                element: <PrivateRoute />, // 整个个人中心都需要登录
+                children: [
+                    {
+                        element: <UserDashboardLayout />, // 应用仪表盘布局
+                        children: [
+                            { index: true, element: <Navigate to="/user/warehouse" replace /> },
+                            { path: 'warehouse', element: <WarehousePage /> },
+                            { path: 'posts', element: <MyPostsPage /> },
+                            // { path: 'history', element: <HistoryPage /> },
+                        ]
                     }
                 ]
             },

@@ -56,3 +56,8 @@ export const createPost = (data: CreatePostPayload): Promise<AxiosResponse<IPost
 export const getTags = (): Promise<AxiosResponse<ITag[]>> => {
   return apiClient.get('/showcase/tags');
 };
+
+export const getMyPosts = (): Promise<AxiosResponse<{ items: IPost[] }>> => {
+  // 理想情况下，后端提供一个专门的接口
+  return apiClient.get('/showcase/me/posts'); 
+};
