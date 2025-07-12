@@ -1,0 +1,84 @@
+/* src/components/layout/Navbar.css */
+
+.navbar-appbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.navbar-toolbar {
+    min-height: 70px;
+}
+.navbar-title {
+    flex-grow: 1;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-family: 'Poppins', sans-serif;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.navbar-link {
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.navbar-brand {
+    background: rgba(255,255,255,0.2);
+    padding: 8px 12px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.navbar-navbox {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.navbar-showcase-btn {
+    color: #fff;
+    transition: all 0.3s ease;
+}
+.navbar-showcase-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: scale(1.1);
+}
+.navbar-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-weight: 600;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: border-color 0.3s;
+}
+.navbar-avatar:hover {
+    border-color: rgba(255,255,255,0.6);
+}
+.navbar-login-btn {
+    border-radius: 20px;
+    padding: 8px 24px;
+    background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(250, 208, 196, 0.4);
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+.navbar-login-btn:hover {
+    box-shadow: 0 6px 20px rgba(250, 208, 196, 0.6);
+    transform: translateY(-2px);
+}
+.navbar-logout-btn {
+    border-radius: 20px;
+    padding: 8px 24px;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: background 0.3s, border-color 0.3s;
+    background: none;
+}
+.navbar-logout-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.6);
+}
