@@ -38,7 +38,8 @@ const CreatePostPage: React.FC = () => {
     // 表单状态
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [imagesText, setImagesText] = useState(''); // 用于接收图片URL文本
+    const [imageFiles, setImageFiles] = useState<File[]>([]); // 用于接收图片文件
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 图片预览URL
     const [availableTags, setAvailableTags] = useState<ITag[]>([]);
     const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
 
@@ -66,6 +67,28 @@ const CreatePostPage: React.FC = () => {
         setSelectedTagNames(typeof value === 'string' ? value.split(',') : value);
     };
 
+    // 处理图片选择
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            setImageFiles(files);
+            setImagePreviews(files.map(file => URL.createObjectURL(file)));
+        }
+    };
+
+    // 上传图片到服务器，返回图片URL数组（假设有上传API）
+    const uploadImages = async (files: File[]): Promise<string[]> => {
+        // 这里假设有 /api/upload endpoint，返回 { urls: string[] }
+        const formData = new FormData();
+        files.forEach(file => formData.append('images', file));
+        const res = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await res.json();
+        return data.urls || [];
+    };
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!title.trim() || !content.trim()) {
@@ -80,17 +103,25 @@ const CreatePostPage: React.FC = () => {
             return foundTag ? foundTag.id : null;
         }).filter(id => id !== null) as number[];
 
+        let imageUrls: string[] = [];
+        if (imageFiles.length > 0) {
+            try {
+                imageUrls = await uploadImages(imageFiles);
+            } catch (err) {
+                setSnackbar({ open: true, message: '图片上传失败', severity: 'error' });
+                setLoading(false);
+                return;
+            }
+        }
         const payload: CreatePostPayload = {
             title,
             content,
-            images: imagesText.split('\n').filter(url => url.trim() !== ''), // 将每行文本转换为数组项
+            images: imageUrls,
             tagIds: selectedTagIds,
         };
-
         try {
             const response = await createPost(payload);
             setSnackbar({ open: true, message: '帖子发布成功！', severity: 'success' });
-            // 延迟跳转，让用户看到成功提示
             setTimeout(() => {
                 navigate(`/showcase/${response.data.id}`);
             }, 1000);
@@ -126,16 +157,29 @@ const CreatePostPage: React.FC = () => {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                     />
-                    <TextField
-                        margin="normal"
-                        fullWidth
-                        label="图片链接 (每行一个)"
-                        multiline
-                        rows={3}
-                        value={imagesText}
-                        onChange={(e) => setImagesText(e.target.value)}
-                        helperText="请粘贴图片的URL，每个URL占一行。"
-                    />
+                    <Box marginY={2}>
+                        <Button
+                            variant="outlined"
+                            component="label"
+                        >
+                            上传图片
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                hidden
+                                onChange={handleImageChange}
+                            />
+                        </Button>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            支持多张图片上传，图片将自动上传并用于帖子展示。
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
+                            {imagePreviews.map((url, idx) => (
+                                <img key={idx} src={url} alt={`预览${idx + 1}`} style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee' }} />
+                            ))}
+                        </Box>
+                    </Box>
                     <FormControl fullWidth margin="normal">
                         <InputLabel id="multiple-tags-label">标签</InputLabel>
                         <Select
