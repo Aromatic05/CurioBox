@@ -20,6 +20,7 @@ import {
     type SelectChangeEvent,
 } from '@mui/material';
 import { type Theme, useTheme } from '@mui/material/styles';
+import { uploadItemImage } from '../../api/itemApi';
 
 // MUI Select多选样式辅助函数
 function getStyles(name: string, personName: readonly string[], theme: Theme) {
@@ -70,23 +71,22 @@ const CreatePostPage: React.FC = () => {
     // 处理图片选择
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const files = Array.from(e.target.files);
-            setImageFiles(files);
+            const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+            setImageFiles(files); // 允许多选
             setImagePreviews(files.map(file => URL.createObjectURL(file)));
         }
     };
 
-    // 上传图片到服务器，返回图片URL数组（假设有上传API）
+    // 多图片上传，返回所有图片URL
     const uploadImages = async (files: File[]): Promise<string[]> => {
-        // 这里假设有 /api/upload endpoint，返回 { urls: string[] }
-        const formData = new FormData();
-        files.forEach(file => formData.append('images', file));
-        const res = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-        });
-        const data = await res.json();
-        return data.urls || [];
+        const urls: string[] = [];
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append('file', file); // 字段名必须为 file
+            const res = await uploadItemImage(formData);
+            urls.push(res.data.url);
+        }
+        return urls;
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
