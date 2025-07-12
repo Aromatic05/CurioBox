@@ -13,6 +13,7 @@ import ItemManagementPage from '../pages/admin/ItemManagementPage';
 import ItemEditPage from '../pages/admin/ItemEditPage';
 import ShowcasePage from '../pages/showcase/ShowcasePage';
 import PostDetailPage from '../pages/showcase/PostDetailPage';
+import CurioBoxDetailPage from '../pages/store/CurioBoxDetailPage'; // 引入详情页组件
 // import CreatePostPage from '../pages/showcase/CreatePostPage';
 import PrivateRoute from './PrivateRoute';
 
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
             {
                 path: 'showcase/:id',
                 element: <PostDetailPage />,
+            },
+            {
+                path: 'box/:id', // 新增路由
+                element: <CurioBoxDetailPage />,
             },
             {
                 element: <PrivateRoute />,
