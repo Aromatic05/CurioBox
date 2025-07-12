@@ -19,7 +19,7 @@ import PrivateRoute from './PrivateRoute';
 import UserDashboardLayout from '../pages/user/UserDashboardLayout';
 import WarehousePage from '../pages/user/WarehousePage';
 import MyPostsPage from '../pages/user/MyPostsPage';
-// import HistoryPage from '../pages/user/HistoryPage'; // 假设你已创建
+import HistoryPage from '../pages/user/HistoryPage'; 
 
 const router = createBrowserRouter([
     {
@@ -70,7 +70,7 @@ const router = createBrowserRouter([
                             { index: true, element: <Navigate to="/user/warehouse" replace /> },
                             { path: 'warehouse', element: <WarehousePage /> },
                             { path: 'posts', element: <MyPostsPage /> },
-                            // { path: 'history', element: <HistoryPage /> },
+                            { path: 'history', element: <HistoryPage /> },
                         ]
                     }
                 ]
