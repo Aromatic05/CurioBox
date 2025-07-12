@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, MenuItem, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Typography, MenuItem, CircularProgress, Autocomplete} from '@mui/material';
 import { getCurioBoxById, createCurioBox, updateCurioBox, uploadCurioBoxImage } from '../../api/curioBoxApi';
+import { getItems } from '../../api/itemApi';
 
 const categories = [
     { value: '潮玩', label: '潮玩' },
@@ -28,6 +29,17 @@ const BoxEditPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // 物品相关
+    const [allItems, setAllItems] = useState<any[]>([]); // 所有物品
+    const [selectedItems, setSelectedItems] = useState<any[]>([]); // 选中的物品
+    const [itemProbabilities, setItemProbabilities] = useState<{ itemId: number; probability: number }[]>([]);
+
+    // 获取所有物品
+    useEffect(() => {
+        getItems().then(res => setAllItems(res.data)).catch(() => setAllItems([]));
+    }, []);
+
+    // 编辑模式下加载盲盒详情
     useEffect(() => {
         if (isEdit) {
             setLoading(true);
@@ -41,11 +53,45 @@ const BoxEditPage: React.FC = () => {
                         coverImage: res.data.coverImage || '',
                     });
                     setPreview(res.data.coverImage || '');
+                    setItemProbabilities(res.data.itemProbabilities || []);
+                    // 根据 itemProbabilities 的 itemId 反查物品
+                    if (res.data.itemProbabilities && allItems.length > 0) {
+                        const selected = res.data.itemProbabilities.map(ip => allItems.find(ai => ai.id === ip.itemId)).filter(Boolean);
+                        setSelectedItems(selected);
+                    } else {
+                        setSelectedItems([]);
+                    }
                 })
                 .catch(() => setError('加载盲盒信息失败'))
                 .finally(() => setLoading(false));
         }
-    }, [id, isEdit]);
+    }, [id, isEdit, allItems]);
+
+    // allItems加载后，修正selectedItems为allItems中的引用
+    useEffect(() => {
+        if (isEdit && allItems.length > 0 && selectedItems.length > 0) {
+            const fixed = selectedItems.map(item => allItems.find(ai => ai.id === item.id) || item);
+            setSelectedItems(fixed);
+        }
+    }, [allItems]);
+
+    // 物品选择变化
+    const handleItemsChange = (_: any, value: any[]) => {
+        setSelectedItems(value);
+        // 保持概率数组与选中物品同步
+        const newProb = value.map(item => {
+            const found = itemProbabilities.find(ip => ip.itemId === item.id);
+            return found || { itemId: item.id, probability: 0 };
+        });
+        setItemProbabilities(newProb);
+    };
+
+    // 概率输入变化
+    const handleProbabilityChange = (itemId: number, value: string) => {
+        setItemProbabilities(prev =>
+            prev.map(ip => ip.itemId === itemId ? { ...ip, probability: Number(value) } : ip)
+        );
+    };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,6 +123,8 @@ const BoxEditPage: React.FC = () => {
                 ...form,
                 price: Number(form.price),
                 coverImage: imageUrl,
+                itemIds: selectedItems.map(item => item.id),
+                itemProbabilities,
             };
             if (isEdit) {
                 await updateCurioBox(Number(id), payload);
@@ -92,7 +140,7 @@ const BoxEditPage: React.FC = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
+        <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
                 {isEdit ? '编辑盲盒' : '新建盲盒'}
             </Typography>
@@ -140,6 +188,36 @@ const BoxEditPage: React.FC = () => {
                     rows={3}
                     sx={{ mb: 2 }}
                 />
+                {/* 物品选择与概率设置 */}
+                <Autocomplete
+                    multiple
+                    options={allItems}
+                    getOptionLabel={option => option.name}
+                    value={selectedItems}
+                    onChange={handleItemsChange}
+                    renderInput={params => <TextField {...params} label="选择物品" sx={{ mb: 2 }} />}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
+                {selectedItems.length > 0 && (
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle1" sx={{ mb: 1 }}>设置物品概率（总和需为1）</Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                            {selectedItems.map(item => (
+                                <Box key={item.id + '-' + itemProbabilities.find(ip => ip.itemId === item.id)?.probability} sx={{ width: { xs: '100%', sm: '48%', md: '31%' }, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Typography>{item.name}</Typography>
+                                    <TextField
+                                        type="number"
+                                        size="small"
+                                        value={itemProbabilities.find(ip => ip.itemId === item.id)?.probability ?? 0}
+                                        onChange={e => handleProbabilityChange(item.id, e.target.value)}
+                                        inputProps={{ step: 0.01, min: 0, max: 1 }}
+                                        sx={{ width: 80 }}
+                                    />
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
                 <Box sx={{ mb: 2 }}>
                     <Button variant="outlined" component="label">
                         上传图片
