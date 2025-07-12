@@ -16,7 +16,7 @@ function Navbar() {
     };
 
     return (
-        <AppBar position="static" className="navbar-appbar">
+        <AppBar position="static" sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }} className="navbar-appbar">
             <Toolbar className="navbar-toolbar">
                 <Typography variant="h5" component="div" className="navbar-title">
                     <Link to="/" className="navbar-link">
@@ -45,12 +45,12 @@ function Navbar() {
                                     )}
                                 </IconButton>
                             </Tooltip>
-                            <Button onClick={handleLogout} variant="outlined" className="navbar-logout-btn">
+                            <Button onClick={handleLogout} className="navbar-logout-btn">
                                 登出
                             </Button>
                         </>
                     ) : (
-                        <Button component={Link} to="/login" variant="contained" className="navbar-login-btn">
+                        <Button component={Link} to="/login" className="navbar-login-btn">
                             登录/注册
                         </Button>
                     )}
