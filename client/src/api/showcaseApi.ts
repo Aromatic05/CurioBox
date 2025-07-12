@@ -26,6 +26,13 @@ export interface IComment {
   createdAt: string;
 }
 
+// 新增：定义标签类型
+export interface ITag {
+  id: number;
+  name: string;
+  description: string;
+}
+
 export type CreatePostPayload = Omit<IPost, 'id' | 'author' | 'createdAt'>;
 
 // 2. API 函数
@@ -43,4 +50,9 @@ export const getCommentsByPostId = (id: string): Promise<AxiosResponse<IComment[
 
 export const createPost = (data: CreatePostPayload): Promise<AxiosResponse<IPost>> => {
   return apiClient.post('/showcase/posts', data);
+};
+
+// 新增：获取所有标签
+export const getTags = (): Promise<AxiosResponse<ITag[]>> => {
+  return apiClient.get('/showcase/tags');
 };

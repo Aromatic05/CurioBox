@@ -14,7 +14,7 @@ import ItemEditPage from '../pages/admin/ItemEditPage';
 import ShowcasePage from '../pages/showcase/ShowcasePage';
 import PostDetailPage from '../pages/showcase/PostDetailPage';
 import CurioBoxDetailPage from '../pages/store/CurioBoxDetailPage'; // 引入详情页组件
-// import CreatePostPage from '../pages/showcase/CreatePostPage';
+import CreatePostPage from '../pages/showcase/CreatePostPage';
 import PrivateRoute from './PrivateRoute';
 
 const router = createBrowserRouter([
@@ -49,12 +49,12 @@ const router = createBrowserRouter([
             },
             {
                 element: <PrivateRoute />,
-                // children: [
-                //     {
-                //         path: 'showcase/create',
-                //         element: <CreatePostPage />,
-                //     }
-                // ]
+                children: [
+                    {
+                        path: 'showcase/create',
+                        element: <CreatePostPage />,
+                    }
+                ]
             },
             // 你可以在这里继续添加其他使用 MainLayout 的页面
             // { path: 'showcase', element: <ShowcasePage /> },
