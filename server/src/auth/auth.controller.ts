@@ -130,4 +130,17 @@ export class AuthController {
     setAvatar(@Request() req: any, @Body() body: { avatar: string }) {
         return this.authService.setAvatar(req.user.sub, body.avatar);
     }
+
+    /**
+     * 删除用户端点
+     * DELETE /auth/delete-user
+     * 仅本人或管理员可操作
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('delete-user')
+    @HttpCode(HttpStatus.OK)
+    async deleteUser(@Request() req: any) {
+        // 这里假设 authService.deleteUser(userId, role) 实现了权限校验和删除逻辑
+        return await this.authService.deleteUser(req.user.sub, req.user.role);
+    }
 }

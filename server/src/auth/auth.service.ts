@@ -115,7 +115,7 @@ export class AuthService {
         return { message: 'Nickname updated successfully' };
     }
 
-        async setAvatar(userId: number, avatar: string) {
+    async setAvatar(userId: number, avatar: string) {
         const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (!user) {
             throw new UnauthorizedException('User not found');
@@ -123,5 +123,18 @@ export class AuthService {
         user.avatar = avatar;
         await this.usersRepository.save(user);
         return { message: 'Avatar updated successfully' };
+    }
+
+    async deleteUser(userId: number, role: string) {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        // 只有本人或管理员可以删除
+        if (role !== 'admin' && user.id !== userId) {
+            throw new UnauthorizedException('No permission to delete this user');
+        }
+        await this.usersRepository.remove(user);
+        return { message: 'User deleted successfully' };
     }
 }
