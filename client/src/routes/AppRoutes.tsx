@@ -17,6 +17,7 @@ import CurioBoxDetailPage from '../pages/store/CurioBoxDetailPage'; // 引入详
 import CreatePostPage from '../pages/showcase/CreatePostPage';
 import PrivateRoute from './PrivateRoute';
 import UserDashboardLayout from '../pages/user/UserDashboardLayout';
+import UserProfileSettings from '../pages/user/UserProfileSettings';
 import WarehousePage from '../pages/user/WarehousePage';
 import MyPostsPage from '../pages/user/MyPostsPage';
 import HistoryPage from '../pages/user/HistoryPage'; 
@@ -71,6 +72,7 @@ const router = createBrowserRouter([
                             { path: 'warehouse', element: <WarehousePage /> },
                             { path: 'posts', element: <MyPostsPage /> },
                             { path: 'history', element: <HistoryPage /> },
+                            { path: 'settings', element: <UserProfileSettings /> },
                         ]
                     }
                 ]

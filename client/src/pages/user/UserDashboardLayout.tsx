@@ -15,6 +15,7 @@ const UserDashboardLayout: React.FC = () => {
           <Tab label="我的仓库" value="/user/warehouse" to="/user/warehouse" component={RouterLink} />
           <Tab label="开箱记录" value="/user/history" to="/user/history" component={RouterLink} />
           <Tab label="我的帖子" value="/user/posts" to="/user/posts" component={RouterLink} />
+          <Tab label="个人设置" value="/user/settings" to="/user/settings" component={RouterLink} />
         </Tabs>
       </Box>
       {/* 子页面将在这里渲染 */}

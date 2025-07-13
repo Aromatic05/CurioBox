@@ -8,6 +8,8 @@ interface IUser {
   id: number;
   username: string;
   role: string;
+  nickname?: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -16,6 +18,7 @@ interface AuthContextType {
   login: (token: string, userData: IUser) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 // 2. 创建 Context
@@ -30,17 +33,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('accessToken'));
 
+  const refreshUser = async () => {
+    if (token) {
+      try {
+        const res = await fetchUserData();
+        setUser(res.data);
+      } catch {
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     if (token) {
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // 自动获取用户信息
-      fetchUserData()
-        .then(res => setUser(res.data))
-        .catch(() => setUser(null));
+      refreshUser();
     } else {
       delete apiClient.defaults.headers.common['Authorization'];
       setUser(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const login = (newToken: string, userData: IUser) => {
@@ -58,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

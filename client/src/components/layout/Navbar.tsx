@@ -36,7 +36,9 @@ function Navbar() {
                             </Typography>
                             <Tooltip title="个人中心">
                                 <IconButton component={Link} to="/user" style={{ transition: 'transform 0.3s' }}>
-                                    {user?.username ? (
+                                    {user?.avatar ? (
+                                        <Avatar className="navbar-avatar" src={user.avatar} />
+                                    ) : user?.username ? (
                                         <Avatar className="navbar-avatar">
                                             {user.username[0].toUpperCase()}
                                         </Avatar>

@@ -16,6 +16,7 @@ interface IUser {
     id: number;
     username: string;
     role: string;
+    avatar?: string; // 用户头像 URL，可选
 }
 
 // 我们假设登录成功后，除了token，还需要一个接口来获取用户信息
