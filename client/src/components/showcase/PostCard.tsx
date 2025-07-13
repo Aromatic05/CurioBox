@@ -23,7 +23,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', color: 'text.secondary' }}>
             <Typography variant="body2">
-              by {post.author?.username || 'Anonymous'}
+              by {post.user?.username || 'Anonymous'}
             </Typography>
             <Typography variant="body2">
               {new Date(post.createdAt).toLocaleDateString()}
