@@ -107,4 +107,14 @@ export class AuthService {
         await this.usersRepository.save(user);
         return { message: 'Nickname updated successfully' };
     }
+
+        async setAvatar(userId: number, avatar: string) {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        user.avatar = avatar;
+        await this.usersRepository.save(user);
+        return { message: 'Avatar updated successfully' };
+    }
 }

@@ -1,4 +1,8 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request, Get } from '@nestjs/common';
+import {UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -79,7 +83,50 @@ export class AuthController {
             id: req.user.sub,
             username: req.user.username,
             role: req.user.role,
-            // 可根据实际需求返回更多字段
+            nickname: req.user.nickname,
+            avatar: req.user.avatar,
         };
+    }
+
+    /**
+     * 上传头像接口
+     * POST /auth/upload-avatar
+     */
+    @Post('upload-avatar')
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                },
+            }),
+        }),
+    )
+    async uploadAvatar(
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                fileIsRequired: true,
+            }),
+        ) file: Express.Multer.File,
+    ) {
+        const url = `/static/${file.filename}`;
+        return { url };
+    }
+
+    /**
+     * 修改头像接口
+     * POST /auth/set-avatar
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('set-avatar')
+    @HttpCode(HttpStatus.OK)
+    setAvatar(@Request() req: any, @Body() body: { avatar: string }) {
+        return this.authService.setAvatar(req.user.sub, body.avatar);
     }
 }

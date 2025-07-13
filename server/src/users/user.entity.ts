@@ -20,6 +20,9 @@ export class User {
     @Column({ default: 1 }) // 用户等级，默认1级
     level: number;
 
+    @Column({ nullable: true }) // 用户头像 URL，可为空
+    avatar?: string;
+
     @CreateDateColumn() // 自动设置为创建时的时间
     createdAt: Date;
 
