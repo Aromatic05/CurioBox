@@ -168,6 +168,14 @@ export class OrdersService {
         });
     }
 
+    // 获取所有订单
+    async findAll(): Promise<Order[]> {
+        return this.orderRepository.find({
+            relations: ['curioBox'],
+            order: { createdAt: 'DESC' },
+        });
+    }
+
     // 查找单个订单
     async findOne(id: number, userId: number): Promise<Order | null> {
         return this.orderRepository.findOne({

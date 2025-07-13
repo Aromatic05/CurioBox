@@ -45,4 +45,10 @@ export class OrdersController {
         }
         return order;
     }
+
+    // 获取所有订单（仅管理员）
+    @Get('orders/all')
+    async findAll() {
+        return this.ordersService.findAll();
+    }
 }
