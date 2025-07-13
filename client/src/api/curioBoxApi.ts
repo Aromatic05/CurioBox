@@ -21,6 +21,7 @@ export interface ICurioBox {
         itemId: number;
         probability: number;
     }>;
+    boxCount: number; // 盲盒数量
     // 其他API文档中出现的字段可继续补充
 }
 
@@ -50,6 +51,11 @@ export const getCurioBoxById = (id: number): Promise<AxiosResponse<ICurioBox>> =
 // 更新盲盒
 export const updateCurioBox = (id: number, data: Partial<ICurioBox>): Promise<AxiosResponse<ICurioBox>> => {
     return apiClient.patch(`/curio-boxes/${id}`, data);
+};
+
+// 专门修改盲盒数量
+export const updateCurioBoxCount = (id: number, boxCount: number): Promise<AxiosResponse<ICurioBox>> => {
+    return apiClient.patch(`/curio-boxes/${id}/box-count`, { boxCount });
 };
 
 // 批量更新盲盒物品及概率

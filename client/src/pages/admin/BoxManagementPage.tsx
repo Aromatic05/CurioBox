@@ -52,6 +52,7 @@ const BoxManagementPage: React.FC = () => {
         { field: 'name', headerName: '盲盒名称', width: 200 },
         { field: 'category', headerName: '分类', width: 150 },
         { field: 'price', headerName: '价格', type: 'number', width: 110 },
+        { field: 'boxCount', headerName: '数量', type: 'number', width: 110 },
         { field: 'description', headerName: '描述', flex: 1 },
         {
             field: 'coverImage', // 修正为 coverImage 字段

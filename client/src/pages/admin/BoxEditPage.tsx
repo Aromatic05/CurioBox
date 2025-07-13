@@ -23,6 +23,7 @@ const BoxEditPage: React.FC = () => {
         price: '',
         description: '',
         coverImage: '', // 封面图片URL
+        boxCount: '', // 盲盒数量
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>('');
@@ -51,6 +52,7 @@ const BoxEditPage: React.FC = () => {
                         price: res.data.price?.toString() || '',
                         description: res.data.description || '',
                         coverImage: res.data.coverImage || '',
+                        boxCount: res.data.boxCount?.toString() || '',
                     });
                     setPreview(res.data.coverImage || '');
                     setItemProbabilities(res.data.itemProbabilities || []);
@@ -97,6 +99,23 @@ const BoxEditPage: React.FC = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // 数量单独修改
+    const handleBoxCountChange = async () => {
+        if (!isEdit) return;
+        setLoading(true);
+        setError('');
+        try {
+            await import('../../api/curioBoxApi').then(api =>
+                api.updateCurioBoxCount(Number(id), Number(form.boxCount))
+            );
+            setError('数量修改成功');
+        } catch {
+            setError('数量修改失败');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -122,6 +141,7 @@ const BoxEditPage: React.FC = () => {
             const payload = {
                 ...form,
                 price: Number(form.price),
+                boxCount: Number(form.boxCount),
                 coverImage: imageUrl,
                 itemIds: selectedItems.map(item => item.id),
                 itemProbabilities,
@@ -145,6 +165,22 @@ const BoxEditPage: React.FC = () => {
                 {isEdit ? '编辑盲盒' : '新建盲盒'}
             </Typography>
             <form onSubmit={handleSubmit}>
+                {/* 盲盒数量，仅编辑模式可见 */}
+                {isEdit && (
+                    <Box sx={{ mb: 2 }}>
+                        <TextField
+                            label="盲盒数量"
+                            name="boxCount"
+                            type="number"
+                            value={form.boxCount}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                        <Button variant="outlined" sx={{ mt: 1 }} onClick={handleBoxCountChange} disabled={loading}>
+                            修改数量
+                        </Button>
+                    </Box>
+                )}
                 <TextField
                     label="盲盒名称"
                     name="name"
