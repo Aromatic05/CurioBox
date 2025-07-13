@@ -109,6 +109,57 @@
 * **错误响应:**
     * `401 Unauthorized`: 未提供Token或Token无效。
 
+### **1.6. 设置头像**
+
+* **Endpoint:** `POST /auth/set-avatar`
+* **描述:** 设置当前登录用户的头像。
+* **认证:** 需要 Bearer Token。
+* **请求体 (Body):**
+    ```json
+    {
+      "avatar": "/static/xxxx.jpg"
+    }
+    ```
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "message": "Avatar updated successfully"
+    }
+    ```
+* **错误响应:**
+    * `401 Unauthorized`: 未提供Token或Token无效。
+
+### **1.7. 上传头像图片**
+
+* **Endpoint:** `POST /auth/upload-avatar`
+* **描述:** 上传头像图片，返回图片URL。
+* **认证:** 需要 Bearer Token。
+* **请求体 (form-data):**
+    * `file`: 图片文件（最大5MB）
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "url": "/static/xxxx.jpg"
+    }
+    ```
+* **错误响应:**
+    * `400 Bad Request`: 图片类型/大小不符合要求。
+    * `401 Unauthorized`: 未登录。
+
+### **1.8. 删除用户**
+
+* **Endpoint:** `POST /auth/delete-user`
+* **描述:** 删除当前登录用户（或管理员删除任意用户）。
+* **认证:** 需要 Bearer Token。
+* **成功响应 (200 OK):**
+    ```json
+    {
+      "message": "User deleted successfully"
+    }
+    ```
+* **错误响应:**
+    * `401 Unauthorized`: 未登录或无权限。
+
 ---
 
 ## **2. 用户社区模块 (Showcase)**
