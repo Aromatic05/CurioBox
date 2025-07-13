@@ -66,7 +66,7 @@ const PostDetailPage: React.FC = () => {
                 </Typography>
                 <Box sx={{ mb: 2, color: 'text.secondary' }}>
                     <Typography variant="body2" component="span">
-                        作者: {post.author?.username || 'Anonymous'}
+                        作者: {post.user?.username || 'Anonymous'}
                     </Typography>
                     <Typography variant="body2" component="span" sx={{ ml: 2 }}>
                         发布于: {new Date(post.createdAt).toLocaleString()}
@@ -98,17 +98,16 @@ const PostDetailPage: React.FC = () => {
                     <Box key={comment.id} sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
                         {/* 头像 */}
                         <Box sx={{ width: 40, height: 40, mr: 2 }}>
-                            {/* 没有 avatar 字段，统一用默认头像 */}
                             <Box sx={{ width: 40, height: 40, bgcolor: 'grey.300', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Typography variant="h6" color="text.secondary">
-                                    {comment.author?.username ? comment.author.username[0].toUpperCase() : '匿'}
+                                    {comment.user?.username ? comment.user.username[0].toUpperCase() : '匿'}
                                 </Typography>
                             </Box>
                         </Box>
                         <Paper elevation={2} sx={{ flex: 1, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                    {comment.author?.username || '匿名'}
+                                    {comment.user?.username || '匿名'}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
                                     {new Date(comment.createdAt).toLocaleString()}
@@ -124,7 +123,7 @@ const PostDetailPage: React.FC = () => {
                         <Box sx={{ width: 40, height: 40, mr: 2 }}>
                             <Box sx={{ width: 40, height: 40, bgcolor: 'grey.300', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Typography variant="h6" color="text.secondary">
-                                    {post.author?.username ? post.author.username[0].toUpperCase() : '匿'}
+                                    {post.user?.username ? post.user.username[0].toUpperCase() : '匿'}
                                 </Typography>
                             </Box>
                         </Box>

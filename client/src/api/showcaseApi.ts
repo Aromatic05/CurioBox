@@ -8,11 +8,11 @@ export interface IPost {
   content: string;
   images: string[];
   tagIds: number[];
-  // 假设API会返回作者信息
-  author?: {
+  user: {
+    id: number;
     username: string;
   };
-  createdAt: string; 
+  createdAt: string;
 }
 
 export interface IComment {
@@ -20,7 +20,8 @@ export interface IComment {
   content: string;
   postId: number;
   parentId: number | null;
-  author: {
+  user: {
+    id: number;
     username: string;
   };
   createdAt: string;
@@ -33,7 +34,12 @@ export interface ITag {
   description: string;
 }
 
-export type CreatePostPayload = Omit<IPost, 'id' | 'author' | 'createdAt'>;
+export type CreatePostPayload = {
+  title: string;
+  content: string;
+  images: string[];
+  tagIds: number[];
+};
 
 // 2. API 函数
 export const getPosts = (page: number = 1, pageSize: number = 10): Promise<AxiosResponse<{ items: IPost[] }>> => {

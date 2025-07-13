@@ -3,6 +3,8 @@ import { CurioBoxModule } from './curio-box/curio-box.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
+import { UsersController } from './users/users.controller';
+import { UsersService } from './users/users.service';
 import { CurioBox } from './curio-box/entities/curio-box.entity';
 import { ItemsModule } from './items/items.module';
 import { Item } from './items/entities/item.entity';
@@ -41,7 +43,7 @@ import { UserBox } from './user-boxes/entities/user-box.entity';
         ShowcaseModule,
         UserBoxesModule,
     ],
-    controllers: [],
-    providers: [],
+    controllers: [UsersController],
+    providers: [UsersService],
 })
 export class AppModule { }
