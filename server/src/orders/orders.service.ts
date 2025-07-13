@@ -138,25 +138,30 @@ export class OrdersService {
     // 抽奖逻辑 - 现在在购买时调用
     private async drawItem(curioBox: CurioBox): Promise<Item> {
         const { items, itemProbabilities } = curioBox;
-        // 检查是否有可用物品
-        const availableItems = items.filter(item => item.stock > 0);
-        if (availableItems.length === 0) {
+        // 过滤有库存的物品和概率
+        const available = itemProbabilities
+            .map(prob => {
+                const item = items.find(i => i.id === prob.itemId && i.stock > 0);
+                return item ? { item, probability: prob.probability } : null;
+            })
+            .filter(Boolean) as { item: Item, probability: number }[];
+        if (available.length === 0) {
             throw new BadRequestException('No items available in the box');
         }
-        // 根据概率抽取物品
+        // 归一化概率
+        const totalProb = available.reduce((sum, cur) => sum + cur.probability, 0);
+        const normalized = available.map(({ item, probability }) => ({ item, probability: probability / totalProb }));
+        // 加权随机抽取
         const rand = Math.random();
-        let sum = 0;
-        for (const prob of itemProbabilities) {
-            sum += prob.probability;
-            if (rand <= sum) {
-                const item = availableItems.find(i => i.id === prob.itemId);
-                if (item && item.stock > 0) {
-                    return item;
-                }
+        let acc = 0;
+        for (const { item, probability } of normalized) {
+            acc += probability;
+            if (rand <= acc) {
+                return item;
             }
         }
-        // 如果所有物品都没库存，抛出异常
-        throw new BadRequestException('No items available in the box');
+        // 理论上不会到这里，但保险起见
+        return normalized[normalized.length - 1].item;
     }
 
     // 查找用户的所有订单
