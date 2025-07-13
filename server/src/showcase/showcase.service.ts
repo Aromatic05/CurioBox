@@ -8,6 +8,31 @@ import { QueryPostsDto, SortBy, TimeRange } from './dto/query-posts.dto';
 
 @Injectable()
 export class ShowcaseService {
+    async updatePost(id: number, userId: number, body: Partial<CreatePostDto>) {
+        const post = await this.postRepository.findOne({ where: { id } });
+        if (!post) {
+            throw new Error('Post not found');
+        }
+        // 只有所有者才能修改
+        if (post.userId !== userId) {
+            throw new Error('Not authorized');
+        }
+        Object.assign(post, body);
+        return await this.postRepository.save(post);
+    }
+
+    async deletePost(id: number, userId: number, role: string) {
+        const post = await this.postRepository.findOne({ where: { id } });
+        if (!post) {
+            throw new Error('Post not found');
+        }
+        // 只有所有者或管理员才能删除
+        if (post.userId !== userId && role !== 'admin') {
+            throw new Error('Not authorized');
+        }
+        await this.postRepository.remove(post);
+        return { message: 'Post deleted' };
+    }
     constructor(
         @InjectRepository(ShowcasePost)
         private postRepository: Repository<ShowcasePost>,

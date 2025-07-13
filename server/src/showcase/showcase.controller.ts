@@ -66,12 +66,6 @@ export class ShowcaseController {
         return this.commentService.updateComment(Number(id), req.user.sub, content);
     }
 
-    @Delete('comments/:id')
-    @UseGuards(JwtAuthGuard)
-    deleteComment(@Request() req, @Param('id') id: string) {
-        return this.commentService.deleteComment(Number(id), req.user.sub);
-    }
-
     // 标签相关接口
     @Post('tags')
     @UseGuards(JwtAuthGuard)
@@ -107,5 +101,26 @@ export class ShowcaseController {
     @UseGuards(JwtAuthGuard)
     deleteTag(@Param('id') id: string) {
         return this.tagService.deleteTag(Number(id));
+    }
+
+    @Put('posts/:id')
+    @UseGuards(JwtAuthGuard)
+    updatePost(@Request() req, @Param('id') id: string, @Body() body: Partial<CreatePostDto>) {
+        // 只有帖子所有者才能修改
+        return this.showcaseService.updatePost(Number(id), req.user.sub, body);
+    }
+
+    @Delete('posts/:id')
+    @UseGuards(JwtAuthGuard)
+    deletePost(@Request() req, @Param('id') id: string) {
+        // 只有帖子所有者或管理员才能删除
+        return this.showcaseService.deletePost(Number(id), req.user.sub, req.user.role);
+    }
+
+    @Delete('comments/:id')
+    @UseGuards(JwtAuthGuard)
+    deleteComment(@Request() req, @Param('id') id: string) {
+        // 只有评论所有者或管理员才能删除
+        return this.commentService.deleteComment(Number(id), req.user.sub, req.user.role);
     }
 }

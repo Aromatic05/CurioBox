@@ -74,39 +74,34 @@ export class CommentService {
         });
     }
 
-    async deleteComment(id: number, userId: number): Promise<void> {
-        const comment = await this.commentRepository.findOne({
-            where: { id, userId }
-        });
-
+    async deleteComment(id: number, userId: number, role: string): Promise<void> {
+        const comment = await this.commentRepository.findOne({ where: { id } });
         if (!comment) {
-            throw new Error('Comment not found or not authorized');
+            throw new Error('Comment not found');
         }
-
+        // 只有评论所有者或管理员可删
+        if (comment.userId !== userId && role !== 'admin') {
+            throw new Error('Not authorized');
+        }
         // 获取帖子
-        const post = await this.postRepository.findOne({
-            where: { id: comment.postId }
-        });
-
+        const post = await this.postRepository.findOne({ where: { id: comment.postId } });
         // 删除评论
         await this.commentRepository.remove(comment);
-
         // 更新帖子评论数
         if (post) {
-            post.commentCount -= 1;
+            post.commentCount = Math.max(0, post.commentCount - 1);
             await this.postRepository.save(post);
         }
     }
 
     async updateComment(id: number, userId: number, content: string): Promise<Comment> {
-        const comment = await this.commentRepository.findOne({
-            where: { id, userId }
-        });
-
+        const comment = await this.commentRepository.findOne({ where: { id } });
         if (!comment) {
-            throw new Error('Comment not found or not authorized');
+            throw new Error('Comment not found');
         }
-
+        if (comment.userId !== userId) {
+            throw new Error('Not authorized');
+        }
         comment.content = content;
         return await this.commentRepository.save(comment);
     }

@@ -87,6 +87,17 @@ describe('ShowcaseController (e2e)', () => {
       testPostId = parseInt(response.body.id, 10);
     }, 10000);
 
+    it('应该修改帖子内容', async () => {
+      const newTitle = testPostTitle + ' updated';
+      const response = await request(app.getHttpServer())
+        .put(`/showcase/posts/${testPostId}`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ title: newTitle });
+
+      expect(response.status).toBe(200);
+      expect(response.body.title).toBe(newTitle);
+    }, 10000);
+
     it('应该获取帖子列表', async () => {
       const response = await request(app.getHttpServer())
         .get('/showcase/posts')
@@ -112,6 +123,8 @@ describe('ShowcaseController (e2e)', () => {
   });
 
   describe('评论管理', () => {
+    let replyCommentId: number;
+
     it('应该发表评论', async () => {
       const createCommentDto: CreateCommentDto = {
         content: 'test comment',
@@ -151,6 +164,36 @@ describe('ShowcaseController (e2e)', () => {
 
       expect(response.status).toBe(201);
       expect(parseInt(response.body.parentId, 10)).toBe(testCommentId);
+      replyCommentId = parseInt(response.body.id, 10);
+    }, 10000);
+
+    it('应该删除回复评论', async () => {
+      const response = await request(app.getHttpServer())
+        .delete(`/showcase/comments/${replyCommentId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({});
+    }, 10000);
+
+    it('应该删除主评论', async () => {
+      const response = await request(app.getHttpServer())
+        .delete(`/showcase/comments/${testCommentId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({});
+    }, 10000);
+  });
+
+  describe('帖子管理-删除', () => {
+    it('应该删除帖子', async () => {
+      const response = await request(app.getHttpServer())
+        .delete(`/showcase/posts/${testPostId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
     }, 10000);
   });
 
