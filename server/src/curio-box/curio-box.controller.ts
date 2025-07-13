@@ -1,4 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    Query,
+    UseGuards,
+    ParseIntPipe,
+    UseInterceptors,
+    UploadedFile,
+    ParseFilePipe,
+    MaxFileSizeValidator,
+} from '@nestjs/common';
 import { CurioBoxService } from './curio-box.service';
 import { CreateCurioBoxDto } from './dto/create-curio-box.dto';
 import { UpdateCurioBoxDto } from './dto/update-curio-box.dto';
@@ -11,7 +26,7 @@ import { extname } from 'path';
 
 @Controller('curio-boxes') // 路由前缀统一为复数形式
 export class CurioBoxController {
-    constructor(private readonly curioBoxService: CurioBoxService) { }
+    constructor(private readonly curioBoxService: CurioBoxService) {}
 
     @Post('upload')
     @UseGuards(JwtAuthGuard, RolesGuard)
@@ -25,7 +40,10 @@ export class CurioBoxController {
                         .fill(null)
                         .map(() => Math.round(Math.random() * 16).toString(16))
                         .join('');
-                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname)}`,
+                    );
                 },
             }),
         }),
@@ -33,10 +51,13 @@ export class CurioBoxController {
     async createWithCover(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                ],
                 fileIsRequired: true,
             }),
-        ) file: Express.Multer.File,
+        )
+        file: Express.Multer.File,
         @Body() createCurioBoxDto: CreateCurioBoxDto,
     ) {
         // 具体逻辑交给 service
@@ -68,7 +89,10 @@ export class CurioBoxController {
     @Patch(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
-    update(@Param('id', ParseIntPipe) id: number, @Body() updateCurioBoxDto: UpdateCurioBoxDto) {
+    update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateCurioBoxDto: UpdateCurioBoxDto,
+    ) {
         return this.curioBoxService.update(id, updateCurioBoxDto);
     }
 
@@ -85,9 +109,14 @@ export class CurioBoxController {
     updateItemsAndProbabilities(
         @Param('id', ParseIntPipe) id: number,
         @Body('itemIds') itemIds: number[],
-        @Body('itemProbabilities') itemProbabilities: { itemId: number; probability: number }[],
+        @Body('itemProbabilities')
+        itemProbabilities: { itemId: number; probability: number }[],
     ) {
-        return this.curioBoxService.updateItemsAndProbabilities(id, itemIds, itemProbabilities);
+        return this.curioBoxService.updateItemsAndProbabilities(
+            id,
+            itemIds,
+            itemProbabilities,
+        );
     }
 
     /**
@@ -100,7 +129,7 @@ export class CurioBoxController {
     @Roles('admin')
     updateBoxCount(
         @Param('id', ParseIntPipe) id: number,
-        @Body('boxCount') boxCount: number
+        @Body('boxCount') boxCount: number,
     ) {
         return this.curioBoxService.updateBoxCount(id, boxCount);
     }
@@ -118,7 +147,10 @@ export class CurioBoxController {
                         .fill(null)
                         .map(() => Math.round(Math.random() * 16).toString(16))
                         .join('');
-                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname)}`,
+                    );
                 },
             }),
         }),
@@ -126,10 +158,13 @@ export class CurioBoxController {
     async uploadImage(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                ],
                 fileIsRequired: true,
             }),
-        ) file: Express.Multer.File,
+        )
+        file: Express.Multer.File,
     ) {
         // 具体逻辑交给 service
         return this.curioBoxService.uploadImage(file);

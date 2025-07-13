@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    UseGuards,
+    Request,
+    ParseIntPipe,
+    NotFoundException,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateUserBoxDto } from '../user-boxes/dto/create-user-box.dto';
@@ -12,8 +22,11 @@ export class OrdersController {
     @Post('orders/purchase')
     async purchase(@Body() createUserBoxDto: CreateUserBoxDto, @Request() req) {
         const userId = req.user.id || req.user.sub;
-        const result = await this.ordersService.purchase(userId, createUserBoxDto);
-        
+        const result = await this.ordersService.purchase(
+            userId,
+            createUserBoxDto,
+        );
+
         return {
             message: '购买成功',
             order: {

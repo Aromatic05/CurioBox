@@ -1,4 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    OneToMany,
+    ManyToMany,
+    JoinTable,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/user.entity';
 import { Tag } from './tag.entity';
 import { Comment } from './comment.entity';
@@ -46,7 +56,7 @@ export class ShowcasePost {
     })
     tags: Tag[];
 
-    @OneToMany(() => Comment, comment => comment.post)
+    @OneToMany(() => Comment, (comment) => comment.post)
     comments: Comment[];
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })

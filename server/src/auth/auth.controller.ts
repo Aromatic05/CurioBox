@@ -1,5 +1,20 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request, Get } from '@nestjs/common';
-import {UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator} from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    HttpCode,
+    HttpStatus,
+    UseGuards,
+    Request,
+    Get,
+} from '@nestjs/common';
+import {
+    UseInterceptors,
+    UploadedFile,
+    ParseFilePipe,
+    MaxFileSizeValidator,
+    FileTypeValidator,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -11,7 +26,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+    constructor(private readonly authService: AuthService) {}
 
     /**
      * 用户注册端点
@@ -43,7 +58,10 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('change-password')
     @HttpCode(HttpStatus.OK)
-    changePassword(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto) {
+    changePassword(
+        @Request() req: any,
+        @Body() changePasswordDto: ChangePasswordDto,
+    ) {
         return this.authService.changePassword(req.user.sub, changePasswordDto);
     }
 
@@ -103,7 +121,10 @@ export class AuthController {
                         .fill(null)
                         .map(() => Math.round(Math.random() * 16).toString(16))
                         .join('');
-                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname)}`,
+                    );
                 },
             }),
         }),
@@ -111,10 +132,13 @@ export class AuthController {
     async uploadAvatar(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                ],
                 fileIsRequired: true,
             }),
-        ) file: Express.Multer.File,
+        )
+        file: Express.Multer.File,
     ) {
         const url = `/static/${file.filename}`;
         return { url };

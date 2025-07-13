@@ -1,10 +1,17 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { UserBox, UserBoxStatus } from './entities/user-box.entity';
 import { CreateUserBoxDto } from './dto/create-user-box.dto';
 import { OpenBoxDto } from './dto/open-box.dto';
-import { OpenBoxResultDto, BatchOpenBoxResultDto } from './dto/open-box-result.dto';
+import {
+    OpenBoxResultDto,
+    BatchOpenBoxResultDto,
+} from './dto/open-box-result.dto';
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
 import { Item } from '../items/entities/item.entity';
 import { User } from '../users/user.entity';
@@ -49,7 +56,7 @@ export class UserBoxesService {
     //         for (let i = 0; i < quantity; i++) {
     //             // 在购买时执行抽奖
     //             const drawnItem = await this.drawItem(curioBox);
-                
+
     //             // 检查库存
     //             if (drawnItem.stock <= 0) {
     //                 throw new BadRequestException(`Item ${drawnItem.name} is out of stock`);
@@ -99,11 +106,17 @@ export class UserBoxesService {
     }
 
     // 根据状态获取用户盲盒列表
-    async findUserBoxesByStatus(userId: number, status: 'UNOPENED' | 'OPENED'): Promise<UserBox[]> {
+    async findUserBoxesByStatus(
+        userId: number,
+        status: 'UNOPENED' | 'OPENED',
+    ): Promise<UserBox[]> {
         return this.userBoxRepository.find({
             where: {
                 userId,
-                status: status === 'OPENED' ? UserBoxStatus.OPENED : UserBoxStatus.UNOPENED,
+                status:
+                    status === 'OPENED'
+                        ? UserBoxStatus.OPENED
+                        : UserBoxStatus.UNOPENED,
             },
             relations: ['curioBox', 'item'],
             order: { purchaseDate: 'DESC' },
@@ -120,7 +133,10 @@ export class UserBoxesService {
     }
 
     // 开启单个盲盒 - 只修改状态，不再抽奖
-    private async openSingleBox(userBoxId: number, userId: number): Promise<OpenBoxResultDto> {
+    private async openSingleBox(
+        userBoxId: number,
+        userId: number,
+    ): Promise<OpenBoxResultDto> {
         const userBox = await this.userBoxRepository.findOne({
             where: { id: userBoxId, userId },
             relations: ['item'],
@@ -131,7 +147,9 @@ export class UserBoxesService {
         }
 
         if (userBox.status === UserBoxStatus.OPENED) {
-            throw new BadRequestException(`UserBox #${userBoxId} has already been opened`);
+            throw new BadRequestException(
+                `UserBox #${userBoxId} has already been opened`,
+            );
         }
 
         // 只修改状态为已开启
@@ -146,11 +164,18 @@ export class UserBoxesService {
     }
 
     // 批量开启盲盒
-    async openBoxes(userId: number, openBoxDto: OpenBoxDto): Promise<BatchOpenBoxResultDto> {
-        const userBoxIds = openBoxDto.userBoxIds || (openBoxDto.userBoxId ? [openBoxDto.userBoxId] : []);
+    async openBoxes(
+        userId: number,
+        openBoxDto: OpenBoxDto,
+    ): Promise<BatchOpenBoxResultDto> {
+        const userBoxIds =
+            openBoxDto.userBoxIds ||
+            (openBoxDto.userBoxId ? [openBoxDto.userBoxId] : []);
 
         if (userBoxIds.length === 0) {
-            throw new BadRequestException('No userBoxId or userBoxIds provided');
+            throw new BadRequestException(
+                'No userBoxId or userBoxIds provided',
+            );
         }
 
         const results: OpenBoxResultDto[] = [];
@@ -165,14 +190,14 @@ export class UserBoxesService {
                 results.push({
                     userBoxId,
                     drawnItem: null,
-                    success: false
+                    success: false,
                 }); // 用 as any 绕过类型检查
             }
         }
 
         return {
             results,
-            totalOpened: results.filter(r => r.success).length,
+            totalOpened: results.filter((r) => r.success).length,
             allSuccess,
         };
     }
@@ -180,9 +205,9 @@ export class UserBoxesService {
     // 抽奖逻辑 - 现在在购买时调用
     private async drawItem(curioBox: CurioBox): Promise<Item> {
         const { items, itemProbabilities } = curioBox;
-        
+
         // 检查是否有可用物品
-        const availableItems = items.filter(item => item.stock > 0);
+        const availableItems = items.filter((item) => item.stock > 0);
         if (availableItems.length === 0) {
             throw new BadRequestException('No items available in the box');
         }
@@ -193,7 +218,7 @@ export class UserBoxesService {
         for (const prob of itemProbabilities) {
             sum += prob.probability;
             if (rand <= sum) {
-                const item = availableItems.find(i => i.id === prob.itemId);
+                const item = availableItems.find((i) => i.id === prob.itemId);
                 if (item && item.stock > 0) {
                     return item;
                 }

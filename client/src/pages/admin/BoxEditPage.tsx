@@ -1,15 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import type { ChangeEvent } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, MenuItem, CircularProgress, Autocomplete} from '@mui/material';
-import { getCurioBoxById, createCurioBox, updateCurioBox, uploadCurioBoxImage } from '../../api/curioBoxApi';
-import { getItems } from '../../api/itemApi';
+import React, { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+    Box,
+    Button,
+    TextField,
+    Typography,
+    MenuItem,
+    CircularProgress,
+    Autocomplete,
+} from "@mui/material";
+import {
+    getCurioBoxById,
+    createCurioBox,
+    updateCurioBox,
+    uploadCurioBoxImage,
+} from "../../api/curioBoxApi";
+import { getItems } from "../../api/itemApi";
 
 const categories = [
-    { value: '潮玩', label: '潮玩' },
-    { value: '手办', label: '手办' },
-    { value: '文创', label: '文创' },
-    { value: '其他', label: '其他' },
+    { value: "潮玩", label: "潮玩" },
+    { value: "手办", label: "手办" },
+    { value: "文创", label: "文创" },
+    { value: "其他", label: "其他" },
 ];
 
 const BoxEditPage: React.FC = () => {
@@ -18,26 +31,30 @@ const BoxEditPage: React.FC = () => {
     const isEdit = Boolean(id);
 
     const [form, setForm] = useState({
-        name: '',
-        category: '',
-        price: '',
-        description: '',
-        coverImage: '', // 封面图片URL
-        boxCount: '', // 盲盒数量
+        name: "",
+        category: "",
+        price: "",
+        description: "",
+        coverImage: "", // 封面图片URL
+        boxCount: "", // 盲盒数量
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string>('');
+    const [preview, setPreview] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
     // 物品相关
     const [allItems, setAllItems] = useState<any[]>([]); // 所有物品
     const [selectedItems, setSelectedItems] = useState<any[]>([]); // 选中的物品
-    const [itemProbabilities, setItemProbabilities] = useState<{ itemId: number; probability: number }[]>([]);
+    const [itemProbabilities, setItemProbabilities] = useState<
+        { itemId: number; probability: number }[]
+    >([]);
 
     // 获取所有物品
     useEffect(() => {
-        getItems().then(res => setAllItems(res.data)).catch(() => setAllItems([]));
+        getItems()
+            .then((res) => setAllItems(res.data))
+            .catch(() => setAllItems([]));
     }, []);
 
     // 编辑模式下加载盲盒详情
@@ -45,26 +62,30 @@ const BoxEditPage: React.FC = () => {
         if (isEdit) {
             setLoading(true);
             getCurioBoxById(Number(id))
-                .then(res => {
+                .then((res) => {
                     setForm({
-                        name: res.data.name || '',
-                        category: res.data.category || '',
-                        price: res.data.price?.toString() || '',
-                        description: res.data.description || '',
-                        coverImage: res.data.coverImage || '',
-                        boxCount: res.data.boxCount?.toString() || '',
+                        name: res.data.name || "",
+                        category: res.data.category || "",
+                        price: res.data.price?.toString() || "",
+                        description: res.data.description || "",
+                        coverImage: res.data.coverImage || "",
+                        boxCount: res.data.boxCount?.toString() || "",
                     });
-                    setPreview(res.data.coverImage || '');
+                    setPreview(res.data.coverImage || "");
                     setItemProbabilities(res.data.itemProbabilities || []);
                     // 根据 itemProbabilities 的 itemId 反查物品
                     if (res.data.itemProbabilities && allItems.length > 0) {
-                        const selected = res.data.itemProbabilities.map(ip => allItems.find(ai => ai.id === ip.itemId)).filter(Boolean);
+                        const selected = res.data.itemProbabilities
+                            .map((ip) =>
+                                allItems.find((ai) => ai.id === ip.itemId),
+                            )
+                            .filter(Boolean);
                         setSelectedItems(selected);
                     } else {
                         setSelectedItems([]);
                     }
                 })
-                .catch(() => setError('加载盲盒信息失败'))
+                .catch(() => setError("加载盲盒信息失败"))
                 .finally(() => setLoading(false));
         }
     }, [id, isEdit, allItems]);
@@ -72,7 +93,9 @@ const BoxEditPage: React.FC = () => {
     // allItems加载后，修正selectedItems为allItems中的引用
     useEffect(() => {
         if (isEdit && allItems.length > 0 && selectedItems.length > 0) {
-            const fixed = selectedItems.map(item => allItems.find(ai => ai.id === item.id) || item);
+            const fixed = selectedItems.map(
+                (item) => allItems.find((ai) => ai.id === item.id) || item,
+            );
             setSelectedItems(fixed);
         }
     }, [allItems]);
@@ -81,8 +104,8 @@ const BoxEditPage: React.FC = () => {
     const handleItemsChange = (_: any, value: any[]) => {
         setSelectedItems(value);
         // 保持概率数组与选中物品同步
-        const newProb = value.map(item => {
-            const found = itemProbabilities.find(ip => ip.itemId === item.id);
+        const newProb = value.map((item) => {
+            const found = itemProbabilities.find((ip) => ip.itemId === item.id);
             return found || { itemId: item.id, probability: 0 };
         });
         setItemProbabilities(newProb);
@@ -90,8 +113,12 @@ const BoxEditPage: React.FC = () => {
 
     // 概率输入变化
     const handleProbabilityChange = (itemId: number, value: string) => {
-        setItemProbabilities(prev =>
-            prev.map(ip => ip.itemId === itemId ? { ...ip, probability: Number(value) } : ip)
+        setItemProbabilities((prev) =>
+            prev.map((ip) =>
+                ip.itemId === itemId
+                    ? { ...ip, probability: Number(value) }
+                    : ip,
+            ),
         );
     };
 
@@ -103,14 +130,14 @@ const BoxEditPage: React.FC = () => {
     const handleBoxCountChange = async () => {
         if (!isEdit) return;
         setLoading(true);
-        setError('');
+        setError("");
         try {
-            await import('../../api/curioBoxApi').then(api =>
-                api.updateCurioBoxCount(Number(id), Number(form.boxCount))
+            await import("../../api/curioBoxApi").then((api) =>
+                api.updateCurioBoxCount(Number(id), Number(form.boxCount)),
             );
-            setError('数量修改成功');
+            setError("数量修改成功");
         } catch {
-            setError('数量修改失败');
+            setError("数量修改失败");
         } finally {
             setLoading(false);
         }
@@ -127,7 +154,7 @@ const BoxEditPage: React.FC = () => {
     const handleUploadImage = async (): Promise<string> => {
         if (!imageFile) return form.coverImage;
         const formData = new FormData();
-        formData.append('file', imageFile);
+        formData.append("file", imageFile);
         const res = await uploadCurioBoxImage(formData);
         return res.data.url;
     };
@@ -135,7 +162,7 @@ const BoxEditPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
+        setError("");
         try {
             const imageUrl = await handleUploadImage();
             const payload = {
@@ -143,7 +170,7 @@ const BoxEditPage: React.FC = () => {
                 price: Number(form.price),
                 boxCount: Number(form.boxCount),
                 coverImage: imageUrl,
-                itemIds: selectedItems.map(item => item.id),
+                itemIds: selectedItems.map((item) => item.id),
                 itemProbabilities,
             };
             if (isEdit) {
@@ -151,18 +178,18 @@ const BoxEditPage: React.FC = () => {
             } else {
                 await createCurioBox(payload);
             }
-            navigate('/admin/boxes');
+            navigate("/admin/boxes");
         } catch (err) {
-            setError('提交失败，请重试');
+            setError("提交失败，请重试");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
+        <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
-                {isEdit ? '编辑盲盒' : '新建盲盒'}
+                {isEdit ? "编辑盲盒" : "新建盲盒"}
             </Typography>
             <form onSubmit={handleSubmit}>
                 {/* 盲盒数量，仅编辑模式可见 */}
@@ -176,7 +203,12 @@ const BoxEditPage: React.FC = () => {
                             onChange={handleChange}
                             fullWidth
                         />
-                        <Button variant="outlined" sx={{ mt: 1 }} onClick={handleBoxCountChange} disabled={loading}>
+                        <Button
+                            variant="outlined"
+                            sx={{ mt: 1 }}
+                            onClick={handleBoxCountChange}
+                            disabled={loading}
+                        >
                             修改数量
                         </Button>
                     </Box>
@@ -200,8 +232,10 @@ const BoxEditPage: React.FC = () => {
                     required
                     sx={{ mb: 2 }}
                 >
-                    {categories.map(option => (
-                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    {categories.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
                     ))}
                 </TextField>
                 <TextField
@@ -228,25 +262,67 @@ const BoxEditPage: React.FC = () => {
                 <Autocomplete
                     multiple
                     options={allItems}
-                    getOptionLabel={option => option.name}
+                    getOptionLabel={(option) => option.name}
                     value={selectedItems}
                     onChange={handleItemsChange}
-                    renderInput={params => <TextField {...params} label="选择物品" sx={{ mb: 2 }} />}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="选择物品"
+                            sx={{ mb: 2 }}
+                        />
+                    )}
+                    isOptionEqualToValue={(option, value) =>
+                        option.id === value.id
+                    }
                 />
                 {selectedItems.length > 0 && (
                     <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>设置物品概率（总和需为1）</Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                            {selectedItems.map(item => (
-                                <Box key={item.id + '-' + itemProbabilities.find(ip => ip.itemId === item.id)?.probability} sx={{ width: { xs: '100%', sm: '48%', md: '31%' }, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                            设置物品概率（总和需为1）
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                            {selectedItems.map((item) => (
+                                <Box
+                                    key={
+                                        item.id +
+                                        "-" +
+                                        itemProbabilities.find(
+                                            (ip) => ip.itemId === item.id,
+                                        )?.probability
+                                    }
+                                    sx={{
+                                        width: {
+                                            xs: "100%",
+                                            sm: "48%",
+                                            md: "31%",
+                                        },
+                                        mb: 2,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                    }}
+                                >
                                     <Typography>{item.name}</Typography>
                                     <TextField
                                         type="number"
                                         size="small"
-                                        value={itemProbabilities.find(ip => ip.itemId === item.id)?.probability ?? 0}
-                                        onChange={e => handleProbabilityChange(item.id, e.target.value)}
-                                        inputProps={{ step: 0.01, min: 0, max: 1 }}
+                                        value={
+                                            itemProbabilities.find(
+                                                (ip) => ip.itemId === item.id,
+                                            )?.probability ?? 0
+                                        }
+                                        onChange={(e) =>
+                                            handleProbabilityChange(
+                                                item.id,
+                                                e.target.value,
+                                            )
+                                        }
+                                        inputProps={{
+                                            step: 0.01,
+                                            min: 0,
+                                            max: 1,
+                                        }}
                                         sx={{ width: 80 }}
                                     />
                                 </Box>
@@ -257,17 +333,46 @@ const BoxEditPage: React.FC = () => {
                 <Box sx={{ mb: 2 }}>
                     <Button variant="outlined" component="label">
                         上传图片
-                        <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                        <input
+                            type="file"
+                            hidden
+                            accept="image/*"
+                            onChange={handleImageChange}
+                        />
                     </Button>
                     {preview && (
                         <Box sx={{ mt: 1 }}>
-                            <img src={preview} alt="预览" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+                            <img
+                                src={preview}
+                                alt="预览"
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    objectFit: "cover",
+                                    borderRadius: 8,
+                                }}
+                            />
                         </Box>
                     )}
                 </Box>
-                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-                <Button type="submit" variant="contained" fullWidth disabled={loading}>
-                    {loading ? <CircularProgress size={24} /> : (isEdit ? '保存修改' : '新建盲盒')}
+                {error && (
+                    <Typography color="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Typography>
+                )}
+                <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <CircularProgress size={24} />
+                    ) : isEdit ? (
+                        "保存修改"
+                    ) : (
+                        "新建盲盒"
+                    )}
                 </Button>
             </form>
         </Box>

@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsNumber, IsUrl, IsArray, IsOptional } from 'class-validator';
+import {
+    IsString,
+    IsNotEmpty,
+    IsNumber,
+    IsUrl,
+    IsArray,
+    IsOptional,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateItemDto {
@@ -26,7 +33,12 @@ export class CreateItemDto {
     @IsOptional()
     @Transform(({ value }) => {
         if (Array.isArray(value)) return value.map(Number);
-        if (typeof value === 'string' && value.startsWith('[')) try { return JSON.parse(value).map(Number); } catch { return []; }
+        if (typeof value === 'string' && value.startsWith('['))
+            try {
+                return JSON.parse(value).map(Number);
+            } catch {
+                return [];
+            }
         if (typeof value === 'string') return [Number(value)];
         if (typeof value === 'number') return [value];
         return [];

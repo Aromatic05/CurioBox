@@ -11,15 +11,18 @@ export class CommentService {
         @InjectRepository(Comment)
         private commentRepository: Repository<Comment>,
         @InjectRepository(ShowcasePost)
-        private postRepository: Repository<ShowcasePost>
-    ) { }
+        private postRepository: Repository<ShowcasePost>,
+    ) {}
 
-    async createComment(userId: number, createCommentDto: CreateCommentDto): Promise<Comment> {
+    async createComment(
+        userId: number,
+        createCommentDto: CreateCommentDto,
+    ): Promise<Comment> {
         const { content, postId, parentId } = createCommentDto;
 
         // 检查帖子是否存在
         const post = await this.postRepository.findOne({
-            where: { id: postId }
+            where: { id: postId },
         });
 
         if (!post) {
@@ -29,7 +32,7 @@ export class CommentService {
         // 如果有父评论，检查父评论是否存在
         if (parentId) {
             const parentComment = await this.commentRepository.findOne({
-                where: { id: parentId }
+                where: { id: parentId },
             });
             if (!parentComment) {
                 throw new Error('Parent comment not found');
@@ -74,7 +77,11 @@ export class CommentService {
         });
     }
 
-    async deleteComment(id: number, userId: number, role: string): Promise<void> {
+    async deleteComment(
+        id: number,
+        userId: number,
+        role: string,
+    ): Promise<void> {
         const comment = await this.commentRepository.findOne({ where: { id } });
         if (!comment) {
             throw new Error('Comment not found');
@@ -84,7 +91,9 @@ export class CommentService {
             throw new Error('Not authorized');
         }
         // 获取帖子
-        const post = await this.postRepository.findOne({ where: { id: comment.postId } });
+        const post = await this.postRepository.findOne({
+            where: { id: comment.postId },
+        });
         // 删除评论
         await this.commentRepository.remove(comment);
         // 更新帖子评论数
@@ -94,7 +103,11 @@ export class CommentService {
         }
     }
 
-    async updateComment(id: number, userId: number, content: string): Promise<Comment> {
+    async updateComment(
+        id: number,
+        userId: number,
+        content: string,
+    ): Promise<Comment> {
         const comment = await this.commentRepository.findOne({ where: { id } });
         if (!comment) {
             throw new Error('Comment not found');

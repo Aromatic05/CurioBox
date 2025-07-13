@@ -15,11 +15,11 @@ import { CommentService } from './comment.service';
             ShowcasePost,
             Tag,
             Comment,
-            BlocklistedToken
+            BlocklistedToken,
         ]),
     ],
     controllers: [ShowcaseController],
     providers: [ShowcaseService, TagService, CommentService],
     exports: [ShowcaseService, TagService, CommentService],
 })
-export class ShowcaseModule { }
+export class ShowcaseModule {}

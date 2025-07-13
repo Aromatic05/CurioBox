@@ -1,5 +1,5 @@
-import React from 'react';
-import './GlobalBackground.css';
+import React from "react";
+import "./GlobalBackground.css";
 
 const GlobalBackground: React.FC = () => {
     return (

@@ -11,4 +11,4 @@ import { Item } from '../items/entities/item.entity';
     controllers: [CurioBoxController],
     providers: [CurioBoxService],
 })
-export class CurioBoxModule { }
+export class CurioBoxModule {}

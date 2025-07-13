@@ -13,13 +13,16 @@ export class ItemsService {
         private readonly itemRepository: Repository<Item>,
         @InjectRepository(CurioBox)
         private readonly curioBoxRepository: Repository<CurioBox>,
-    ) { }
+    ) {}
 
     async create(createItemDto: CreateItemDto): Promise<Item> {
-        const { name, image, category, stock, rarity, curioBoxIds } = createItemDto;
+        const { name, image, category, stock, rarity, curioBoxIds } =
+            createItemDto;
         let curioBoxes: CurioBox[] = [];
         if (curioBoxIds && curioBoxIds.length > 0) {
-            curioBoxes = await this.curioBoxRepository.find({ where: { id: In(curioBoxIds) } });
+            curioBoxes = await this.curioBoxRepository.find({
+                where: { id: In(curioBoxIds) },
+            });
             if (curioBoxes.length !== curioBoxIds.length) {
                 throw new NotFoundException('部分 CurioBox 不存在');
             }
@@ -45,7 +48,10 @@ export class ItemsService {
     }
 
     async findOne(id: number): Promise<Item> {
-        const item = await this.itemRepository.findOne({ where: { id }, relations: ['curioBoxes'] });
+        const item = await this.itemRepository.findOne({
+            where: { id },
+            relations: ['curioBoxes'],
+        });
         if (!item) {
             throw new NotFoundException(`Item with ID "${id}" not found.`);
         }
@@ -53,7 +59,10 @@ export class ItemsService {
     }
 
     async update(id: number, updateItemDto: UpdateItemDto): Promise<Item> {
-        const item = await this.itemRepository.findOne({ where: { id }, relations: ['curioBoxes'] });
+        const item = await this.itemRepository.findOne({
+            where: { id },
+            relations: ['curioBoxes'],
+        });
         if (!item) {
             throw new NotFoundException(`Item with ID "${id}" not found.`);
         }
@@ -62,7 +71,9 @@ export class ItemsService {
             if (updateItemDto.curioBoxIds.length === 0) {
                 item.curioBoxes = [];
             } else {
-                const curioBoxes = await this.curioBoxRepository.find({ where: { id: In(updateItemDto.curioBoxIds) } });
+                const curioBoxes = await this.curioBoxRepository.find({
+                    where: { id: In(updateItemDto.curioBoxIds) },
+                });
                 if (curioBoxes.length !== updateItemDto.curioBoxIds.length) {
                     throw new NotFoundException('部分 CurioBox 不存在');
                 }

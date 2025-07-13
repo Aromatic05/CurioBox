@@ -27,16 +27,29 @@ describe('UserBoxes (e2e)', () => {
         await dataSource.synchronize(true);
 
         // 创建管理员用户
-        await authService.signUp({ username: 'admin', password: 'admin', role: 'admin' });
-        const adminLogin = await authService.signIn({ username: 'admin', password: 'admin' });
+        await authService.signUp({
+            username: 'admin',
+            password: 'admin',
+            role: 'admin',
+        });
+        const adminLogin = await authService.signIn({
+            username: 'admin',
+            password: 'admin',
+        });
         adminToken = adminLogin.accessToken;
 
         // 生成唯一测试用户名，避免重复
         const uniqueUsername = `test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
         // 创建测试用户并获取token
-        await authService.signUp({ username: uniqueUsername, password: 'test' });
-        const { accessToken } = await authService.signIn({ username: uniqueUsername, password: 'test' });
+        await authService.signUp({
+            username: uniqueUsername,
+            password: 'test',
+        });
+        const { accessToken } = await authService.signIn({
+            username: uniqueUsername,
+            password: 'test',
+        });
         userToken = accessToken;
 
         // 创建测试盲盒和物品
@@ -47,7 +60,7 @@ describe('UserBoxes (e2e)', () => {
                 name: 'Test Box',
                 description: 'A box for testing',
                 price: 9.99,
-                category: 'test'
+                category: 'test',
             });
         curioBoxId = curioBoxRes.body.id;
 
@@ -70,8 +83,8 @@ describe('UserBoxes (e2e)', () => {
             .send({
                 itemIds: [itemRes.body.id],
                 itemProbabilities: [
-                    { itemId: itemRes.body.id, probability: 1.0 }
-                ]
+                    { itemId: itemRes.body.id, probability: 1.0 },
+                ],
             });
     });
 
@@ -81,7 +94,7 @@ describe('UserBoxes (e2e)', () => {
             .set('Authorization', `Bearer ${userToken}`)
             .send({
                 curioBoxId,
-                quantity: 2
+                quantity: 2,
             })
             .expect(201);
 
@@ -90,7 +103,7 @@ describe('UserBoxes (e2e)', () => {
         expect(Array.isArray(res.body.userBoxes)).toBeTruthy();
         expect(res.body.userBoxes).toHaveLength(2);
         expect(res.body.userBoxes[0].status).toBe('unopened');
-        
+
         userBoxId = res.body.userBoxes[0].id;
     });
 
@@ -102,7 +115,7 @@ describe('UserBoxes (e2e)', () => {
 
         expect(res.body.boxes).toBeDefined();
         expect(Array.isArray(res.body.boxes)).toBeTruthy();
-        res.body.boxes.forEach(box => {
+        res.body.boxes.forEach((box) => {
             expect(box.status).toBe('unopened');
             expect(box.curioBox).toBeDefined();
         });
@@ -115,7 +128,7 @@ describe('UserBoxes (e2e)', () => {
             .set('Authorization', `Bearer ${userToken}`)
             .send({
                 curioBoxId,
-                quantity: 1
+                quantity: 1,
             })
             .expect(201);
 
@@ -125,10 +138,9 @@ describe('UserBoxes (e2e)', () => {
             .post('/me/boxes/open')
             .set('Authorization', `Bearer ${userToken}`)
             .send({
-                userBoxId
+                userBoxId,
             })
             .expect(200);
-
 
         expect(res.body.results).toBeDefined();
         expect(res.body.results[0].success).toBeTruthy();
@@ -143,23 +155,23 @@ describe('UserBoxes (e2e)', () => {
             .set('Authorization', `Bearer ${userToken}`)
             .send({
                 curioBoxId,
-                quantity: 2
+                quantity: 2,
             });
 
-        const userBoxIds = purchaseRes.body.userBoxes.map(box => box.id);
+        const userBoxIds = purchaseRes.body.userBoxes.map((box) => box.id);
 
         const res = await request(app.getHttpServer())
             .post('/me/boxes/open')
             .set('Authorization', `Bearer ${userToken}`)
             .send({
-                userBoxIds
+                userBoxIds,
             })
             .expect(200);
 
         expect(res.body.results).toBeDefined();
         expect(res.body.results).toHaveLength(2);
         expect(res.body.totalOpened).toBe(2);
-        res.body.results.forEach(result => {
+        res.body.results.forEach((result) => {
             expect(result.success).toBeTruthy();
             expect(result.drawnItem).toBeDefined();
         });
@@ -185,7 +197,7 @@ describe('UserBoxes (e2e)', () => {
             .expect(200);
         expect(res.body.boxes).toBeDefined();
         expect(Array.isArray(res.body.boxes)).toBeTruthy();
-        res.body.boxes.forEach(box => {
+        res.body.boxes.forEach((box) => {
             expect(box.status).toBe('opened');
             expect(box.curioBox).toBeDefined();
             expect(box.item).toBeDefined();
@@ -199,7 +211,7 @@ describe('UserBoxes (e2e)', () => {
             .set('Authorization', `Bearer ${userToken}`)
             .send({ curioBoxId, quantity: 2 })
             .expect(201);
-        const userBoxIds = purchaseRes.body.userBoxes.map(box => box.id);
+        const userBoxIds = purchaseRes.body.userBoxes.map((box) => box.id);
         await request(app.getHttpServer())
             .post('/me/boxes/open')
             .set('Authorization', `Bearer ${userToken}`)
@@ -213,7 +225,7 @@ describe('UserBoxes (e2e)', () => {
         expect(res.body.boxes).toBeDefined();
         expect(Array.isArray(res.body.boxes)).toBeTruthy();
         // 应该包含 opened 和 unopened
-        const statuses = res.body.boxes.map(box => box.status);
+        const statuses = res.body.boxes.map((box) => box.status);
         expect(statuses).toContain('opened');
         expect(statuses).toContain('unopened');
     });

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+    Injectable,
+    UnauthorizedException,
+    ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
@@ -23,12 +27,14 @@ export class AuthService {
         private jwtService: JwtService,
         @InjectRepository(BlocklistedToken)
         private blocklistedTokenRepository: Repository<BlocklistedToken>,
-    ) { }
+    ) {}
 
     async signUp(createUserDto: any): Promise<Omit<User, 'password'>> {
         const { username, password, role } = createUserDto;
 
-        const userExists = await this.usersRepository.findOne({ where: { username } });
+        const userExists = await this.usersRepository.findOne({
+            where: { username },
+        });
         if (userExists) {
             throw new ConflictException('Username already exists');
         }
@@ -60,13 +66,18 @@ export class AuthService {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
-        
+
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
-        
-        const payload = { sub: user.id, username: user.username, role: user.role, jti: randomUUID() };
+
+        const payload = {
+            sub: user.id,
+            username: user.username,
+            role: user.role,
+            jti: randomUUID(),
+        };
         const accessToken = await this.jwtService.signAsync(payload);
         return {
             message: 'Login successful',
@@ -76,7 +87,7 @@ export class AuthService {
 
     async changePassword(userId: number, changePasswordDto: any) {
         const { oldPassword, newPassword } = changePasswordDto;
-        
+
         const user = await this.usersRepository
             .createQueryBuilder('user')
             .addSelect('user.password')
@@ -87,14 +98,17 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+        const isPasswordMatch = await bcrypt.compare(
+            oldPassword,
+            user.password,
+        );
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(newPassword, salt);
-        
+
         await this.usersRepository.save(user); // 保存更新
 
         return { message: 'Password changed successfully' };
@@ -106,7 +120,9 @@ export class AuthService {
     }
 
     async setNickname(userId: number, nickname: string) {
-        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        const user = await this.usersRepository.findOne({
+            where: { id: userId },
+        });
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
@@ -116,7 +132,9 @@ export class AuthService {
     }
 
     async setAvatar(userId: number, avatar: string) {
-        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        const user = await this.usersRepository.findOne({
+            where: { id: userId },
+        });
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
@@ -126,13 +144,17 @@ export class AuthService {
     }
 
     async deleteUser(userId: number, role: string) {
-        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        const user = await this.usersRepository.findOne({
+            where: { id: userId },
+        });
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
         // 只有本人或管理员可以删除
         if (role !== 'admin' && user.id !== userId) {
-            throw new UnauthorizedException('No permission to delete this user');
+            throw new UnauthorizedException(
+                'No permission to delete this user',
+            );
         }
         await this.usersRepository.remove(user);
         return { message: 'User deleted successfully' };

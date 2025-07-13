@@ -7,12 +7,12 @@ import { Tag } from './entities/tag.entity';
 export class TagService {
     constructor(
         @InjectRepository(Tag)
-        private tagRepository: Repository<Tag>
-    ) { }
+        private tagRepository: Repository<Tag>,
+    ) {}
 
     async createTag(name: string, description?: string): Promise<Tag> {
         const existingTag = await this.tagRepository.findOne({
-            where: { name }
+            where: { name },
         });
 
         if (existingTag) {
@@ -37,7 +37,7 @@ export class TagService {
 
     async getTagById(id: number): Promise<Tag> {
         const tag = await this.tagRepository.findOne({
-            where: { id }
+            where: { id },
         });
 
         if (!tag) {
@@ -51,9 +51,13 @@ export class TagService {
         return await this.tagRepository.findByIds(ids);
     }
 
-    async updateTag(id: number, name?: string, description?: string): Promise<Tag> {
+    async updateTag(
+        id: number,
+        name?: string,
+        description?: string,
+    ): Promise<Tag> {
         const tag = await this.tagRepository.findOne({
-            where: { id }
+            where: { id },
         });
 
         if (!tag) {
@@ -62,7 +66,7 @@ export class TagService {
 
         if (name) {
             const existingTag = await this.tagRepository.findOne({
-                where: { name }
+                where: { name },
             });
 
             if (existingTag && existingTag.id !== id) {
@@ -81,7 +85,7 @@ export class TagService {
 
     async deleteTag(id: number): Promise<void> {
         const tag = await this.tagRepository.findOne({
-            where: { id }
+            where: { id },
         });
 
         if (!tag) {

@@ -1,31 +1,31 @@
 /* src/components/layout/Navbar.css */
 
 :root {
-  --navbar-bg-dark: linear-gradient(135deg, #23243a 0%, #2c2e4a 100%);
-  --navbar-bg-light: linear-gradient(135deg, #e3f0ff 0%, #7798da 100%);
-  --navbar-text-dark: #f5f6fa;
-  --navbar-text-light: #232526;
-  --navbar-btn-bg-dark: linear-gradient(90deg, #3a3f5a 0%, #23243a 100%);
-  --navbar-btn-bg-light: linear-gradient(90deg, #e3f0ff 0%, #7faaff 100%);
-  --navbar-btn-text-dark: #f5f6fa;
-  --navbar-btn-text-light: #232526;
+    --navbar-bg-dark: linear-gradient(135deg, #23243a 0%, #2c2e4a 100%);
+    --navbar-bg-light: linear-gradient(135deg, #e3f0ff 0%, #7798da 100%);
+    --navbar-text-dark: #f5f6fa;
+    --navbar-text-light: #232526;
+    --navbar-btn-bg-dark: linear-gradient(90deg, #3a3f5a 0%, #23243a 100%);
+    --navbar-btn-bg-light: linear-gradient(90deg, #e3f0ff 0%, #7faaff 100%);
+    --navbar-btn-text-dark: #f5f6fa;
+    --navbar-btn-text-light: #232526;
 }
 
 .theme-dark .navbar-appbar {
-  background: var(--navbar-bg-dark);
-  color: var(--navbar-text-dark);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--navbar-bg-dark);
+    color: var(--navbar-text-dark);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .theme-light .navbar-appbar {
-  background: var(--navbar-bg-light);
-  color: var(--navbar-text-light);
-  box-shadow: 0 4px 20px rgba(180,200,255,0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(180,200,255,0.12);
+    background: var(--navbar-bg-light);
+    color: var(--navbar-text-light);
+    box-shadow: 0 4px 20px rgba(180, 200, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(180, 200, 255, 0.12);
 }
 .navbar-toolbar {
     min-height: 70px;
@@ -34,8 +34,8 @@
     flex-grow: 1;
     font-weight: 700;
     letter-spacing: 1.5px;
-    font-family: 'Poppins', sans-serif;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-family: "Poppins", sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .navbar-link {
     text-decoration: none;
@@ -48,7 +48,7 @@
     color: var(--navbar-text-light) !important;
 }
 .navbar-brand {
-    background: rgba(255,255,255,0.2) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
     padding: 8px 12px;
     border-radius: 12px;
     display: inline-flex;
@@ -56,7 +56,7 @@
     justify-content: center;
 }
 .theme-light .navbar-brand {
-    background: rgba(180,200,255,0.18) !important;
+    background: rgba(180, 200, 255, 0.18) !important;
 }
 .navbar-navbox {
     display: flex;
@@ -71,25 +71,25 @@
     color: var(--navbar-text-light) !important;
 }
 .navbar-showcase-btn:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     transform: scale(1.1);
 }
 .navbar-avatar {
     width: 36px;
     height: 36px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     color: var(--navbar-text-dark) !important;
     font-weight: 600;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     transition: border-color 0.3s;
 }
 .theme-light .navbar-avatar {
-    background: rgba(180,200,255,0.18);
+    background: rgba(180, 200, 255, 0.18);
     color: var(--navbar-text-light) !important;
-    border: 2px solid rgba(180,200,255,0.28);
+    border: 2px solid rgba(180, 200, 255, 0.28);
 }
 .navbar-avatar:hover {
-    border-color: rgba(255,255,255,0.6);
+    border-color: rgba(255, 255, 255, 0.6);
 }
 .navbar-login-btn {
     border-radius: 20px;
@@ -97,7 +97,9 @@
     background: var(--navbar-btn-bg-dark);
     color: var(--navbar-btn-text-dark) !important;
     box-shadow: 0 4px 15px rgba(250, 208, 196, 0.4);
-    transition: box-shadow 0.3s, transform 0.3s;
+    transition:
+        box-shadow 0.3s,
+        transform 0.3s;
 }
 .navbar-login-btn:hover {
     box-shadow: 0 6px 20px rgba(250, 208, 196, 0.6) !important;
@@ -106,29 +108,31 @@
 .theme-light .navbar-login-btn {
     background: var(--navbar-btn-bg-light);
     color: var(--navbar-btn-text-light) !important;
-    box-shadow: 0 4px 15px rgba(180,200,255,0.28);
+    box-shadow: 0 4px 15px rgba(180, 200, 255, 0.28);
 }
 .theme-light .navbar-login-btn:hover {
-    box-shadow: 0 6px 20px rgba(180,200,255,0.38) !important;
+    box-shadow: 0 6px 20px rgba(180, 200, 255, 0.38) !important;
 }
 .navbar-logout-btn {
     border-radius: 20px;
     padding: 8px 24px;
     color: var(--navbar-btn-text-dark) !important;
-    border: 1px solid rgba(255,255,255,0.3);
-    transition: background 0.3s, border-color 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition:
+        background 0.3s,
+        border-color 0.3s;
     background: var(--navbar-btn-bg-dark);
 }
 .navbar-logout-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.6);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
 }
 .theme-light .navbar-logout-btn {
     background: var(--navbar-btn-bg-light);
     color: var(--navbar-btn-text-light) !important;
-    border: 1px solid rgba(180,200,255,0.28);
+    border: 1px solid rgba(180, 200, 255, 0.28);
 }
 .theme-light .navbar-logout-btn:hover {
-    background: rgba(180,200,255,0.12);
-    border-color: rgba(180,200,255,0.38);
+    background: rgba(180, 200, 255, 0.12);
+    border-color: rgba(180, 200, 255, 0.38);
 }

@@ -1,6 +1,16 @@
 import {
-    Controller, Get, Post, Body, Patch, Param, Delete,
-    UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    UseInterceptors,
+    UploadedFile,
+    ParseFilePipe,
+    MaxFileSizeValidator,
+    FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -11,7 +21,7 @@ import { UpdateItemDto } from './dto/update-item.dto';
 
 @Controller('items')
 export class ItemsController {
-    constructor(private readonly itemsService: ItemsService) { }
+    constructor(private readonly itemsService: ItemsService) {}
 
     @Post()
     create(@Body() createItemDto: CreateItemDto) {
@@ -28,7 +38,10 @@ export class ItemsController {
                         .fill(null)
                         .map(() => Math.round(Math.random() * 16).toString(16))
                         .join('');
-                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname)}`,
+                    );
                 },
             }),
         }),
@@ -41,7 +54,8 @@ export class ItemsController {
                 ],
                 fileIsRequired: true,
             }),
-        ) file: Express.Multer.File,
+        )
+        file: Express.Multer.File,
         @Body() createItemDto: CreateItemDto,
     ) {
         const imageUrl = `/static/${file.filename}`;
@@ -62,7 +76,10 @@ export class ItemsController {
                         .fill(null)
                         .map(() => Math.round(Math.random() * 16).toString(16))
                         .join('');
-                    return cb(null, `${randomName}${extname(file.originalname)}`);
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname)}`,
+                    );
                 },
             }),
         }),
@@ -70,10 +87,13 @@ export class ItemsController {
     async uploadImage(
         @UploadedFile(
             new ParseFilePipe({
-                validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 })],
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }),
+                ],
                 fileIsRequired: true,
             }),
-        ) file: Express.Multer.File,
+        )
+        file: Express.Multer.File,
     ) {
         const url = `/static/${file.filename}`;
         return { url };

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ExecutionContext } from '@nestjs/common';
+import {
+    Injectable,
+    UnauthorizedException,
+    ExecutionContext,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,12 +23,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         if (!can) return false;
         // blocklist 校验
         const req = context.switchToHttp().getRequest();
-        const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+        const authHeader =
+            req.headers['authorization'] || req.headers['Authorization'];
         if (authHeader && typeof authHeader === 'string') {
             const parts = authHeader.split(' ');
             if (parts.length === 2 && parts[0] === 'Bearer') {
                 const token = parts[1];
-                const exists = await this.blocklistedTokenRepository.findOne({ where: { token } });
+                const exists = await this.blocklistedTokenRepository.findOne({
+                    where: { token },
+                });
                 if (exists) {
                     throw new UnauthorizedException('Token is blocklisted');
                 }

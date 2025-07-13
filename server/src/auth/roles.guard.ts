@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+    Injectable,
+    CanActivate,
+    ExecutionContext,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,17 +15,21 @@ export class RolesGuard implements CanActivate {
         private reflector: Reflector,
         @InjectRepository(BlocklistedToken)
         private blocklistedTokenRepository: Repository<BlocklistedToken>,
-    ) { }
+    ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const req = context.switchToHttp().getRequest();
-        const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+        const authHeader =
+            req.headers['authorization'] || req.headers['Authorization'];
         if (authHeader && typeof authHeader === 'string') {
             const parts = authHeader.split(' ');
             if (parts.length === 2 && parts[0] === 'Bearer') {
                 const token = parts[1];
                 try {
-                    const exists = await this.blocklistedTokenRepository.findOne({ where: { token } });
+                    const exists =
+                        await this.blocklistedTokenRepository.findOne({
+                            where: { token },
+                        });
                     if (exists) {
                         throw new UnauthorizedException('Token is blocklisted');
                     }
@@ -31,10 +40,10 @@ export class RolesGuard implements CanActivate {
             }
         }
         // 没有 token 或 blocklist 校验通过，继续角色校验
-        const requiredRoles = this.reflector.getAllAndOverride<string[]>('roles', [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+            'roles',
+            [context.getHandler(), context.getClass()],
+        );
         if (!requiredRoles) {
             return true;
         }

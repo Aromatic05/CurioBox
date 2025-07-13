@@ -37,10 +37,13 @@ export class ShowcaseService {
         @InjectRepository(ShowcasePost)
         private postRepository: Repository<ShowcasePost>,
         @InjectRepository(Tag)
-        private tagRepository: Repository<Tag>
-    ) { }
+        private tagRepository: Repository<Tag>,
+    ) {}
 
-    async createPost(userId: number, createPostDto: CreatePostDto): Promise<ShowcasePost> {
+    async createPost(
+        userId: number,
+        createPostDto: CreatePostDto,
+    ): Promise<ShowcasePost> {
         const { title, content, images, tagIds } = createPostDto;
 
         // 创建新帖子
@@ -73,7 +76,8 @@ export class ShowcaseService {
         } = queryDto;
 
         // 创建查询构建器
-        const queryBuilder = this.postRepository.createQueryBuilder('post')
+        const queryBuilder = this.postRepository
+            .createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .leftJoinAndSelect('post.tags', 'tags');
 
@@ -155,14 +159,13 @@ export class ShowcaseService {
         // 计算热度分数
         const now = new Date();
         const createdAt = new Date(post.createdAt);
-        const timeDiff = (now.getTime() - createdAt.getTime()) / (24 * 3600 * 1000); // 天数差
+        const timeDiff =
+            (now.getTime() - createdAt.getTime()) / (24 * 3600 * 1000); // 天数差
         const timeDecayFactor = 1 / (1 + timeDiff);
 
-        post.hotScore = (
-            post.views * 1 +
-            post.likes * 2 +
-            post.commentCount * 3
-        ) * timeDecayFactor;
+        post.hotScore =
+            (post.views * 1 + post.likes * 2 + post.commentCount * 3) *
+            timeDecayFactor;
 
         await this.postRepository.save(post);
     }

@@ -1,19 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import type { ChangeEvent } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, MenuItem, CircularProgress } from '@mui/material';
-import { getItemById, createItem, updateItem, uploadItemImage } from '../../api/itemApi';
+import React, { useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+    Box,
+    Button,
+    TextField,
+    Typography,
+    MenuItem,
+    CircularProgress,
+} from "@mui/material";
+import {
+    getItemById,
+    createItem,
+    updateItem,
+    uploadItemImage,
+} from "../../api/itemApi";
 
 const categories = [
-    { value: '潮玩', label: '潮玩' },
-    { value: '手办', label: '手办' },
-    { value: '文创', label: '文创' },
-    { value: '其他', label: '其他' },
+    { value: "潮玩", label: "潮玩" },
+    { value: "手办", label: "手办" },
+    { value: "文创", label: "文创" },
+    { value: "其他", label: "其他" },
 ];
 const rarities = [
-    { value: '普通', label: '普通' },
-    { value: '稀有', label: '稀有' },
-    { value: '传说', label: '传说' },
+    { value: "普通", label: "普通" },
+    { value: "稀有", label: "稀有" },
+    { value: "传说", label: "传说" },
 ];
 
 const ItemEditPage: React.FC = () => {
@@ -22,32 +34,32 @@ const ItemEditPage: React.FC = () => {
     const isEdit = Boolean(id);
 
     const [form, setForm] = useState({
-        name: '',
-        category: '',
-        rarity: '',
-        stock: '',
-        image: '',
+        name: "",
+        category: "",
+        rarity: "",
+        stock: "",
+        image: "",
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
-    const [preview, setPreview] = useState<string>('');
+    const [preview, setPreview] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
     useEffect(() => {
         if (isEdit) {
             setLoading(true);
             getItemById(Number(id))
-                .then(res => {
+                .then((res) => {
                     setForm({
-                        name: res.data.name || '',
-                        category: res.data.category || '',
-                        rarity: res.data.rarity || '',
-                        stock: res.data.stock?.toString() || '',
-                        image: res.data.image || '',
+                        name: res.data.name || "",
+                        category: res.data.category || "",
+                        rarity: res.data.rarity || "",
+                        stock: res.data.stock?.toString() || "",
+                        image: res.data.image || "",
                     });
-                    setPreview(res.data.image || '');
+                    setPreview(res.data.image || "");
                 })
-                .catch(() => setError('加载物品信息失败'))
+                .catch(() => setError("加载物品信息失败"))
                 .finally(() => setLoading(false));
         }
     }, [id, isEdit]);
@@ -67,7 +79,7 @@ const ItemEditPage: React.FC = () => {
     const handleUploadImage = async (): Promise<string> => {
         if (!imageFile) return form.image;
         const formData = new FormData();
-        formData.append('file', imageFile);
+        formData.append("file", imageFile);
         const res = await uploadItemImage(formData);
         return res.data.url;
     };
@@ -75,7 +87,7 @@ const ItemEditPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
+        setError("");
         try {
             const imageUrl = await handleUploadImage();
             const payload = {
@@ -88,18 +100,18 @@ const ItemEditPage: React.FC = () => {
             } else {
                 await createItem(payload);
             }
-            navigate('/admin/items');
+            navigate("/admin/items");
         } catch (err) {
-            setError('提交失败，请重试');
+            setError("提交失败，请重试");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
+        <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
-                {isEdit ? '编辑物品' : '新建物品'}
+                {isEdit ? "编辑物品" : "新建物品"}
             </Typography>
             <form onSubmit={handleSubmit}>
                 <TextField
@@ -121,8 +133,10 @@ const ItemEditPage: React.FC = () => {
                     required
                     sx={{ mb: 2 }}
                 >
-                    {categories.map(option => (
-                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    {categories.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
                     ))}
                 </TextField>
                 <TextField
@@ -135,8 +149,10 @@ const ItemEditPage: React.FC = () => {
                     required
                     sx={{ mb: 2 }}
                 >
-                    {rarities.map(option => (
-                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                    {rarities.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
                     ))}
                 </TextField>
                 <TextField
@@ -152,17 +168,46 @@ const ItemEditPage: React.FC = () => {
                 <Box sx={{ mb: 2 }}>
                     <Button variant="outlined" component="label">
                         上传图片
-                        <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                        <input
+                            type="file"
+                            hidden
+                            accept="image/*"
+                            onChange={handleImageChange}
+                        />
                     </Button>
                     {preview && (
                         <Box sx={{ mt: 1 }}>
-                            <img src={preview} alt="预览" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8 }} />
+                            <img
+                                src={preview}
+                                alt="预览"
+                                style={{
+                                    width: 120,
+                                    height: 120,
+                                    objectFit: "cover",
+                                    borderRadius: 8,
+                                }}
+                            />
                         </Box>
                     )}
                 </Box>
-                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-                <Button type="submit" variant="contained" fullWidth disabled={loading}>
-                    {loading ? <CircularProgress size={24} /> : (isEdit ? '保存修改' : '新建物品')}
+                {error && (
+                    <Typography color="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Typography>
+                )}
+                <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <CircularProgress size={24} />
+                    ) : isEdit ? (
+                        "保存修改"
+                    ) : (
+                        "新建物品"
+                    )}
                 </Button>
             </form>
         </Box>

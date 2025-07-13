@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
+} from 'typeorm';
 import { User } from '../../users/user.entity';
 import { CurioBox } from '../../curio-box/entities/curio-box.entity';
 import { Item } from '../../items/entities/item.entity';
@@ -31,7 +38,7 @@ export class UserBox {
         type: 'simple-enum',
         enum: UserBoxStatus,
         default: UserBoxStatus.UNOPENED,
-        comment: '盲盒状态：未开启/已开启'
+        comment: '盲盒状态：未开启/已开启',
     })
     status: UserBoxStatus;
 
@@ -39,10 +46,10 @@ export class UserBox {
     purchaseDate: Date;
 
     // 将抽中的物品在购买时就确定
-    @ManyToOne(() => Item, { nullable: false })  // 改为非空
+    @ManyToOne(() => Item, { nullable: false }) // 改为非空
     @JoinColumn({ name: 'itemId' })
     item: Item;
 
-    @Column({ nullable: false })  // 改为非空
+    @Column({ nullable: false }) // 改为非空
     itemId: number;
 }

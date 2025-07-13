@@ -1,22 +1,29 @@
-import { IsEnum, IsOptional, IsArray, IsNumber, Min, Max } from 'class-validator';
+import {
+    IsEnum,
+    IsOptional,
+    IsArray,
+    IsNumber,
+    Min,
+    Max,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export enum SortBy {
     LATEST = 'latest',
     HOT = 'hot',
-    COMPREHENSIVE = 'comprehensive'
+    COMPREHENSIVE = 'comprehensive',
 }
 
 export enum TimeRange {
     DAY = 'day',
     WEEK = 'week',
     MONTH = 'month',
-    ALL = 'all'
+    ALL = 'all',
 }
 
 export enum OrderBy {
     DESC = 'DESC',
-    ASC = 'ASC'
+    ASC = 'ASC',
 }
 
 export class QueryPostsDto {
@@ -34,7 +41,9 @@ export class QueryPostsDto {
 
     @IsOptional()
     @IsArray()
-    @Transform(({ value }) => typeof value === 'string' ? value.split(',').map(Number) : value)
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.split(',').map(Number) : value,
+    )
     tagIds?: number[];
 
     @IsOptional()

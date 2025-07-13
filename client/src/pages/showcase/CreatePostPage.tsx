@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createPost, getTags, type ITag, type CreatePostPayload } from '../../api/showcaseApi';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    createPost,
+    getTags,
+    type ITag,
+    type CreatePostPayload,
+} from "../../api/showcaseApi";
 import {
     Container,
     Paper,
@@ -18,9 +23,9 @@ import {
     OutlinedInput,
     Chip,
     type SelectChangeEvent,
-} from '@mui/material';
-import { type Theme, useTheme } from '@mui/material/styles';
-import { uploadItemImage } from '../../api/itemApi';
+} from "@mui/material";
+import { type Theme, useTheme } from "@mui/material/styles";
+import { uploadItemImage } from "../../api/itemApi";
 
 // MUI Select多选样式辅助函数
 function getStyles(name: string, personName: readonly string[], theme: Theme) {
@@ -37,8 +42,8 @@ const CreatePostPage: React.FC = () => {
     const theme = useTheme();
 
     // 表单状态
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
     const [imageFiles, setImageFiles] = useState<File[]>([]); // 用于接收图片文件
     const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 图片预览URL
     const [availableTags, setAvailableTags] = useState<ITag[]>([]);
@@ -46,7 +51,11 @@ const CreatePostPage: React.FC = () => {
 
     // UI状态
     const [loading, setLoading] = useState(false);
-    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' } | null>(null);
+    const [snackbar, setSnackbar] = useState<{
+        open: boolean;
+        message: string;
+        severity: "success" | "error";
+    } | null>(null);
 
     // 加载可用标签
     useEffect(() => {
@@ -61,19 +70,25 @@ const CreatePostPage: React.FC = () => {
         fetchTags();
     }, []);
 
-    const handleTagChange = (event: SelectChangeEvent<typeof selectedTagNames>) => {
+    const handleTagChange = (
+        event: SelectChangeEvent<typeof selectedTagNames>,
+    ) => {
         const {
             target: { value },
         } = event;
-        setSelectedTagNames(typeof value === 'string' ? value.split(',') : value);
+        setSelectedTagNames(
+            typeof value === "string" ? value.split(",") : value,
+        );
     };
 
     // 处理图片选择
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+            const files = Array.from(e.target.files).filter((f) =>
+                f.type.startsWith("image/"),
+            );
             setImageFiles(files); // 允许多选
-            setImagePreviews(files.map(file => URL.createObjectURL(file)));
+            setImagePreviews(files.map((file) => URL.createObjectURL(file)));
         }
     };
 
@@ -82,7 +97,7 @@ const CreatePostPage: React.FC = () => {
         const urls: string[] = [];
         for (const file of files) {
             const formData = new FormData();
-            formData.append('file', file); // 字段名必须为 file
+            formData.append("file", file); // 字段名必须为 file
             const res = await uploadItemImage(formData);
             urls.push(res.data.url);
         }
@@ -92,23 +107,33 @@ const CreatePostPage: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!title.trim() || !content.trim()) {
-            setSnackbar({ open: true, message: '标题和内容不能为空！', severity: 'error' });
+            setSnackbar({
+                open: true,
+                message: "标题和内容不能为空！",
+                severity: "error",
+            });
             return;
         }
         setLoading(true);
 
         // 从标签名找到对应的标签ID
-        const selectedTagIds = selectedTagNames.map(name => {
-            const foundTag = availableTags.find(tag => tag.name === name);
-            return foundTag ? foundTag.id : null;
-        }).filter(id => id !== null) as number[];
+        const selectedTagIds = selectedTagNames
+            .map((name) => {
+                const foundTag = availableTags.find((tag) => tag.name === name);
+                return foundTag ? foundTag.id : null;
+            })
+            .filter((id) => id !== null) as number[];
 
         let imageUrls: string[] = [];
         if (imageFiles.length > 0) {
             try {
                 imageUrls = await uploadImages(imageFiles);
             } catch (err) {
-                setSnackbar({ open: true, message: '图片上传失败', severity: 'error' });
+                setSnackbar({
+                    open: true,
+                    message: "图片上传失败",
+                    severity: "error",
+                });
                 setLoading(false);
                 return;
             }
@@ -121,12 +146,20 @@ const CreatePostPage: React.FC = () => {
         };
         try {
             const response = await createPost(payload);
-            setSnackbar({ open: true, message: '帖子发布成功！', severity: 'success' });
+            setSnackbar({
+                open: true,
+                message: "帖子发布成功！",
+                severity: "success",
+            });
             setTimeout(() => {
                 navigate(`/showcase/${response.data.id}`);
             }, 1000);
         } catch (error) {
-            setSnackbar({ open: true, message: '发布失败，请稍后再试。', severity: 'error' });
+            setSnackbar({
+                open: true,
+                message: "发布失败，请稍后再试。",
+                severity: "error",
+            });
             setLoading(false);
         }
     };
@@ -158,10 +191,7 @@ const CreatePostPage: React.FC = () => {
                         onChange={(e) => setContent(e.target.value)}
                     />
                     <Box marginY={2}>
-                        <Button
-                            variant="outlined"
-                            component="label"
-                        >
+                        <Button variant="outlined" component="label">
                             上传图片
                             <input
                                 type="file"
@@ -171,12 +201,34 @@ const CreatePostPage: React.FC = () => {
                                 onChange={handleImageChange}
                             />
                         </Button>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 1 }}
+                        >
                             支持多张图片上传，图片将自动上传并用于帖子展示。
                         </Typography>
-                        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                gap: 2,
+                                flexWrap: "wrap",
+                                mt: 2,
+                            }}
+                        >
                             {imagePreviews.map((url, idx) => (
-                                <img key={idx} src={url} alt={`预览${idx + 1}`} style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee' }} />
+                                <img
+                                    key={idx}
+                                    src={url}
+                                    alt={`预览${idx + 1}`}
+                                    style={{
+                                        width: 100,
+                                        height: 100,
+                                        objectFit: "cover",
+                                        borderRadius: 8,
+                                        border: "1px solid #eee",
+                                    }}
+                                />
                             ))}
                         </Box>
                     </Box>
@@ -189,7 +241,13 @@ const CreatePostPage: React.FC = () => {
                             onChange={handleTagChange}
                             input={<OutlinedInput label="标签" />}
                             renderValue={(selected) => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 0.5,
+                                    }}
+                                >
                                     {selected.map((value) => (
                                         <Chip key={value} label={value} />
                                     ))}
@@ -200,14 +258,18 @@ const CreatePostPage: React.FC = () => {
                                 <MenuItem
                                     key={tag.id}
                                     value={tag.name}
-                                    style={getStyles(tag.name, selectedTagNames, theme)}
+                                    style={getStyles(
+                                        tag.name,
+                                        selectedTagNames,
+                                        theme,
+                                    )}
                                 >
                                     {tag.name}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
-                    <Box sx={{ position: 'relative', mt: 3 }}>
+                    <Box sx={{ position: "relative", mt: 3 }}>
                         <Button
                             type="submit"
                             fullWidth
@@ -221,11 +283,11 @@ const CreatePostPage: React.FC = () => {
                             <CircularProgress
                                 size={24}
                                 sx={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    marginTop: '-12px',
-                                    marginLeft: '-12px',
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: "50%",
+                                    marginTop: "-12px",
+                                    marginLeft: "-12px",
                                 }}
                             />
                         )}
@@ -237,9 +299,13 @@ const CreatePostPage: React.FC = () => {
                     open={snackbar.open}
                     autoHideDuration={6000}
                     onClose={() => setSnackbar(null)}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 >
-                    <Alert onClose={() => setSnackbar(null)} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    <Alert
+                        onClose={() => setSnackbar(null)}
+                        severity={snackbar.severity}
+                        sx={{ width: "100%" }}
+                    >
                         {snackbar.message}
                     </Alert>
                 </Snackbar>

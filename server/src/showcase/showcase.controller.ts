@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, Put, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    Query,
+    UseGuards,
+    Request,
+    Put,
+    Delete,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ShowcaseService } from './showcase.service';
 import { CommentService } from './comment.service';
@@ -13,7 +24,7 @@ export class ShowcaseController {
         private readonly showcaseService: ShowcaseService,
         private readonly commentService: CommentService,
         private readonly tagService: TagService,
-    ) { }
+    ) {}
 
     // 帖子相关接口
     @Post('posts')
@@ -36,14 +47,21 @@ export class ShowcaseController {
     @UseGuards(JwtAuthGuard)
     async getMyPosts(@Request() req) {
         // 只查当前用户的帖子，分页参数可选
-        return this.showcaseService.getPosts({ userId: req.user.sub, page: 1, pageSize: 20 });
+        return this.showcaseService.getPosts({
+            userId: req.user.sub,
+            page: 1,
+            pageSize: 20,
+        });
     }
 
     // 评论相关接口
     @Post('comments')
     @UseGuards(JwtAuthGuard)
     createComment(@Request() req, @Body() createCommentDto: CreateCommentDto) {
-        return this.commentService.createComment(req.user.sub, createCommentDto);
+        return this.commentService.createComment(
+            req.user.sub,
+            createCommentDto,
+        );
     }
 
     @Get('posts/:postId/comments')
@@ -63,7 +81,11 @@ export class ShowcaseController {
         @Param('id') id: string,
         @Body('content') content: string,
     ) {
-        return this.commentService.updateComment(Number(id), req.user.sub, content);
+        return this.commentService.updateComment(
+            Number(id),
+            req.user.sub,
+            content,
+        );
     }
 
     // 标签相关接口
@@ -94,7 +116,11 @@ export class ShowcaseController {
         @Param('id') id: string,
         @Body() body: { name?: string; description?: string },
     ) {
-        return this.tagService.updateTag(Number(id), body.name, body.description);
+        return this.tagService.updateTag(
+            Number(id),
+            body.name,
+            body.description,
+        );
     }
 
     @Delete('tags/:id')
@@ -105,7 +131,11 @@ export class ShowcaseController {
 
     @Put('posts/:id')
     @UseGuards(JwtAuthGuard)
-    updatePost(@Request() req, @Param('id') id: string, @Body() body: Partial<CreatePostDto>) {
+    updatePost(
+        @Request() req,
+        @Param('id') id: string,
+        @Body() body: Partial<CreatePostDto>,
+    ) {
         // 只有帖子所有者才能修改
         return this.showcaseService.updatePost(Number(id), req.user.sub, body);
     }
@@ -114,13 +144,21 @@ export class ShowcaseController {
     @UseGuards(JwtAuthGuard)
     deletePost(@Request() req, @Param('id') id: string) {
         // 只有帖子所有者或管理员才能删除
-        return this.showcaseService.deletePost(Number(id), req.user.sub, req.user.role);
+        return this.showcaseService.deletePost(
+            Number(id),
+            req.user.sub,
+            req.user.role,
+        );
     }
 
     @Delete('comments/:id')
     @UseGuards(JwtAuthGuard)
     deleteComment(@Request() req, @Param('id') id: string) {
         // 只有评论所有者或管理员才能删除
-        return this.commentService.deleteComment(Number(id), req.user.sub, req.user.role);
+        return this.commentService.deleteComment(
+            Number(id),
+            req.user.sub,
+            req.user.role,
+        );
     }
 }

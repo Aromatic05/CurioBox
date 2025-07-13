@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, UseGuards, Request, HttpCode, Query } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    UseGuards,
+    Request,
+    HttpCode,
+    Query,
+} from '@nestjs/common';
 import { UserBoxesService } from './user-boxes.service';
 import { CreateUserBoxDto } from './dto/create-user-box.dto';
 import { OpenBoxDto } from './dto/open-box.dto';
@@ -14,12 +23,18 @@ export class UserBoxesController {
     async getBoxes(@Request() req, @Query('status') status: string) {
         let boxes;
         if (status === 'OPENED') {
-            boxes = await this.userBoxesService.findUserBoxesByStatus(req.user.id, 'OPENED');
+            boxes = await this.userBoxesService.findUserBoxesByStatus(
+                req.user.id,
+                'OPENED',
+            );
         } else if (status === 'ALL' || status === 'all') {
             boxes = await this.userBoxesService.findAllUserBoxes(req.user.id);
         } else {
             // 默认返回未开启
-            boxes = await this.userBoxesService.findUserBoxesByStatus(req.user.id, 'UNOPENED');
+            boxes = await this.userBoxesService.findUserBoxesByStatus(
+                req.user.id,
+                'UNOPENED',
+            );
         }
         return { boxes };
     }

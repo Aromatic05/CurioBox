@@ -1,12 +1,12 @@
-import axios from 'axios';
+import axios from "axios";
 
 // 1. 创建 Axios 实例
 const apiClient = axios.create({
     // 请将 'http://localhost:3000/api' 替换为你的实际后端API地址
-    baseURL: 'http://localhost:3000/',
+    baseURL: "http://localhost:3000/",
     timeout: 10000, // 请求超时时间 10 秒
     headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     },
 });
 
@@ -16,7 +16,7 @@ apiClient.interceptors.request.use(
     (config) => {
         // 在这里添加认证逻辑
         // 例如，从 localStorage 获取 token
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem("accessToken");
 
         // 如果 token 存在，则添加到请求头中
         if (token) {
@@ -28,7 +28,7 @@ apiClient.interceptors.request.use(
     (error) => {
         // 对请求错误做些什么
         return Promise.reject(error);
-    }
+    },
 );
 
 // 3. 导出实例

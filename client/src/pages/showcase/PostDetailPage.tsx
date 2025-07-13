@@ -1,15 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById } from '../../api/showcaseApi';
-import type { IComment, IPost } from '../../api/showcaseApi';
-import { Container, Typography, Box, CircularProgress, Alert, Paper, Divider, TextField, Button } from '@mui/material';
-import { useAuth } from '../../context/AuthContext';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+    getPostById,
+    getCommentsByPostId,
+    addCommentToPost,
+    updatePostById,
+} from "../../api/showcaseApi";
+import type { IComment, IPost } from "../../api/showcaseApi";
+import {
+    Container,
+    Typography,
+    Box,
+    CircularProgress,
+    Alert,
+    Paper,
+    Divider,
+    TextField,
+    Button,
+} from "@mui/material";
+import { useAuth } from "../../context/AuthContext";
 
 const PostDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [post, setPost] = useState<IPost | null>(null);
     const [comments, setComments] = useState<IComment[]>([]);
-    const [commentContent, setCommentContent] = useState('');
+    const [commentContent, setCommentContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -25,11 +40,11 @@ const PostDetailPage: React.FC = () => {
             // id 可能为 string，API 兼容 string/number
             // @ts-ignore
             const res = await addCommentToPost(id, commentContent);
-            setComments(prev => [...prev, res.data]);
-            setCommentContent('');
+            setComments((prev) => [...prev, res.data]);
+            setCommentContent("");
         } catch (err) {
             console.log(err);
-            setSubmitError('评论失败，请重试。');
+            setSubmitError("评论失败，请重试。");
         } finally {
             setSubmitting(false);
         }
@@ -37,8 +52,8 @@ const PostDetailPage: React.FC = () => {
 
     // 编辑相关
     const [editing, setEditing] = useState(false);
-    const [editTitle, setEditTitle] = useState('');
-    const [editContent, setEditContent] = useState('');
+    const [editTitle, setEditTitle] = useState("");
+    const [editContent, setEditContent] = useState("");
     const [editLoading, setEditLoading] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
     // 使用 AuthContext 获取当前用户
@@ -56,7 +71,7 @@ const PostDetailPage: React.FC = () => {
                 setPost(postResponse.data);
                 setComments(commentsResponse.data);
             } catch (err) {
-                setError('无法加载帖子详情。');
+                setError("无法加载帖子详情。");
             } finally {
                 setLoading(false);
             }
@@ -78,20 +93,33 @@ const PostDetailPage: React.FC = () => {
         setEditLoading(true);
         setEditError(null);
         try {
-            await updatePostById(id, { title: editTitle, content: editContent });
+            await updatePostById(id, {
+                title: editTitle,
+                content: editContent,
+            });
             // 刷新帖子详情
             const postResponse = await getPostById(id);
             setPost(postResponse.data);
             setEditing(false);
         } catch (err) {
-            setEditError('保存失败，请重试。');
+            setEditError("保存失败，请重试。");
         } finally {
             setEditLoading(false);
         }
     };
 
-    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>;
-    if (error) return <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>;
+    if (loading)
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    if (error)
+        return (
+            <Alert severity="error" sx={{ mt: 4 }}>
+                {error}
+            </Alert>
+        );
     if (!post) return <Typography>帖子未找到。</Typography>;
 
     return (
@@ -104,7 +132,7 @@ const PostDetailPage: React.FC = () => {
                             label="标题"
                             fullWidth
                             value={editTitle}
-                            onChange={e => setEditTitle(e.target.value)}
+                            onChange={(e) => setEditTitle(e.target.value)}
                             sx={{ mb: 2 }}
                         />
                         <TextField
@@ -113,15 +141,30 @@ const PostDetailPage: React.FC = () => {
                             multiline
                             minRows={5}
                             value={editContent}
-                            onChange={e => setEditContent(e.target.value)}
+                            onChange={(e) => setEditContent(e.target.value)}
                             sx={{ mb: 2 }}
                         />
-                        {editError && <Alert severity="error" sx={{ mb: 2 }}>{editError}</Alert>}
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Button variant="contained" color="primary" onClick={handleEditSave} disabled={editLoading}>
-                                {editLoading ? '保存中...' : '保存'}
+                        {editError && (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                {editError}
+                            </Alert>
+                        )}
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleEditSave}
+                                disabled={editLoading}
+                            >
+                                {editLoading ? "保存中..." : "保存"}
                             </Button>
-                            <Button variant="outlined" onClick={() => setEditing(false)} disabled={editLoading}>取消</Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => setEditing(false)}
+                                disabled={editLoading}
+                            >
+                                取消
+                            </Button>
                         </Box>
                     </>
                 ) : (
@@ -129,12 +172,17 @@ const PostDetailPage: React.FC = () => {
                         <Typography variant="h3" component="h1" gutterBottom>
                             {post.title}
                         </Typography>
-                        <Box sx={{ mb: 2, color: 'text.secondary' }}>
+                        <Box sx={{ mb: 2, color: "text.secondary" }}>
                             <Typography variant="body2" component="span">
-                                作者: {post.user?.username || 'Anonymous'}
+                                作者: {post.user?.username || "Anonymous"}
                             </Typography>
-                            <Typography variant="body2" component="span" sx={{ ml: 2 }}>
-                                发布于: {new Date(post.createdAt).toLocaleString()}
+                            <Typography
+                                variant="body2"
+                                component="span"
+                                sx={{ ml: 2 }}
+                            >
+                                发布于:{" "}
+                                {new Date(post.createdAt).toLocaleString()}
                             </Typography>
                         </Box>
                         <Divider sx={{ my: 2 }} />
@@ -144,61 +192,148 @@ const PostDetailPage: React.FC = () => {
                                 key={index}
                                 src={image}
                                 alt={`post image ${index + 1}`}
-                                sx={{ maxWidth: '100%', my: 2, borderRadius: 1 }}
+                                sx={{
+                                    maxWidth: "100%",
+                                    my: 2,
+                                    borderRadius: 1,
+                                }}
                             />
                         ))}
-                        <Typography variant="body1" sx={{ mt: 2, whiteSpace: 'pre-wrap' }}>
+                        <Typography
+                            variant="body1"
+                            sx={{ mt: 2, whiteSpace: "pre-wrap" }}
+                        >
                             {post.content}
                         </Typography>
                         {/* 仅作者可见编辑按钮 */}
-                        {currentUser?.id && post.user?.id === currentUser.id && (
-                            <Box sx={{ textAlign: 'right', mt: 2 }}>
-                                <Button variant="outlined" color="primary" onClick={() => setEditing(true)}>
-                                    编辑
-                                </Button>
-                            </Box>
-                        )}
+                        {currentUser?.id &&
+                            post.user?.id === currentUser.id && (
+                                <Box sx={{ textAlign: "right", mt: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => setEditing(true)}
+                                    >
+                                        编辑
+                                    </Button>
+                                </Box>
+                            )}
                     </>
                 )}
             </Paper>
 
             {/* 评论区模仿 GitHub，MUI 风格卡片和按钮 */}
             <Box sx={{ mt: 4 }}>
-                <Typography variant="h5" gutterBottom>评论</Typography>
+                <Typography variant="h5" gutterBottom>
+                    评论
+                </Typography>
                 <Divider sx={{ mb: 2 }} />
                 {comments.length === 0 && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>暂无评论</Typography>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
+                    >
+                        暂无评论
+                    </Typography>
                 )}
-                {comments.map(comment => (
-                    <Box key={comment.id} sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+                {comments.map((comment) => (
+                    <Box
+                        key={comment.id}
+                        sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            mb: 2,
+                        }}
+                    >
                         {/* 头像 */}
                         <Box sx={{ width: 40, height: 40, mr: 2 }}>
-                            <Box sx={{ width: 40, height: 40, bgcolor: 'grey.300', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Box
+                                sx={{
+                                    width: 40,
+                                    height: 40,
+                                    bgcolor: "grey.300",
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
                                 <Typography variant="h6" color="text.secondary">
-                                    {comment.user?.username ? comment.user.username[0].toUpperCase() : '匿'}
+                                    {comment.user?.username
+                                        ? comment.user.username[0].toUpperCase()
+                                        : "匿"}
                                 </Typography>
                             </Box>
                         </Box>
-                        <Paper elevation={2} sx={{ flex: 1, p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                    {comment.user?.username || '匿名'}
+                        <Paper
+                            elevation={2}
+                            sx={{
+                                flex: 1,
+                                p: 2,
+                                bgcolor: "background.paper",
+                                borderRadius: 2,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    mb: 1,
+                                }}
+                            >
+                                <Typography
+                                    variant="subtitle2"
+                                    sx={{ fontWeight: 600 }}
+                                >
+                                    {comment.user?.username || "匿名"}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
-                                    {new Date(comment.createdAt).toLocaleString()}
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ ml: 2 }}
+                                >
+                                    {new Date(
+                                        comment.createdAt,
+                                    ).toLocaleString()}
                                 </Typography>
                             </Box>
-                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{comment.content}</Typography>
+                            <Typography
+                                variant="body2"
+                                sx={{ whiteSpace: "pre-wrap" }}
+                            >
+                                {comment.content}
+                            </Typography>
                         </Paper>
                     </Box>
                 ))}
                 {/* 发表评论输入框 */}
-                <Paper elevation={1} sx={{ p: 2, mt: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                <Paper
+                    elevation={1}
+                    sx={{
+                        p: 2,
+                        mt: 2,
+                        bgcolor: "background.paper",
+                        borderRadius: 2,
+                    }}
+                >
+                    <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                         <Box sx={{ width: 40, height: 40, mr: 2 }}>
-                            <Box sx={{ width: 40, height: 40, bgcolor: 'grey.300', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Box
+                                sx={{
+                                    width: 40,
+                                    height: 40,
+                                    bgcolor: "grey.300",
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
                                 <Typography variant="h6" color="text.secondary">
-                                    {post.user?.username ? post.user.username[0].toUpperCase() : '匿'}
+                                    {post.user?.username
+                                        ? post.user.username[0].toUpperCase()
+                                        : "匿"}
                                 </Typography>
                             </Box>
                         </Box>
@@ -209,20 +344,32 @@ const PostDetailPage: React.FC = () => {
                                 fullWidth
                                 variant="outlined"
                                 value={commentContent}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCommentContent(e.target.value)}
+                                onChange={(
+                                    e: React.ChangeEvent<HTMLInputElement>,
+                                ) => setCommentContent(e.target.value)}
                                 placeholder="发表你的评论..."
                                 disabled={submitting}
                                 sx={{ mb: 1 }}
                             />
-                            {submitError && <Typography color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
-                            <Box sx={{ textAlign: 'right', mt: 1 }}>
+                            {submitError && (
+                                <Typography
+                                    color="error"
+                                    variant="body2"
+                                    sx={{ mt: 1 }}
+                                >
+                                    {submitError}
+                                </Typography>
+                            )}
+                            <Box sx={{ textAlign: "right", mt: 1 }}>
                                 <Button
                                     variant="contained"
                                     color="success"
                                     onClick={handleCommentSubmit}
-                                    disabled={submitting || !commentContent.trim()}
+                                    disabled={
+                                        submitting || !commentContent.trim()
+                                    }
                                 >
-                                    {submitting ? '正在发表...' : '发表评论'}
+                                    {submitting ? "正在发表..." : "发表评论"}
                                 </Button>
                             </Box>
                         </Box>

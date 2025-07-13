@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
@@ -20,10 +24,13 @@ export class OrdersService {
         @InjectRepository(Item)
         private readonly itemRepository: Repository<Item>,
         private readonly dataSource: DataSource,
-    ) { }
+    ) {}
 
     // 购买盲盒 - 在购买时就确定内容并扣减库存
-    async purchase(userId: number, createUserBoxDto: CreateUserBoxDto): Promise<{ order: Order, userBoxes: any[] }> {
+    async purchase(
+        userId: number,
+        createUserBoxDto: CreateUserBoxDto,
+    ): Promise<{ order: Order; userBoxes: any[] }> {
         const { curioBoxId, quantity = 1 } = createUserBoxDto;
 
         // 查找盲盒
@@ -57,7 +64,11 @@ export class OrdersService {
             }
 
             // 创建用户盒子（在购买时就确定内容）
-            const userBoxes = await this.purchaseBoxes(userId, createUserBoxDto, queryRunner);
+            const userBoxes = await this.purchaseBoxes(
+                userId,
+                createUserBoxDto,
+                queryRunner,
+            );
 
             await queryRunner.commitTransaction();
             return { order, userBoxes };
@@ -71,7 +82,11 @@ export class OrdersService {
 
     // 迁移自 user-boxes.service.ts
     // 批量购买盲盒 - 在购买时就确定内容
-    async purchaseBoxes(userId: number, createUserBoxDto: CreateUserBoxDto, queryRunner?): Promise<UserBox[]> {
+    async purchaseBoxes(
+        userId: number,
+        createUserBoxDto: CreateUserBoxDto,
+        queryRunner?,
+    ): Promise<UserBox[]> {
         const { curioBoxId, quantity = 1 } = createUserBoxDto;
         const curioBox = await this.curioBoxRepository.findOne({
             where: { id: curioBoxId },
@@ -81,7 +96,9 @@ export class OrdersService {
             throw new NotFoundException(`CurioBox #${curioBoxId} not found`);
         }
         if (!curioBox.items || curioBox.items.length === 0) {
-            throw new BadRequestException(`CurioBox #${curioBoxId} has no items`);
+            throw new BadRequestException(
+                `CurioBox #${curioBoxId} has no items`,
+            );
         }
         // 使用事务确保库存一致性
         let localQueryRunner = queryRunner;
@@ -99,7 +116,9 @@ export class OrdersService {
                 const drawnItem = await this.drawItem(curioBox);
                 // 检查库存
                 if (drawnItem.stock <= 0) {
-                    throw new BadRequestException(`Item ${drawnItem.name} is out of stock`);
+                    throw new BadRequestException(
+                        `Item ${drawnItem.name} is out of stock`,
+                    );
                 }
                 // 减少库存
                 drawnItem.stock--;
@@ -111,7 +130,8 @@ export class OrdersService {
                     status: UserBoxStatus.UNOPENED,
                     itemId: drawnItem.id,
                 });
-                const savedUserBox = await localQueryRunner.manager.save(userBox);
+                const savedUserBox =
+                    await localQueryRunner.manager.save(userBox);
                 userBoxes.push(savedUserBox);
             }
             if (createdHere) {
@@ -140,17 +160,25 @@ export class OrdersService {
         const { items, itemProbabilities } = curioBox;
         // 过滤有库存的物品和概率
         const available = itemProbabilities
-            .map(prob => {
-                const item = items.find(i => i.id === prob.itemId && i.stock > 0);
+            .map((prob) => {
+                const item = items.find(
+                    (i) => i.id === prob.itemId && i.stock > 0,
+                );
                 return item ? { item, probability: prob.probability } : null;
             })
-            .filter(Boolean) as { item: Item, probability: number }[];
+            .filter(Boolean) as { item: Item; probability: number }[];
         if (available.length === 0) {
             throw new BadRequestException('No items available in the box');
         }
         // 归一化概率
-        const totalProb = available.reduce((sum, cur) => sum + cur.probability, 0);
-        const normalized = available.map(({ item, probability }) => ({ item, probability: probability / totalProb }));
+        const totalProb = available.reduce(
+            (sum, cur) => sum + cur.probability,
+            0,
+        );
+        const normalized = available.map(({ item, probability }) => ({
+            item,
+            probability: probability / totalProb,
+        }));
         // 加权随机抽取
         const rand = Math.random();
         let acc = 0;

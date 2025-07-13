@@ -1,7 +1,14 @@
 import { CurioBox } from '../../curio-box/entities/curio-box.entity';
 import { Item } from '../../items/entities/item.entity';
 import { User } from '../../users/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
+} from 'typeorm';
 
 export enum OrderStatus {
     COMPLETED = 'completed',

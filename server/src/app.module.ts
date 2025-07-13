@@ -32,7 +32,7 @@ import { UserBox } from './user-boxes/entities/user-box.entity';
                 ShowcasePost,
                 Comment,
                 Tag,
-                UserBox
+                UserBox,
             ],
             synchronize: true,
         }),
@@ -46,4 +46,4 @@ import { UserBox } from './user-boxes/entities/user-box.entity';
     controllers: [UsersController],
     providers: [UsersService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -12,16 +12,16 @@ describe('OrdersController (e2e)', () => {
     let curioBoxId: number;
     let createdOrderId: number;
 
-    const adminUser  = {
+    const adminUser = {
         username: `admin_${Date.now()}`,
         password: 'adminpassword',
-        role: "admin",
+        role: 'admin',
     };
 
-    const regularUser  = {
+    const regularUser = {
         username: `user_${Date.now()}`,
         password: 'userpassword',
-        role: "user",
+        role: 'user',
     };
 
     beforeAll(async () => {
@@ -33,15 +33,15 @@ describe('OrdersController (e2e)', () => {
         app.useGlobalPipes(new ValidationPipe());
         authService = moduleFixture.get<AuthService>(AuthService);
         await app.init();
-        
+
         // 注册管理员和普通用户
-        await authService.signUp(adminUser );
-        await authService.signUp(regularUser );
+        await authService.signUp(adminUser);
+        await authService.signUp(regularUser);
 
         // 管理员登录获取Token
-        const adminLoginRes = await authService.signIn({ 
-            username: adminUser .username, 
-            password: adminUser .password 
+        const adminLoginRes = await authService.signIn({
+            username: adminUser.username,
+            password: adminUser.password,
         });
         adminToken = adminLoginRes.accessToken;
 
@@ -53,7 +53,7 @@ describe('OrdersController (e2e)', () => {
                 name: 'Test Box',
                 description: 'A box for testing',
                 price: 9.99,
-                category: 'test'
+                category: 'test',
             });
         curioBoxId = curioBoxRes.body.id;
 
@@ -76,14 +76,14 @@ describe('OrdersController (e2e)', () => {
             .send({
                 itemIds: [itemRes.body.id],
                 itemProbabilities: [
-                    { itemId: itemRes.body.id, probability: 1.0 }
-                ]
+                    { itemId: itemRes.body.id, probability: 1.0 },
+                ],
             });
 
         // 普通用户登录获取Token
-        const userLoginRes = await authService.signIn({ 
-            username: regularUser .username, 
-            password: regularUser .password 
+        const userLoginRes = await authService.signIn({
+            username: regularUser.username,
+            password: regularUser.password,
         });
         userToken = userLoginRes.accessToken; // 这里获取 userToken
     });
@@ -104,9 +104,9 @@ describe('OrdersController (e2e)', () => {
             const res = await request(app.getHttpServer())
                 .post('/orders/purchase')
                 .set('Authorization', `Bearer ${userToken}`)
-                .send({ 
+                .send({
                     curioBoxId,
-                    quantity: 2
+                    quantity: 2,
                 })
                 .expect(201);
 
@@ -131,9 +131,7 @@ describe('OrdersController (e2e)', () => {
 
     describe('GET /orders', () => {
         it('未认证时应该失败', () => {
-            return request(app.getHttpServer())
-                .get('/orders')
-                .expect(401);
+            return request(app.getHttpServer()).get('/orders').expect(401);
         });
 
         it('应该返回用户订单列表', async () => {
@@ -144,7 +142,7 @@ describe('OrdersController (e2e)', () => {
 
             expect(Array.isArray(res.body)).toBeTruthy();
             expect(res.body.length).toBeGreaterThan(0);
-            const orderIds = res.body.map(o => o.id);
+            const orderIds = res.body.map((o) => o.id);
             expect(orderIds).toContain(createdOrderId); // 更健壮
         });
     });

@@ -1,5 +1,11 @@
 import { CurioBox } from '../../curio-box/entities/curio-box.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToMany,
+    JoinTable,
+} from 'typeorm';
 
 @Entity()
 export class Item {

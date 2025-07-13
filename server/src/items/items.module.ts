@@ -11,4 +11,4 @@ import { CurioBox } from '../curio-box/entities/curio-box.entity'; // 导入
     controllers: [ItemsController],
     providers: [ItemsService],
 })
-export class ItemsModule { }
+export class ItemsModule {}

@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/user.entity';
 import { ShowcasePost } from './showcase-post.entity';
 
@@ -19,7 +26,7 @@ export class Comment {
     @Column()
     postId: number;
 
-    @ManyToOne(() => ShowcasePost, post => post.comments)
+    @ManyToOne(() => ShowcasePost, (post) => post.comments)
     post: ShowcasePost;
 
     @Column({ nullable: true })
