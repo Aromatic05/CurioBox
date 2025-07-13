@@ -50,6 +50,12 @@ export class OrdersService {
             });
             await queryRunner.manager.save(order);
 
+            // 购买后盲盒数量减少
+            if (typeof curioBox.boxCount === 'number') {
+                curioBox.boxCount = Math.max(0, curioBox.boxCount - quantity);
+                await queryRunner.manager.save(curioBox);
+            }
+
             // 创建用户盒子（在购买时就确定内容）
             const userBoxes = await this.purchaseBoxes(userId, createUserBoxDto, queryRunner);
 

@@ -15,6 +15,9 @@ export class CurioBox {
     @Column('decimal')
     price: number;
 
+    @Column({ type: 'int', default: 0, comment: '盲盒数量' })
+    boxCount: number;
+
     @Column({ nullable: true })
     coverImage: string;
 

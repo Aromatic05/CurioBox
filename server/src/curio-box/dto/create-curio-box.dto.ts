@@ -23,6 +23,12 @@ export class CreateCurioBoxDto {
   @IsNumber()
   price: number;
 
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
+  @IsPositive()
+  @IsDefined()
+  boxCount: number;
+
   @IsOptional()
   // @IsUrl()
   coverImage?: string;

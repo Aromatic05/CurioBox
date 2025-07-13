@@ -90,6 +90,21 @@ export class CurioBoxController {
         return this.curioBoxService.updateItemsAndProbabilities(id, itemIds, itemProbabilities);
     }
 
+    /**
+     * 修改盲盒数量
+     * PATCH /curio-boxes/:id/box-count
+     * body: { boxCount: number }
+     */
+    @Patch(':id/box-count')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
+    updateBoxCount(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('boxCount') boxCount: number
+    ) {
+        return this.curioBoxService.updateBoxCount(id, boxCount);
+    }
+
     // 上传图片并返回图片链接（不创建盲盒，仅返回图片URL）
     @Post('upload-image')
     @UseGuards(JwtAuthGuard, RolesGuard)

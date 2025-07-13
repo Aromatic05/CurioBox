@@ -126,6 +126,18 @@ export class CurioBoxService {
         return this.curioBoxRepository.save(curioBox);
     }
 
+    /**
+     * 专门修改盲盒数量
+     */
+    async updateBoxCount(id: number, boxCount: number): Promise<CurioBox> {
+        const curioBox = await this.curioBoxRepository.findOne({ where: { id } });
+        if (!curioBox) {
+            throw new NotFoundException(`CurioBox with ID "${id}" not found`);
+        }
+        curioBox.boxCount = boxCount;
+        return this.curioBoxRepository.save(curioBox);
+    }
+
     async remove(id: number): Promise<void> {
         // 先查出当前 curioBox 及其 items
         const curioBox = await this.curioBoxRepository.findOne({ where: { id }, relations: ['items'] });
