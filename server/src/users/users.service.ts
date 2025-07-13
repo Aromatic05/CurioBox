@@ -17,4 +17,10 @@ export class UsersService {
     const { password, ...publicInfo } = user;
     return publicInfo;
   }
+
+  async findAllPublic(): Promise<Partial<User>[]> {
+    const users = await this.userRepository.find();
+    // 只返回公开字段
+    return users.map(({ password, ...publicInfo }) => publicInfo);
+  }
 }

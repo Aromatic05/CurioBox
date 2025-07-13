@@ -24,7 +24,7 @@ const UserManagePage: React.FC = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const res = await apiClient.get('/users'); // 需后端提供 GET /users 接口
+        const res = await apiClient.get('/auth/users'); // 需后端提供 GET /users 接口
         setUsers(res.data);
       } catch (err) {
         setError('无法获取用户列表');
