@@ -47,4 +47,8 @@ export class QueryPostsDto {
     @Min(1)
     @Max(100)
     pageSize?: number = 20;
+
+    @IsOptional()
+    @IsNumber()
+    userId?: number;
 }

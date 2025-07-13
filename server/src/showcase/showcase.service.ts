@@ -36,7 +36,7 @@ export class ShowcaseService {
         return await this.postRepository.save(post);
     }
 
-    async getPosts(queryDto: QueryPostsDto) {
+    async getPosts(queryDto: QueryPostsDto & { userId?: number }) {
         const {
             sortBy = SortBy.LATEST,
             order = 'DESC',
@@ -44,6 +44,7 @@ export class ShowcaseService {
             tagIds,
             page = 1,
             pageSize = 20,
+            userId,
         } = queryDto;
 
         // 创建查询构建器
@@ -62,6 +63,11 @@ export class ShowcaseService {
             queryBuilder
                 .innerJoin('post.tags', 'tag')
                 .where('tag.id IN (:...tagIds)', { tagIds });
+        }
+
+        // 如果指定了 userId
+        if (userId) {
+            queryBuilder.andWhere('post.userId = :userId', { userId });
         }
 
         // 应用排序

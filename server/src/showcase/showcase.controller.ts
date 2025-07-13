@@ -32,6 +32,13 @@ export class ShowcaseController {
         return this.showcaseService.getPostById(Number(id));
     }
 
+    @Get('me/posts')
+    @UseGuards(JwtAuthGuard)
+    async getMyPosts(@Request() req) {
+        // 只查当前用户的帖子，分页参数可选
+        return this.showcaseService.getPosts({ userId: req.user.sub, page: 1, pageSize: 20 });
+    }
+
     // 评论相关接口
     @Post('comments')
     @UseGuards(JwtAuthGuard)
