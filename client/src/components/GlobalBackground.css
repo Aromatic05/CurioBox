@@ -1,133 +1,354 @@
+/* --- Global Variables and Theme Setup --- */
 :root {
-  --footer-bg-dark: #232526;
-  --footer-bg-light: #e0eaff;
-  --footer-text-dark: #f5f6fa;
-  --footer-text-light: #232526;
+    --footer-bg-dark: #232526;
+    --footer-bg-light: #e0eaff;
+    --footer-text-dark: #f5f6fa;
+    --footer-text-light: #232526;
+
+    --bg-gradient-dark: linear-gradient(135deg, #232526 0%, #414345 100%);
+    --bg-gradient-light: linear-gradient(135deg, #e0eaff 0%, #f8fffa 100%);
+    --star-opacity-dark: 0.18;
+    --star-opacity-light: 0.5;
+    --wave-opacity-dark: 0.25;
+    --wave-opacity-light: 0.6;
+    --glow-dark: radial-gradient(circle, #ffecd2 0%, #fcb69f 60%, transparent 100%);
+    --glow-light: radial-gradient(circle, #e0eaff 0%, #b2d8ff 60%, transparent 100%);
+    --text-dark: #f5f6fa;
+    --text-light: #232526;
 }
+
+/* --- Footer Theme --- */
 .footer-theme {
-  transition: background 0.3s, color 0.3s;
+    transition: background 0.3s, color 0.3s;
 }
+
 .theme-dark .footer-theme {
-  background: var(--footer-bg-dark);
-  color: var(--footer-text-dark);
+    background: var(--footer-bg-dark);
+    color: var(--footer-text-dark);
 }
+
 .theme-light .footer-theme {
-  background: var(--footer-bg-light);
-  color: var(--footer-text-light);
+    background: var(--footer-bg-light);
+    color: var(--footer-text-light);
 }
 
-
-:root {
-  --bg-gradient-dark: linear-gradient(135deg, #232526 0%, #414345 100%);
-  --bg-gradient-light: linear-gradient(135deg, #e0eaff 0%, #f8fffa 100%);
-  --star-opacity-dark: 0.18;
-  --star-opacity-light: 0.5;
-  --wave-opacity-dark: 0.25;
-  --wave-opacity-light: 0.6;
-  --glow-dark: radial-gradient(circle, #ffecd2 0%, #fcb69f 60%, transparent 100%);
-  --glow-light: radial-gradient(circle, #e0eaff 0%, #b2d8ff 60%, transparent 100%);
-  --text-dark: #f5f6fa;
-  --text-light: #232526;
+/* --- Global Background Container & Gradient --- */
+.global-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    animation: gradientMove 12s ease-in-out infinite alternate;
 }
 
 .theme-dark .global-bg {
-  background: var(--bg-gradient-dark);
-}
-.theme-light .global-bg {
-  background: var(--bg-gradient-light);
+    background: var(--bg-gradient-dark);
 }
 
-.global-bg {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: -1;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  animation: gradientMove 12s ease-in-out infinite alternate;
+.theme-light .global-bg {
+    background: var(--bg-gradient-light);
 }
 
 @keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
 }
 
+/* --- Stars Background --- */
 .stars {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
-.theme-dark .stars::before {
-  opacity: var(--star-opacity-dark);
-  filter: drop-shadow(0 0 8px #fcb69f88);
+
+.stars::before,
+.stars::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
-.theme-light .stars::before {
-  opacity: var(--star-opacity-light);
-  filter: drop-shadow(0 0 12px #b2d8ff88);
-}
+
 .stars::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: url('https://raw.githubusercontent.com/Aromatic05/assets/main/stars.svg');
-  animation: twinkle 3s infinite alternate;
+    animation: twinkle 3s infinite alternate;
+    z-index: 1;
+    /* z-index kept from original */
 }
+
+.theme-dark .stars::before {
+    opacity: var(--star-opacity-dark);
+    filter: drop-shadow(0 0 8px #fcb69f88);
+}
+
+.theme-light .stars::before {
+    opacity: var(--star-opacity-light);
+    filter:
+        drop-shadow(0 0 16px #b2d8ff88) drop-shadow(0 0 24px #fae3ef88) drop-shadow(0 0 8px #7faaff88);
+}
+
+.stars::after {
+    z-index: 2;
+    /* z-index kept from original */
+    background:
+        radial-gradient(circle at 10% 20%, #fff 0px, #fff 2px, transparent 3px),
+        radial-gradient(circle at 30% 80%, #b2d8ff 0px, #b2d8ff 2px, transparent 3px),
+        radial-gradient(circle at 70% 40%, #fae3ef 0px, #fae3ef 1.5px, transparent 2.5px),
+        radial-gradient(circle at 80% 70%, #7faaff 0px, #7faaff 2px, transparent 3px),
+        radial-gradient(circle at 50% 50%, #fff 0px, #fff 1.5px, transparent 2.5px),
+        radial-gradient(circle at 60% 30%, #e3f0ff 0px, #e3f0ff 1.5px, transparent 2.5px);
+}
+
 @keyframes twinkle {
-  0% { opacity: 0.2; }
-  100% { opacity: 0.5; }
+    from {
+        opacity: 0.2;
+    }
+
+    to {
+        opacity: 0.5;
+    }
 }
+
+
+/*
+ *  --- WAVES SECTION (FIXED FOR SEAMLESS ANIMATION) ---
+ */
 
 .waves {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 120px;
-  background: url('https://raw.githubusercontent.com/Aromatic05/assets/main/waves.svg') repeat-x;
-  animation: waveMove 8s linear infinite;
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    z-index: 3;
+    pointer-events: none;
+    background: none;
 }
+
+/* This ::before element remains empty, as in your original code. */
+.waves::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: none;
+    z-index: 3;
+}
+
+/* All waves are handled by this single ::after pseudo-element. */
+.waves::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 200%;
+    /* MODIFICATION: Set width to 200% for seamless loop */
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+
+    /* MODIFICATION: Replaced with a single, horizontally-repeatable SVG */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2400 120' preserveAspectRatio='none'%3e%3c!-- First set of waves --%3e%3cpath d='M0,80 L150,40 L300,90 L500,20 L700,70 L900,50 L1200,80 L1200,120 L0,120 Z' fill='%23005f73' opacity='0.7'%3e%3c/path%3e%3cpath d='M0,100 L250,60 L500,100 L750,50 L1200,90 L1200,120 L0,120 Z' fill='%230a9396' opacity='0.5'%3e%3c/path%3e%3cpath d='M0,110 L600,80 L1200,110 L1200,120 L0,120 Z' fill='%2394d2bd' opacity='0.4'%3e%3c/path%3e%3c!-- Second, identical set of waves for seamless tiling --%3e%3cpath d='M1200,80 L1350,40 L1500,90 L1700,20 L1900,70 L2100,50 L2400,80 L2400,120 L1200,120 Z' fill='%23005f73' opacity='0.7'%3e%3c/path%3e%3cpath d='M1200,100 L1450,60 L1700,100 L1950,50 L2400,90 L2400,120 L1200,120 Z' fill='%230a9396' opacity='0.5'%3e%3c/path%3e%3cpath d='M1200,110 L1800,80 L2400,110 L2400,120 L1200,120 Z' fill='%2394d2bd' opacity='0.4'%3e%3c/path%3e%3c/svg%3e");
+    background-size: 100% 100%;
+    /* MODIFICATION: Ensure SVG covers the element */
+
+    /* MODIFICATION: Use transform for smoother animation */
+    animation: waveMove-seamless 40s linear infinite;
+}
+
 .theme-dark .waves {
-  opacity: var(--wave-opacity-dark);
-  filter: blur(0.5px) brightness(0.8);
+    opacity: var(--wave-opacity-dark);
+    filter: blur(0.5px) brightness(0.8);
 }
+
 .theme-light .waves {
-  opacity: var(--wave-opacity-light);
-  filter: blur(0.5px) brightness(1.2);
-}
-@keyframes waveMove {
-  0% { background-position-x: 0; }
-  100% { background-position-x: 1000px; }
+    opacity: var(--wave-opacity-light);
+    filter: blur(0.5px) brightness(1.2) drop-shadow(0 0 24px #e3f0ff88);
 }
 
+/* MODIFICATION: New keyframes for seamless transform-based animation */
+@keyframes waveMove-seamless {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+
+/* --- Glow Effect --- */
 .glow {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  width: 400px;
-  height: 400px;
-  opacity: 0.25;
-  filter: blur(60px);
-  transform: translateX(-50%);
-  animation: glowMove 10s ease-in-out infinite alternate;
-}
-.theme-dark .glow {
-  background: var(--glow-dark);
-}
-.theme-light .glow {
-  background: var(--glow-light);
-}
-@keyframes glowMove {
-  0% { top: 10%; left: 50%; }
-  100% { top: 20%; left: 55%; }
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    opacity: 0.25;
+    filter: blur(60px);
+    transform: translateX(-50%);
+    animation: glowMove 10s ease-in-out infinite alternate;
 }
 
-.theme-dark body, .theme-dark .app-root, .theme-dark #root {
-  color: var(--text-dark);
-  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+.theme-dark .glow {
+    background: var(--glow-dark);
 }
-.theme-light body, .theme-light .app-root, .theme-light #root {
-  color: var(--text-light);
-  text-shadow: 0 2px 8px rgba(180,200,255,0.18);
+
+.theme-light .glow {
+    background: radial-gradient(circle, #e3f0ff 0%, #fae3ef 60%, #b2d8ff 100%);
+    opacity: 0.32;
+}
+
+@keyframes glowMove {
+    0% {
+        top: 10%;
+        left: 50%;
+    }
+
+    100% {
+        top: 20%;
+        left: 55%;
+    }
+}
+
+/* --- Global Text Styles --- */
+.theme-dark body,
+.theme-dark .app-root,
+.theme-dark #root {
+    color: var(--text-dark);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.theme-light body,
+.theme-light .app-root,
+.theme-light #root {
+    color: var(--text-light);
+    text-shadow: 0 2px 8px rgba(180, 200, 255, 0.18);
+}
+
+.particles {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    list-style: none;
+    /* 移除ul的默认样式 */
+    margin: 0;
+    padding: 0;
+}
+
+.particles li {
+    position: absolute;
+    bottom: -150px;
+    /* 从屏幕外开始 */
+    list-style: none;
+    display: block;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: rise 25s linear infinite;
+}
+
+@keyframes rise {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-120vh) scale(0.5);
+        /* 向上移动并缩小 */
+        opacity: 0;
+    }
+}
+
+.theme-dark .particles li {
+    background: rgba(252, 182, 159, 0.15);
+    /* 保持柔和的暖色调 */
+    box-shadow: 0 0 12px 2px rgba(252, 182, 159, 0.1);
+    /* 添加微弱的同色辉光 */
+}
+
+/* 亮色模式下的粒子样式 (显著增强) */
+.theme-light .particles li {
+    /* 使用更饱和、不透明度更高的颜色 */
+    background: rgba(141, 194, 255, 0.4);
+    /* 添加明显的蓝色辉光，让粒子从浅色背景中突出 */
+    box-shadow: 0 0 15px 4px rgba(178, 216, 255, 0.5);
+}
+
+/* 为每个粒子设置不同的大小、位置和动画延迟 */
+.particles li:nth-child(1) {
+    left: 25%;
+    width: 80px;
+    height: 80px;
+    animation-delay: 0s;
+}
+
+.particles li:nth-child(2) {
+    left: 10%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 2s;
+    animation-duration: 12s;
+}
+
+.particles li:nth-child(3) {
+    left: 70%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 4s;
+}
+
+.particles li:nth-child(4) {
+    left: 40%;
+    width: 60px;
+    height: 60px;
+    animation-delay: 0s;
+    animation-duration: 18s;
+}
+
+.particles li:nth-child(5) {
+    left: 65%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 0s;
+}
+
+.particles li:nth-child(6) {
+    left: 85%;
+    width: 120px;
+    height: 120px;
+    animation-delay: 3s;
+    bottom: -200px;
+    /* 大粒子从更低处开始 */
+}
+
+/* 主题适应 */
+.theme-dark .particles li {
+    background: rgba(252, 182, 159, 0.1);
+}
+
+.theme-light .particles li {
+    background: rgba(178, 216, 255, 0.2);
 }
