@@ -1,0 +1,133 @@
+:root {
+  --footer-bg-dark: #232526;
+  --footer-bg-light: #e0eaff;
+  --footer-text-dark: #f5f6fa;
+  --footer-text-light: #232526;
+}
+.footer-theme {
+  transition: background 0.3s, color 0.3s;
+}
+.theme-dark .footer-theme {
+  background: var(--footer-bg-dark);
+  color: var(--footer-text-dark);
+}
+.theme-light .footer-theme {
+  background: var(--footer-bg-light);
+  color: var(--footer-text-light);
+}
+
+
+:root {
+  --bg-gradient-dark: linear-gradient(135deg, #232526 0%, #414345 100%);
+  --bg-gradient-light: linear-gradient(135deg, #e0eaff 0%, #f8fffa 100%);
+  --star-opacity-dark: 0.18;
+  --star-opacity-light: 0.5;
+  --wave-opacity-dark: 0.25;
+  --wave-opacity-light: 0.6;
+  --glow-dark: radial-gradient(circle, #ffecd2 0%, #fcb69f 60%, transparent 100%);
+  --glow-light: radial-gradient(circle, #e0eaff 0%, #b2d8ff 60%, transparent 100%);
+  --text-dark: #f5f6fa;
+  --text-light: #232526;
+}
+
+.theme-dark .global-bg {
+  background: var(--bg-gradient-dark);
+}
+.theme-light .global-bg {
+  background: var(--bg-gradient-light);
+}
+
+.global-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  animation: gradientMove 12s ease-in-out infinite alternate;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: transparent;
+}
+.theme-dark .stars::before {
+  opacity: var(--star-opacity-dark);
+  filter: drop-shadow(0 0 8px #fcb69f88);
+}
+.theme-light .stars::before {
+  opacity: var(--star-opacity-light);
+  filter: drop-shadow(0 0 12px #b2d8ff88);
+}
+.stars::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('https://raw.githubusercontent.com/Aromatic05/assets/main/stars.svg');
+  animation: twinkle 3s infinite alternate;
+}
+@keyframes twinkle {
+  0% { opacity: 0.2; }
+  100% { opacity: 0.5; }
+}
+
+.waves {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+  background: url('https://raw.githubusercontent.com/Aromatic05/assets/main/waves.svg') repeat-x;
+  animation: waveMove 8s linear infinite;
+}
+.theme-dark .waves {
+  opacity: var(--wave-opacity-dark);
+  filter: blur(0.5px) brightness(0.8);
+}
+.theme-light .waves {
+  opacity: var(--wave-opacity-light);
+  filter: blur(0.5px) brightness(1.2);
+}
+@keyframes waveMove {
+  0% { background-position-x: 0; }
+  100% { background-position-x: 1000px; }
+}
+
+.glow {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  opacity: 0.25;
+  filter: blur(60px);
+  transform: translateX(-50%);
+  animation: glowMove 10s ease-in-out infinite alternate;
+}
+.theme-dark .glow {
+  background: var(--glow-dark);
+}
+.theme-light .glow {
+  background: var(--glow-light);
+}
+@keyframes glowMove {
+  0% { top: 10%; left: 50%; }
+  100% { top: 20%; left: 55%; }
+}
+
+.theme-dark body, .theme-dark .app-root, .theme-dark #root {
+  color: var(--text-dark);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.theme-light body, .theme-light .app-root, .theme-light #root {
+  color: var(--text-light);
+  text-shadow: 0 2px 8px rgba(180,200,255,0.18);
+}
