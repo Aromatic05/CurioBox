@@ -48,6 +48,9 @@ const CurioBoxDetailPage: React.FC = () => {
     const [purchaseLoading, setPurchaseLoading] = useState(false);
     const [itemDetails, setItemDetails] = useState<Record<number, IItem>>({});
 
+    // 购买数量
+    const [quantity, setQuantity] = useState(1);
+
     // Snackbar 状态
     const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
         open: false,
@@ -91,7 +94,7 @@ const CurioBoxDetailPage: React.FC = () => {
         if (!box) return;
         setPurchaseLoading(true);
         try {
-            await purchaseCurioBox({ curioBoxId: box.id, quantity: 1 });
+            await purchaseCurioBox({ curioBoxId: box.id, quantity });
             setSnackbar({ open: true, message: '购买成功！已添加到您的仓库。', severity: 'success' });
             // 可选：延迟一会跳转到仓库页面
             setTimeout(() => navigate('/user/warehouse'), 2000);
@@ -123,6 +126,29 @@ const CurioBoxDetailPage: React.FC = () => {
                         <Typography variant="h3" component="h1" gutterBottom>{box.name}</Typography>
                         <Typography variant="body1" color="text.secondary" paragraph>{box.description}</Typography>
                         <Typography variant="h4" color="primary" sx={{ my: 2 }}>¥{box.price.toFixed(2)}</Typography>
+                        {/* 剩余数量显示 */}
+                        <Typography variant="body2" color={box.boxCount === 0 ? 'error' : 'text.secondary'} sx={{ mb: 1 }}>
+                            剩余盲盒数量：{typeof box.boxCount === 'number' ? box.boxCount : '未知'}
+                        </Typography>
+                        {/* 购买数量选择器 */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                            <Typography variant="body2" sx={{ mr: 2 }}>购买数量：</Typography>
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                sx={{ minWidth: 32, px: 0 }}
+                                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                disabled={quantity <= 1 || purchaseLoading}
+                            >-</Button>
+                            <Typography variant="body1" sx={{ mx: 2, minWidth: 32, textAlign: 'center' }}>{quantity}</Typography>
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                sx={{ minWidth: 32, px: 0 }}
+                                onClick={() => setQuantity(q => q + 1)}
+                                disabled={purchaseLoading || (typeof box.boxCount === 'number' && quantity >= box.boxCount)}
+                            >+</Button>
+                        </Box>
                         <Box sx={{ mt: 'auto' }}>
                             <Button
                                 variant="contained"
