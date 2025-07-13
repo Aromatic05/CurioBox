@@ -50,7 +50,7 @@ const UserProfileSettings: React.FC = () => {
     };
 
     return (
-        <Box maxWidth={400} mx="auto" mt={4} p={3} boxShadow={2} borderRadius={2} bgcolor="background.paper">
+        <Box maxWidth={400} mt={4} p={3} boxShadow={2} borderRadius={2} bgcolor="background.paper">
             <Typography variant="h6" mb={2}>个人设置</Typography>
             <Stack spacing={3}>
                 <Box display="flex" alignItems="center" gap={2}>
