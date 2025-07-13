@@ -50,3 +50,14 @@ export const setNickname = (nickname: string): Promise<AxiosResponse<{ message: 
 export const logout = (): Promise<AxiosResponse<{ message: string }>> => {
     return apiClient.get('/auth/logout');
 };
+
+// 上传用户头像
+export const uploadAvatar = async (formData: FormData): Promise<AxiosResponse<{ url: string }>> => {
+    const res = await apiClient.post('/auth/upload-avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    let baseURL = apiClient.defaults.baseURL || '';
+    if (baseURL.endsWith('/')) baseURL = baseURL.slice(0, -1);
+    const url = res.data.url.startsWith('/') ? baseURL + res.data.url : res.data.url;
+    return { ...res, data: { url } };
+};

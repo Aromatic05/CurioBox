@@ -5,8 +5,8 @@ import { Container, Tabs, Tab, Box } from '@mui/material';
 const UserDashboardLayout: React.FC = () => {
   const location = useLocation();
 
-  // 根据当前路径确定选中的Tab
-  const currentTab = location.pathname;
+  const tabValues = ["/user/warehouse", "/user/history", "/user/posts", "/user/settings"];
+  const currentTab = tabValues.includes(location.pathname) ? location.pathname : "/user/warehouse";
 
   return (
     <Container maxWidth="lg" sx={{ my: 4 }}>

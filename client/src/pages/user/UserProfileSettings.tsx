@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Avatar, Stack } from '@mui/material';
-import { setNickname } from '../../api/authApi';
+import { setNickname, uploadAvatar } from '../../api/authApi';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import apiClient from '../../api/apiClient';
 
 const UserProfileSettings: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -36,13 +36,11 @@ const UserProfileSettings: React.FC = () => {
     const formData = new FormData();
     formData.append('file', avatarFile);
     try {
-      const res = await axios.post('/auth/upload-avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const res = await uploadAvatar(formData);
       const url = res.data.url;
       setAvatar(url);
       // 更新用户头像到后端
-      await axios.post('/auth/set-avatar', { avatar: url });
+      await apiClient.post('/auth/set-avatar', { avatar: url });
       setMessage('头像已更新');
       refreshUser && refreshUser();
     } catch (err) {
