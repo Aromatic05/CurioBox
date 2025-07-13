@@ -47,7 +47,8 @@ const OpenResultDialog: React.FC<{ item: IItem | null; onClose: () => void }> = 
 
 
 const WarehousePage: React.FC = () => {
-    const [unopenedBoxes, setUnopenedBoxes] = useState<IUserBox[]>([]);
+    // 分组后的盲盒数据
+    const [groupedBoxes, setGroupedBoxes] = useState<{ curioBox: IUserBox['curioBox']; boxes: IUserBox[] }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [openingId, setOpeningId] = useState<number | null>(null);
@@ -57,7 +58,18 @@ const WarehousePage: React.FC = () => {
         try {
             setLoading(true);
             const response = await getMyBoxes('UNOPENED');
-            setUnopenedBoxes(response.data.boxes);
+            const boxes: IUserBox[] = response.data.boxes;
+            // 按 curioBox.id 分组
+            const map = new Map<number, { curioBox: IUserBox['curioBox']; boxes: IUserBox[] }>();
+            boxes.forEach(box => {
+                const id = box.curioBox.id;
+                if (!map.has(id)) {
+                    map.set(id, { curioBox: box.curioBox, boxes: [box] });
+                } else {
+                    map.get(id)!.boxes.push(box);
+                }
+            });
+            setGroupedBoxes(Array.from(map.values()));
         } catch (err) {
             setError('无法加载您的仓库，请稍后再试。');
         } finally {
@@ -78,7 +90,8 @@ const WarehousePage: React.FC = () => {
         setOpeningId(userBoxId);
         setAnimating(true);
         setShakingId(null);
-        const box = unopenedBoxes.find(b => b.id === userBoxId) || null;
+        // 由于分组，需在所有分组中查找
+        const box = groupedBoxes.flatMap(g => g.boxes).find(b => b.id === userBoxId) || null;
         setCenterBox(box);
         setCenterStep('move');
         // 先移动到中间，动画持续 1.8 秒
@@ -115,47 +128,49 @@ const WarehousePage: React.FC = () => {
             {/* 页面暗化效果 */}
             <Backdrop open={animating} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: 'rgba(0,0,0,0.25)' }} />
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: 'primary.main' }}>我的仓库 (未开启)</Typography>
-            {unopenedBoxes.length === 0 ? (
+            {groupedBoxes.length === 0 ? (
                 <Typography>你的仓库是空的，快去商店逛逛吧！</Typography>
             ) : (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                    {unopenedBoxes.map((userBox) => (
-                        <Box key={userBox.id} sx={{ flex: '1 1 300px', maxWidth: 400, minWidth: 260 }}>
-                            {/* 动画期间，卡片列表不渲染动画卡片，只渲染普通卡片 */}
-                            <Card
-                                sx={{
-                                    boxShadow: 3,
-                                    borderRadius: 4,
-                                    bgcolor: 'background.paper',
-                                    // 卡片列表不再有 shake 动画
-                                }}
-                            >
-                                <CardMedia
-                                    component="img"
-                                    height="160"
-                                    image={userBox.curioBox.coverImage || 'https://via.placeholder.com/300x160'}
-                                    alt={userBox.curioBox.name}
-                                    sx={{ objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
-                                />
-                                <CardContent>
-                                    <Typography gutterBottom variant="h6" align="center" color="secondary.main">{userBox.curioBox.name}</Typography>
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        color="secondary"
-                                        size="large"
-                                        onClick={() => handleOpenBox(userBox.id)}
-                                        disabled={openingId === userBox.id || animating}
-                                        sx={{ fontSize: 18, py: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}
-                                    >
-                                        {(openingId === userBox.id && animating)
-                                            ? <CircularProgress size={28} color="secondary" />
-                                            : <><CardGiftcardIcon sx={{ mr: 1 }} />立即开启</>}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </Box>
-                    ))}
+                    {groupedBoxes.map((group) => {
+                        const firstBox = group.boxes[0];
+                        return (
+                            <Box key={group.curioBox.id} sx={{ flex: '1 1 300px', maxWidth: 400, minWidth: 260 }}>
+                                <Card
+                                    sx={{
+                                        boxShadow: 3,
+                                        borderRadius: 4,
+                                        bgcolor: 'background.paper',
+                                    }}
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="160"
+                                        image={group.curioBox.coverImage || 'https://via.placeholder.com/300x160'}
+                                        alt={group.curioBox.name}
+                                        sx={{ objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
+                                    />
+                                    <CardContent>
+                                        <Typography gutterBottom variant="h6" align="center" color="secondary.main">{group.curioBox.name}</Typography>
+                                        <Typography align="center" color="text.secondary" sx={{ mb: 1 }}>数量：{group.boxes.length}</Typography>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            color="secondary"
+                                            size="large"
+                                            onClick={() => handleOpenBox(firstBox.id)}
+                                            disabled={openingId === firstBox.id || animating}
+                                            sx={{ fontSize: 18, py: 1.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}
+                                        >
+                                            {(openingId === firstBox.id && animating)
+                                                ? <CircularProgress size={28} color="secondary" />
+                                                : <><CardGiftcardIcon sx={{ mr: 1 }} />立即开启</>}
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </Box>
+                        );
+                    })}
                 </Box>
             )}
             {/* 居中渲染动画卡片，整个动画期间都保持固定位置和 key，避免 step 切换导致跳动 */}
