@@ -89,3 +89,21 @@ export const addCommentToPost = (postId: string | number, content: string, paren
 export const replyComment = (postId: string | number, content: string, parentId: number): Promise<AxiosResponse<IComment>> => {
   return addCommentToPost(postId, content, parentId);
 };
+
+// 新增：更新帖子
+export const updatePostById = (
+  id: string | number,
+  data: Partial<CreatePostPayload>
+): Promise<AxiosResponse<IPost>> => {
+  return apiClient.put(`/showcase/posts/${id}`, data);
+};
+
+// 删除帖子
+export const deletePostById = (id: string | number): Promise<AxiosResponse<{ message: string }>> => {
+  return apiClient.delete(`/showcase/posts/${id}`);
+};
+
+// 删除评论
+export const deleteCommentById = (id: string | number): Promise<AxiosResponse<{ message: string }>> => {
+  return apiClient.delete(`/showcase/comments/${id}`);
+};
