@@ -20,7 +20,7 @@ import {
 
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 
-import BoxOpenAnimation from '../../components/BoxOpenAnimation';
+import BoxOpenAnimation, { shake } from '../../components/BoxOpenAnimation';
 
 // 开箱结果弹窗组件
 const OpenResultDialog: React.FC<{ item: IItem | null; onClose: () => void }> = ({ item, onClose }) => {
@@ -158,7 +158,7 @@ const WarehousePage: React.FC = () => {
                     ))}
                 </Box>
             )}
-            {/* 居中渲染动画卡片，动画全部由 BoxOpenAnimation 控制 */}
+            {/* 居中渲染动画卡片，整个动画期间都保持固定位置和 key，避免 step 切换导致跳动 */}
             {(centerBox && animating) && (
                 <Box
                     key={centerBox.id}
@@ -168,7 +168,8 @@ const WarehousePage: React.FC = () => {
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                         zIndex: (theme) => theme.zIndex.drawer + 2,
-                        transition: 'none',
+                        animation: centerStep === 'shake' ? `${shake} 0.7s` : undefined,
+                        transition: 'none', // 禁止定位变化动画
                     }}
                 >
                     <BoxOpenAnimation userBox={centerBox} step={centerStep as 'move' | 'shake'} />
