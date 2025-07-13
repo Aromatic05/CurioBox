@@ -61,3 +61,25 @@ export const getMyPosts = (): Promise<AxiosResponse<{ items: IPost[] }>> => {
   // 理想情况下，后端提供一个专门的接口
   return apiClient.get('/showcase/me/posts'); 
 };
+
+// 发表评论或回复
+export type CreateCommentPayload = {
+  content: string;
+  postId: number;
+  parentId?: number | null;
+};
+
+export const addCommentToPost = (postId: string | number, content: string, parentId?: number | null): Promise<AxiosResponse<IComment>> => {
+  // 兼容 postId 为 string 或 number
+  const payload: CreateCommentPayload = {
+    content,
+    postId: typeof postId === 'string' ? parseInt(postId, 10) : postId,
+    parentId: parentId ?? null,
+  };
+  return apiClient.post('/showcase/comments', payload);
+};
+
+// 回复评论（可选，实际与 addCommentToPost 相同，只是 parentId 不为 null）
+export const replyComment = (postId: string | number, content: string, parentId: number): Promise<AxiosResponse<IComment>> => {
+  return addCommentToPost(postId, content, parentId);
+};
