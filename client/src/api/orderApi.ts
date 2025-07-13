@@ -51,6 +51,11 @@ export const openBox = (data: OpenBoxPayload): Promise<AxiosResponse<OpenBoxResp
   return apiClient.post('/me/boxes/open', data);
 };
 
+// 获取所有订单（仅管理员）
+export const getAllOrders = (): Promise<AxiosResponse<any[]>> => {
+    return apiClient.get('/orders/all');
+};
+
 // 假设有获取订单历史的API
 // export const getMyOrders = (): Promise<AxiosResponse<any[]>> => {
 //   return apiClient.get('/orders');

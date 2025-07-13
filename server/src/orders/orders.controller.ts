@@ -32,6 +32,12 @@ export class OrdersController {
         return this.ordersService.findAllByUser(userId);
     }
 
+    // 获取所有订单（仅管理员）
+    @Get('orders/all')
+    async findAll() {
+        return this.ordersService.findAll();
+    }
+
     // 获取订单详情
     @Get('orders/:id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
@@ -44,11 +50,5 @@ export class OrdersController {
             throw new NotFoundException('订单不存在');
         }
         return order;
-    }
-
-    // 获取所有订单（仅管理员）
-    @Get('orders/all')
-    async findAll() {
-        return this.ordersService.findAll();
     }
 }

@@ -11,6 +11,7 @@ import BoxManagementPage from '../pages/admin/BoxManagementPage';
 import BoxEditPage from '../pages/admin/BoxEditPage';
 import ItemManagementPage from '../pages/admin/ItemManagementPage';
 import ItemEditPage from '../pages/admin/ItemEditPage';
+import OrderManagementPage from '../pages/admin/OrderManagementPage';
 import ShowcasePage from '../pages/showcase/ShowcasePage';
 import PostDetailPage from '../pages/showcase/PostDetailPage';
 import CurioBoxDetailPage from '../pages/store/CurioBoxDetailPage'; // 引入详情页组件
@@ -98,6 +99,7 @@ const router = createBrowserRouter([
                     { path: 'item/edit', element: <ItemEditPage /> }, // 新建物品
                     { path: 'item/edit/:id', element: <ItemEditPage /> }, // 编辑物品
                     { path: 'users', element: <UserManagePage /> }, // 用户管理
+                    { path: 'orders', element: <OrderManagementPage /> }, // 订单管理
                     // { index: true, element: <AdminDashboard /> }
                 ]
             }

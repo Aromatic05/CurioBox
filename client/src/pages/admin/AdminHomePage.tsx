@@ -22,8 +22,8 @@ const AdminHomePage: React.FC = () => {
                 <Button variant="contained" size="large" color="info" sx={{ flex: 1, minWidth: 180 }} onClick={() => navigate('/admin/users')}>
                     用户管理
                 </Button>
-                <Button variant="contained" size="large" color="success" sx={{ flex: 1, minWidth: 180 }} disabled>
-                    订单管理（待开发）
+                <Button variant="contained" size="large" color="success" sx={{ flex: 1, minWidth: 180 }} onClick={() => navigate('/admin/orders')}>
+                    订单管理
                 </Button>
             </Box>
         </Box>
