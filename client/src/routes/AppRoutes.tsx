@@ -21,6 +21,7 @@ import UserProfileSettings from '../pages/user/UserProfileSettings';
 import WarehousePage from '../pages/user/WarehousePage';
 import MyPostsPage from '../pages/user/MyPostsPage';
 import HistoryPage from '../pages/user/HistoryPage'; 
+import UserManagePage from '../pages/admin/UserManagePage';
 
 const router = createBrowserRouter([
     {
@@ -96,6 +97,7 @@ const router = createBrowserRouter([
                     { path: 'items', element: <ItemManagementPage /> },
                     { path: 'item/edit', element: <ItemEditPage /> }, // 新建物品
                     { path: 'item/edit/:id', element: <ItemEditPage /> }, // 编辑物品
+                    { path: 'users', element: <UserManagePage /> }, // 用户管理
                     // { index: true, element: <AdminDashboard /> }
                 ]
             }

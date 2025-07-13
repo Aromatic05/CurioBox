@@ -61,3 +61,8 @@ export const uploadAvatar = async (formData: FormData): Promise<AxiosResponse<{ 
     const url = res.data.url.startsWith('/') ? baseURL + res.data.url : res.data.url;
     return { ...res, data: { url } };
 };
+
+// 删除用户（仅本人或管理员）
+export const deleteUser = (): Promise<AxiosResponse<{ message: string }>> => {
+    return apiClient.post('/auth/delete-user');
+};
