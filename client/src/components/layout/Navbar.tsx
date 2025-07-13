@@ -31,13 +31,14 @@ function Navbar() {
                     </Tooltip>
                     {isAuthenticated ? (
                         <>
-                            <Typography sx={{ mx: 2, fontSize: 16, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
-                                欢迎, {user?.username}
-                            </Typography>
                             <Tooltip title="个人中心">
-                                <IconButton component={Link} to="/user" style={{ transition: 'transform 0.3s' }}>
+                                <IconButton component={Link} to="/user" style={{ transition: 'transform 0.3s', display: 'flex', alignItems: 'center', gap: 8 }}>
                                     {user?.avatar ? (
                                         <Avatar className="navbar-avatar" src={user.avatar} />
+                                    ) : user?.nickname ? (
+                                        <Avatar className="navbar-avatar">
+                                            {user.nickname[0].toUpperCase()}
+                                        </Avatar>
                                     ) : user?.username ? (
                                         <Avatar className="navbar-avatar">
                                             {user.username[0].toUpperCase()}
@@ -45,6 +46,9 @@ function Navbar() {
                                     ) : (
                                         <AccountCircleIcon sx={{ fontSize: 36, color: '#fff' }} />
                                     )}
+                                    <Typography sx={{ ml: 1, fontSize: 16, color: 'rgba(255,255,255,0.9)', fontWeight: 500 }}>
+                                        {user?.nickname || user?.username || '个人中心'}
+                                    </Typography>
                                 </IconButton>
                             </Tooltip>
                             <Button onClick={handleLogout} className="navbar-logout-btn">

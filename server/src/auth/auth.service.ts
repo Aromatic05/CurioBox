@@ -9,6 +9,13 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
+    async getUserById(id: number) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        return user;
+    }
     // 注入User的Repository
     constructor(
         @InjectRepository(User)
