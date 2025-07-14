@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { getCurioBoxes, type ICurioBox } from "../../api/curioBoxApi";
+import { searchCurioBoxes } from "../../api/curioBoxApi";
 import CurioBoxCard from "../../components/store/CurioBoxCard";
 import { Container, Typography, Box, Alert, Skeleton } from "@mui/material";
+import { TextField, InputAdornment, IconButton } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 const StorePage: React.FC = () => {
     const [boxes, setBoxes] = useState<ICurioBox[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
+    const [searching, setSearching] = useState(false);
 
     useEffect(() => {
         const fetchBoxes = async () => {
@@ -24,6 +29,33 @@ const StorePage: React.FC = () => {
 
         fetchBoxes();
     }, []);
+
+    // 搜索事件
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!search.trim()) {
+            // 空搜索恢复全部
+            setSearching(true);
+            try {
+                const response = await getCurioBoxes();
+                setBoxes(response.data);
+            } catch (err) {
+                setError("无法加载盲盒列表，请稍后再试。");
+            } finally {
+                setSearching(false);
+            }
+            return;
+        }
+        setSearching(true);
+        try {
+            const response = await searchCurioBoxes(search.trim());
+            setBoxes(response.data);
+        } catch (err) {
+            setError("搜索失败，请稍后再试。");
+        } finally {
+            setSearching(false);
+        }
+    };
 
     const renderSkeletons = () => (
         <Box
@@ -65,39 +97,67 @@ const StorePage: React.FC = () => {
                 探索所有盲盒
             </Typography>
 
-            {loading ? (
+            {/* 搜索框 */}
+            <Box component="form" onSubmit={handleSearch} sx={{ width: "100%", maxWidth: 500, mb: 4 }}>
+                <TextField
+                    fullWidth
+                    placeholder="搜索盲盒名称/分类/描述"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton type="submit" disabled={searching}>
+                                        <SearchIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                    variant="outlined"
+                />
+            </Box>
+
+            {loading || searching ? (
                 renderSkeletons()
             ) : error ? (
                 <Alert severity="error" sx={{ mt: 4 }}>
                     {error}
                 </Alert>
             ) : (
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 4,
-                        justifyContent: "center",
-                        width: "100%",
-                    }}
-                >
-                    {boxes.map((box) => (
-                        <Box
-                            key={box.id}
-                            sx={{
-                                width: {
-                                    xs: "100%",
-                                    sm: "48%",
-                                    md: "31%",
-                                    lg: "23%",
-                                },
-                                mb: 4,
-                            }}
-                        >
-                            <CurioBoxCard box={box} />
-                        </Box>
-                    ))}
-                </Box>
+                boxes.length === 0 ? (
+                    <Alert severity="info" sx={{ mt: 4 }}>
+                        未找到相关盲盒，请尝试其他关键词。
+                    </Alert>
+                ) : (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 4,
+                            justifyContent: "center",
+                            width: "100%",
+                        }}
+                    >
+                        {boxes.map((box) => (
+                            <Box
+                                key={box.id}
+                                sx={{
+                                    width: {
+                                        xs: "100%",
+                                        sm: "48%",
+                                        md: "31%",
+                                        lg: "23%",
+                                    },
+                                    mb: 4,
+                                }}
+                            >
+                                <CurioBoxCard box={box} />
+                            </Box>
+                        ))}
+                    </Box>
+                )
             )}
         </Container>
     );
