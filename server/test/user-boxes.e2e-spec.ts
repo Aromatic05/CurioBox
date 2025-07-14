@@ -52,22 +52,7 @@ describe('UserBoxes (e2e)', () => {
         });
         userToken = accessToken;
 
-        // 创建测试盲盒和物品
-        const curioBoxRes = await request(app.getHttpServer())
-            .post('/curio-boxes')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({
-                name: 'Test Box',
-                description: 'A box for testing',
-                price: 9.99,
-                boxCount: 10,
-                category: 'test',
-                itemIds: [],
-                itemProbabilities: [],
-            });
-        curioBoxId = curioBoxRes.body.id;
-
-        // 创建测试物品
+        // 1. 先创建测试物品
         const itemRes = await request(app.getHttpServer())
             .post('/items')
             .set('Authorization', `Bearer ${adminToken}`)
@@ -78,25 +63,26 @@ describe('UserBoxes (e2e)', () => {
                 stock: 100,
                 rarity: 'common',
             });
+        const testItemId = itemRes.body.id; // 获取物品ID
 
-        // 更新盲盒的物品和概率
-        await request(app.getHttpServer())
-            .patch(`/curio-boxes/${curioBoxId}/items-and-probabilities`)
+        // 2. 在创建盲盒时，直接带上物品信息
+        const curioBoxRes = await request(app.getHttpServer())
+            .post('/curio-boxes')
             .set('Authorization', `Bearer ${adminToken}`)
             .send({
-                itemIds: [itemRes.body.id],
+                name: 'Test Box',
+                description: 'A box for testing',
+                price: 9.99,
+                boxCount: 10,
+                category: 'test',
+                // 直接在创建时就关联物品和概率
+                itemIds: [testItemId], 
                 itemProbabilities: [
-                    { itemId: itemRes.body.id, probability: 1.0 },
+                    { itemId: testItemId, probability: 1.0 },
                 ],
             });
-
-        // 主动查询盲盒详情，确保物品和概率已生效
-        const boxDetail = await request(app.getHttpServer())
-            .get(`/curio-boxes/${curioBoxId}`)
-            .set('Authorization', `Bearer ${adminToken}`)
-            .expect(200);
-        // 可选：断言盲盒内容
-        expect(boxDetail.body.itemProbabilities.length).toBeGreaterThan(0);
+        curioBoxId = curioBoxRes.body.id;
+        // 3. 不再需要 PATCH 和后续的 GET 验证，因为盲盒在创建时就是完整的
     });
 
     it('应该能够购买盲盒（购买时确定内容）', async () => {
@@ -152,12 +138,12 @@ describe('UserBoxes (e2e)', () => {
                 userBoxId,
             })
             .expect(200);
+        console.log(res.body);
 
         expect(res.body.results).toBeDefined();
-        // 开盒操作本身应该成功
         expect(res.body.results[0].success).toBeTruthy();
-        // drawnItem 可能是物品，也可能是 null，所以只检查它是否存在
-        expect(res.body.results[0]).toHaveProperty('drawnItem');
+        expect(res.body.results[0].drawnItem).toBeDefined();
+        expect(res.body.results[0].drawnItem.name).toBe('Test Item');
     });
 
     it('应该能批量开启盲盒', async () => {
@@ -182,13 +168,10 @@ describe('UserBoxes (e2e)', () => {
 
         expect(res.body.results).toBeDefined();
         expect(res.body.results).toHaveLength(2);
-        // 验证总开启数等于请求开启数
-        expect(res.body.totalOpened).toBe(userBoxIds.length);
+        expect(res.body.totalOpened).toBe(2);
         res.body.results.forEach((result) => {
-            // 验证每次开盒操作都成功
             expect(result.success).toBeTruthy();
-            // 验证 drawnItem 属性存在
-            expect(result).toHaveProperty('drawnItem');
+            expect(result.drawnItem).toBeDefined();
         });
     });
 
@@ -215,8 +198,7 @@ describe('UserBoxes (e2e)', () => {
         res.body.boxes.forEach((box) => {
             expect(box.status).toBe('opened');
             expect(box.curioBox).toBeDefined();
-            // item 可能是 null，所以只检查属性存在
-            expect(box).toHaveProperty('item');
+            expect(box.item).toBeDefined();
         });
     });
 
@@ -246,89 +228,61 @@ describe('UserBoxes (e2e)', () => {
         expect(statuses).toContain('unopened');
     });
 
-    // 辅助函数，用于确保用户仓库中有物品
-    const ensureItemInInventory = async () => {
-        let attempts = 0;
-        const maxAttempts = 10; // 防止无限循环
-        while (attempts < maxAttempts) {
-            const purchaseRes = await request(app.getHttpServer())
-                .post('/orders/purchase')
-                .set('Authorization', `Bearer ${userToken}`)
-                .send({ curioBoxId, quantity: 1 })
-                .expect(201);
-            const userBoxId = purchaseRes.body.userBoxes[0].id;
-            await request(app.getHttpServer())
-                .post('/me/boxes/open')
-                .set('Authorization', `Bearer ${userToken}`)
-                .send({ userBoxId })
-                .expect(200);
-
-            const itemsRes = await request(app.getHttpServer())
-                .get('/me/items')
-                .set('Authorization', `Bearer ${userToken}`)
-                .expect(200);
-
-            if (itemsRes.body.items && itemsRes.body.items.length > 0) {
-                return itemsRes.body.items; // 成功获取到物品
-            }
-            attempts++;
-        }
-        throw new Error(
-            'Failed to get an item in inventory after multiple attempts',
-        );
-    };
-
     it('应该能查询用户物品仓库', async () => {
-        // 确保用户仓库里至少有一个物品
-        const items = await ensureItemInInventory();
-
+        // 购买并开启盲盒，获得 item
+        const purchaseRes = await request(app.getHttpServer())
+            .post('/orders/purchase')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ curioBoxId, quantity: 1 })
+            .expect(201);
+        const userBoxId = purchaseRes.body.userBoxes[0].id;
+        await request(app.getHttpServer())
+            .post('/me/boxes/open')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ userBoxId })
+            .expect(200);
         // 查询物品仓库
         const res = await request(app.getHttpServer())
             .get('/me/items')
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200);
-
         expect(res.body.items).toBeDefined();
         expect(Array.isArray(res.body.items)).toBeTruthy();
-        expect(res.body.items.length).toBeGreaterThan(0);
         expect(res.body.items[0].itemId).toBeDefined();
-        expect(res.body.items[0].count).toBeGreaterThanOrEqual(1);
+        expect(res.body.items[0].count).toBe(1);
     });
 
     it('应该能减少/删除用户物品', async () => {
-        // 确保用户仓库里至少有一个物品
-        const items = await ensureItemInInventory();
-        const itemId = items[0].itemId;
-
+        // 购买并开启盲盒，获得 item
+        const purchaseRes = await request(app.getHttpServer())
+            .post('/orders/purchase')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ curioBoxId, quantity: 1 })
+            .expect(201);
+        const userBoxId = purchaseRes.body.userBoxes[0].id;
+        await request(app.getHttpServer())
+            .post('/me/boxes/open')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ userBoxId })
+            .expect(200);
+        // 查询物品仓库，获取 itemId
+        const itemsRes = await request(app.getHttpServer())
+            .get('/me/items')
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        const itemId = itemsRes.body.items[0].itemId;
         // 删除物品
         const delRes = await request(app.getHttpServer())
             .delete(`/me/items/${itemId}`)
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200);
-
         expect(delRes.body.success).toBeTruthy();
         expect(delRes.body.deleted).toBeTruthy();
-
-        // 再查物品仓库，确认物品已减少或删除
+        // 再查物品仓库应为空
         const itemsRes2 = await request(app.getHttpServer())
             .get('/me/items')
             .set('Authorization', `Bearer ${userToken}`)
             .expect(200);
-
-        const remainingItem = itemsRes2.body.items.find(
-            (item) => item.itemId === itemId,
-        );
-        if (remainingItem) {
-            // 如果物品还存在，其数量应该比之前少1
-            const originalItem = items.find((item) => item.itemId === itemId);
-            expect(remainingItem.count).toBe(originalItem.count - 1);
-        } else {
-            // 如果物品不存在，断言通过
-            expect(remainingItem).toBeUndefined();
-        }
-    });
-
-    afterEach(async () => {
-        await app.close();
+        expect(itemsRes2.body.items.length).toBe(0);
     });
 });

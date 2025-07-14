@@ -46,10 +46,10 @@ export class UserBox {
     purchaseDate: Date;
 
     // 将抽中的物品在购买时就确定
-    @ManyToOne(() => Item, { nullable: false }) // 改为非空
+    @ManyToOne(() => Item, { nullable: false })
     @JoinColumn({ name: 'itemId' })
     item: Item;
 
-    @Column({ nullable: false }) // 改为非空
+    @Column({ nullable: false })
     itemId: number;
 }
