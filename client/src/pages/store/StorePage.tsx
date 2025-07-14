@@ -3,7 +3,7 @@ import { getCurioBoxes, type ICurioBox } from "../../api/curioBoxApi";
 import { searchCurioBoxes } from "../../api/curioBoxApi";
 import CurioBoxCard from "../../components/store/CurioBoxCard";
 import { Container, Typography, Box, Alert, Skeleton } from "@mui/material";
-import { TextField, InputAdornment, IconButton } from "@mui/material";
+import { TextField, InputAdornment, IconButton, CircularProgress } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 const StorePage: React.FC = () => {
@@ -109,7 +109,13 @@ const StorePage: React.FC = () => {
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton type="submit" disabled={searching}>
-                                        <SearchIcon />
+                                        {searching ? (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24 }}>
+                                                <CircularProgress size={20} />
+                                            </Box>
+                                        ) : (
+                                            <SearchIcon />
+                                        )}
                                     </IconButton>
                                 </InputAdornment>
                             ),
@@ -119,7 +125,7 @@ const StorePage: React.FC = () => {
                 />
             </Box>
 
-            {loading || searching ? (
+            {loading ? (
                 renderSkeletons()
             ) : error ? (
                 <Alert severity="error" sx={{ mt: 4 }}>
