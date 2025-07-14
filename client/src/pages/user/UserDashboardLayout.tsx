@@ -7,6 +7,7 @@ const UserDashboardLayout: React.FC = () => {
 
     const tabValues = [
         "/user/warehouse",
+        "/user/items",
         "/user/history",
         "/user/posts",
         "/user/settings",
@@ -23,6 +24,12 @@ const UserDashboardLayout: React.FC = () => {
                         label="我的仓库"
                         value="/user/warehouse"
                         to="/user/warehouse"
+                        component={RouterLink}
+                    />
+                    <Tab
+                        label="物品仓库"
+                        value="/user/items"
+                        to="/user/items"
                         component={RouterLink}
                     />
                     <Tab

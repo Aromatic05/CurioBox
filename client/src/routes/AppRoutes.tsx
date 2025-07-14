@@ -22,6 +22,7 @@ import UserProfileSettings from "../pages/user/UserProfileSettings";
 import WarehousePage from "../pages/user/WarehousePage";
 import MyPostsPage from "../pages/user/MyPostsPage";
 import HistoryPage from "../pages/user/HistoryPage";
+import ItemWarehousePage from "../pages/user/ItemWarehousePage";
 import UserManagePage from "../pages/admin/UserManagePage";
 
 const router = createBrowserRouter([
@@ -77,6 +78,7 @@ const router = createBrowserRouter([
                                 ),
                             },
                             { path: "warehouse", element: <WarehousePage /> },
+                            { path: "items", element: <ItemWarehousePage /> },
                             { path: "posts", element: <MyPostsPage /> },
                             { path: "history", element: <HistoryPage /> },
                             {
