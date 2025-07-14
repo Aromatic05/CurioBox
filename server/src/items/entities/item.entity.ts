@@ -6,6 +6,8 @@ import {
     ManyToMany,
     JoinTable,
 } from 'typeorm';
+import { OneToMany } from 'typeorm';
+import { UserItem } from './user-item.entity';
 
 @Entity()
 export class Item {
@@ -30,4 +32,7 @@ export class Item {
     @ManyToMany(() => CurioBox, (curioBox) => curioBox.items)
     @JoinTable({ name: 'item_curio_boxes' })
     curioBoxes: CurioBox[];
+
+    @OneToMany(() => UserItem, userItem => userItem.item)
+    userItems: UserItem[];
 }

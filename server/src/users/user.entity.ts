@@ -5,6 +5,8 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
 } from 'typeorm';
+import { OneToMany } from 'typeorm';
+import { UserItem } from '../items/entities/user-item.entity';
 
 @Entity() // 标记这个类是一个实体
 export class User {
@@ -34,4 +36,7 @@ export class User {
 
     @UpdateDateColumn() // 自动设置为更新时的时间
     updatedAt: Date;
+
+    @OneToMany(() => UserItem, userItem => userItem.user)
+    userItems: UserItem[];
 }

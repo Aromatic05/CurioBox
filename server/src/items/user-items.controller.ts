@@ -18,7 +18,7 @@ export class UserItemsController {
     // 查询用户所有 item
     @Get()
     async getUserItems(@Request() req) {
-        const items = await this.userItemsService.findAllByUser(req.user.id);
+        const items = await this.userItemsService.findAllByUser(req.user.sub);
         return { items };
     }
 
@@ -29,6 +29,6 @@ export class UserItemsController {
         @Param('itemId') itemId: number,
         @Query('count') count: number = 1,
     ) {
-        return await this.userItemsService.removeItem(req.user.id, itemId, Number(count));
+        return await this.userItemsService.removeItem(req.user.sub, itemId, Number(count));
     }
 }

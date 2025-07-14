@@ -21,7 +21,7 @@ export class OrdersController {
     // 购买盲盒（改造原有的抽盒接口）
     @Post('orders/purchase')
     async purchase(@Body() createUserBoxDto: CreateUserBoxDto, @Request() req) {
-        const userId = req.user.id || req.user.sub;
+        const userId = req.user.sub || req.user.sub;
         const result = await this.ordersService.purchase(
             userId,
             createUserBoxDto,
@@ -41,7 +41,7 @@ export class OrdersController {
     // 获取用户订单列表
     @Get('orders')
     findAllByUser(@Request() req) {
-        const userId = req.user.id || req.user.sub;
+        const userId = req.user.sub || req.user.sub;
         return this.ordersService.findAllByUser(userId);
     }
 
@@ -54,7 +54,7 @@ export class OrdersController {
     // 获取订单详情
     @Get('orders/:id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-        const userId = req.user.id || req.user.sub;
+        const userId = req.user.sub || req.user.sub;
         if (isNaN(id)) {
             throw new NotFoundException('订单ID无效');
         }

@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../users/user.entity';
+import { Item } from './item.entity';
 
-@Entity()
+@Entity('user_item') // 建议明确指定表名
 @Index(['userId', 'itemId'], { unique: true })
 export class UserItem {
     @PrimaryGeneratedColumn()
@@ -14,4 +16,13 @@ export class UserItem {
 
     @Column({ type: 'int', default: 1 })
     count: number;
+    
+    // --- 添加以下关系 ---
+    @ManyToOne(() => User, user => user.userItems, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'userId' }) // 告诉TypeORM 'userId' 列是外键
+    user: User;
+
+    @ManyToOne(() => Item, item => item.userItems, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'itemId' }) // 告诉TypeORM 'itemId' 列是外键
+    item: Item;
 }
