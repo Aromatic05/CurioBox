@@ -15,14 +15,16 @@ import {
     Avatar,
 } from "@mui/material";
 
-// 假设 RarityChip 组件在以下路径，如果不在，请修改路径
-// 这个组件我们在实现详情页时已经创建
 import RarityChip from "../../components/store/RarityChip";
+import { TablePagination } from "@mui/material";
 
 const HistoryPage: React.FC = () => {
     const [openedBoxes, setOpenedBoxes] = useState<IUserBox[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    // 分页相关状态
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -54,6 +56,23 @@ const HistoryPage: React.FC = () => {
         return <Alert severity="error">{error}</Alert>;
     }
 
+    // 计算当前页数据
+    const paginatedBoxes = openedBoxes.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage,
+    );
+
+    // 分页控件事件
+    const handleChangePage = (_event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+    const handleChangeRowsPerPage = (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
     return (
         <Box>
             <Typography variant="h4" gutterBottom>
@@ -73,7 +92,7 @@ const HistoryPage: React.FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {openedBoxes.map((box) => (
+                            {paginatedBoxes.map((box) => (
                                 <TableRow
                                     key={box.id}
                                     sx={{
@@ -116,6 +135,19 @@ const HistoryPage: React.FC = () => {
                             ))}
                         </TableBody>
                     </Table>
+                    {/* 分页控件 */}
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <TablePagination
+                            component="div"
+                            count={openedBoxes.length}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            rowsPerPageOptions={[5, 10, 20, 50]}
+                            labelRowsPerPage="每页条数"
+                        />
+                    </Box>
                 </TableContainer>
             )}
         </Box>
