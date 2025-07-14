@@ -15,6 +15,7 @@ import {
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
 import { Item } from '../items/entities/item.entity';
 import { User } from '../users/user.entity';
+import { UserItemsService } from '../items/user-items.service';
 
 @Injectable()
 export class UserBoxesService {
@@ -26,6 +27,7 @@ export class UserBoxesService {
         @InjectRepository(Item)
         private readonly itemRepository: Repository<Item>,
         private readonly dataSource: DataSource,
+        private readonly userItemsService: UserItemsService,
     ) {}
 
     // 批量购买盲盒 - 在购买时就确定内容
@@ -155,6 +157,11 @@ export class UserBoxesService {
         // 只修改状态为已开启
         userBox.status = UserBoxStatus.OPENED;
         await this.userBoxRepository.save(userBox);
+
+        // 增加用户 item 仓库数量
+        if (userBox.itemId) {
+            await this.userItemsService.addItem(userId, userBox.itemId, 1);
+        }
 
         return {
             userBoxId,
