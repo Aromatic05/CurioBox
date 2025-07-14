@@ -1,12 +1,19 @@
+
 # **API 文档**
 
-本文档详细说明了应用程序的各个API接口，包括认证、用户社区、盲盒管理和订单系统。
+本文档详细说明了 CurioBox 盲盒系统的所有 API，包括认证、社区、盲盒、物品、订单、个人仓库等。
+
+---
+
+> 说明：本系统所有用户相关接口均以 JWT 的 `sub` 字段作为唯一用户ID标识，响应体中的 `id` 或 `userId` 均为此 ID。
 
 ---
 
 ## **1. 认证模块 (Auth)**
 
 此模块处理所有与用户账户相关的操作，如注册、登录、密码修改等。
+
+> 说明：本系统用户ID采用 JWT 的 `sub` 字段作为唯一标识，所有认证相关接口响应体中的 `sub` 即为用户ID。
 
 ### **1.1. 用户注册**
 
@@ -292,6 +299,7 @@
   | coverImage | (选择图片文件) |
 
 - **成功响应 (201 Created):** 返回创建的盲盒对象，包含 `id`、`coverImage`（图片URL）、`items`、`itemProbabilities`。
+  > 注意：`items` 字段为物品详情数组，只有后端查询时加 relations 才会返回，否则为空或 undefined。`itemProbabilities` 字段始终返回。
 - **错误响应:**
     - `400 Bad Request`: 参数不合法或图片类型/大小不符合要求。
     - `401 Unauthorized`: 未登录。
@@ -518,52 +526,7 @@
 
 ---
 
-## **4. 订单与盲盒仓库模块**
-### **4.6. 个人物品仓库（User Item）**
-
-- **Endpoint:** `GET /me/items`
-- **描述:** 获取当前用户拥有的所有物品及数量。
-- **认证:** 需要用户 Bearer Token。
-- **成功响应 (200 OK):**
-    ```json
-    {
-        "items": [
-            {
-                "itemId": 45,
-                "count": 2
-            }
-        ]
-    }
-    ```
-- **错误响应:**
-    - `401 Unauthorized`: 未登录。
-
-- **Endpoint:** `DELETE /me/items/:itemId?count=xx`
-- **描述:** 删除或减少当前用户的指定物品数量。数量为 0 时自动删除该物品。
-- **认证:** 需要用户 Bearer Token。
-- **请求参数:**
-    - `itemId`：物品ID（路径参数）
-    - `count`：要减少的数量（查询参数，默认1）
-- **成功响应 (200 OK):**
-    ```json
-    {
-        "success": true,
-        "deleted": true
-    }
-    ```
-    或
-    ```json
-    {
-        "success": true,
-        "deleted": false,
-        "count": 1
-    }
-    ```
-- **错误响应:**
-    - `401 Unauthorized`: 未登录。
-    - `404 Not Found`: 物品不存在。
-
-此模块处理用户的盲盒购买、个人仓库管理和开箱操作。
+## **4. 订单与盲盒仓库与个人物品仓库模块**
 
 ### **4.1. 购买盲盒**
 
@@ -703,3 +666,49 @@
 - **错误响应:**
     - `401 Unauthorized`: 未登录。
     - `404 Not Found`: 订单不存在，或尝试访问不属于自己的订单。
+
+### **4.6. 个人物品仓库（User Item）**
+
+- **Endpoint:** `GET /me/items`
+- **描述:** 获取当前用户拥有的所有物品及数量。
+- **认证:** 需要用户 Bearer Token。
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "items": [
+            {
+                "itemId": 45,
+                "count": 2
+            }
+        ]
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录。
+
+- **Endpoint:** `DELETE /me/items/:itemId?count=xx`
+- **描述:** 删除或减少当前用户的指定物品数量。数量为 0 时自动删除该物品。
+- **认证:** 需要用户 Bearer Token。
+- **请求参数:**
+    - `itemId`：物品ID（路径参数）
+    - `count`：要减少的数量（查询参数，默认1）
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "success": true,
+        "deleted": true
+    }
+    ```
+    或
+    ```json
+    {
+        "success": true,
+        "deleted": false,
+        "count": 1
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录。
+    - `404 Not Found`: 物品不存在。
+
+此模块处理用户的盲盒购买、个人仓库管理和开箱操作。
