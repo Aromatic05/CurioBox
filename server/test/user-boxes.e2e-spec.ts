@@ -230,6 +230,64 @@ describe('UserBoxes (e2e)', () => {
         expect(statuses).toContain('unopened');
     });
 
+    it('应该能查询用户物品仓库', async () => {
+        // 购买并开启盲盒，获得 item
+        const purchaseRes = await request(app.getHttpServer())
+            .post('/orders/purchase')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ curioBoxId, quantity: 1 })
+            .expect(201);
+        const userBoxId = purchaseRes.body.userBoxes[0].id;
+        await request(app.getHttpServer())
+            .post('/me/boxes/open')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ userBoxId })
+            .expect(200);
+        // 查询物品仓库
+        const res = await request(app.getHttpServer())
+            .get('/me/items')
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        expect(res.body.items).toBeDefined();
+        expect(Array.isArray(res.body.items)).toBeTruthy();
+        expect(res.body.items[0].itemId).toBeDefined();
+        expect(res.body.items[0].count).toBe(1);
+    });
+
+    it('应该能减少/删除用户物品', async () => {
+        // 购买并开启盲盒，获得 item
+        const purchaseRes = await request(app.getHttpServer())
+            .post('/orders/purchase')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ curioBoxId, quantity: 1 })
+            .expect(201);
+        const userBoxId = purchaseRes.body.userBoxes[0].id;
+        await request(app.getHttpServer())
+            .post('/me/boxes/open')
+            .set('Authorization', `Bearer ${userToken}`)
+            .send({ userBoxId })
+            .expect(200);
+        // 查询物品仓库，获取 itemId
+        const itemsRes = await request(app.getHttpServer())
+            .get('/me/items')
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        const itemId = itemsRes.body.items[0].itemId;
+        // 删除物品
+        const delRes = await request(app.getHttpServer())
+            .delete(`/me/items/${itemId}`)
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        expect(delRes.body.success).toBeTruthy();
+        expect(delRes.body.deleted).toBeTruthy();
+        // 再查物品仓库应为空
+        const itemsRes2 = await request(app.getHttpServer())
+            .get('/me/items')
+            .set('Authorization', `Bearer ${userToken}`)
+            .expect(200);
+        expect(itemsRes2.body.items.length).toBe(0);
+    });
+
     afterEach(async () => {
         await app.close();
     });

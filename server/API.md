@@ -519,6 +519,49 @@
 ---
 
 ## **4. 订单与盲盒仓库模块**
+### **4.6. 个人物品仓库（User Item）**
+
+- **Endpoint:** `GET /me/items`
+- **描述:** 获取当前用户拥有的所有物品及数量。
+- **认证:** 需要用户 Bearer Token。
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "items": [
+            {
+                "itemId": 45,
+                "count": 2
+            }
+        ]
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录。
+
+- **Endpoint:** `DELETE /me/items/:itemId?count=xx`
+- **描述:** 删除或减少当前用户的指定物品数量。数量为 0 时自动删除该物品。
+- **认证:** 需要用户 Bearer Token。
+- **请求参数:**
+    - `itemId`：物品ID（路径参数）
+    - `count`：要减少的数量（查询参数，默认1）
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "success": true,
+        "deleted": true
+    }
+    ```
+    或
+    ```json
+    {
+        "success": true,
+        "deleted": false,
+        "count": 1
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录。
+    - `404 Not Found`: 物品不存在。
 
 此模块处理用户的盲盒购买、个人仓库管理和开箱操作。
 

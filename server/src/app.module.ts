@@ -17,6 +17,7 @@ import { Comment } from './showcase/entities/comment.entity';
 import { Tag } from './showcase/entities/tag.entity';
 import { UserBoxesModule } from './user-boxes/user-boxes.module';
 import { UserBox } from './user-boxes/entities/user-box.entity';
+import { UserItem } from './items/entities/user-item.entity';
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import { UserBox } from './user-boxes/entities/user-box.entity';
                 Comment,
                 Tag,
                 UserBox,
+                UserItem,
             ],
             synchronize: true,
         }),

@@ -13,5 +13,6 @@ import { UserItemsController } from './user-items.controller';
     imports: [TypeOrmModule.forFeature([BlocklistedToken, Item, CurioBox, UserItem])],
     controllers: [ItemsController, UserItemsController],
     providers: [ItemsService, UserItemsService],
+    exports: [UserItemsService],
 })
 export class ItemsModule {}
