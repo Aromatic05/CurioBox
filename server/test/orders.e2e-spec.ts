@@ -53,7 +53,10 @@ describe('OrdersController (e2e)', () => {
                 name: 'Test Box',
                 description: 'A box for testing',
                 price: 9.99,
+                boxCount: 10,
                 category: 'test',
+                itemIds: [],
+                itemProbabilities: [],
             });
         curioBoxId = curioBoxRes.body.id;
 

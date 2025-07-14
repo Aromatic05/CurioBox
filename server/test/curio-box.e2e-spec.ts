@@ -93,6 +93,7 @@ describe('CurioBoxController (e2e)', () => {
                     name: 'TestBox',
                     description: 'desc',
                     price: 100,
+                    boxCount: 1,
                     itemIds: [createdItemId],
                     itemProbabilities: [
                         { itemId: createdItemId, probability: 1 },
@@ -108,12 +109,10 @@ describe('CurioBoxController (e2e)', () => {
                 .field('name', 'TestBox')
                 .field('description', 'desc')
                 .field('price', 100)
+                .field('boxCount', 1)
                 .field('category', 'test')
-                .field('itemIds', JSON.stringify([createdItemId]))
-                .field(
-                    'itemProbabilities',
-                    JSON.stringify([{ itemId: createdItemId, probability: 1 }]),
-                )
+                .field('itemIds', `[${createdItemId}]`)
+                .field('itemProbabilities', `[{"itemId":${createdItemId},"probability":1}]`)
                 .attach('coverImage', __dirname + '/1.jpg')
                 .expect(201);
             expect(res.body).toHaveProperty('id');
@@ -205,6 +204,7 @@ describe('CurioBoxController (e2e)', () => {
                     name: 'PatchBox',
                     description: 'desc',
                     price: 100,
+                    boxCount: 1,
                     itemIds: [createdItemId],
                     itemProbabilities: [
                         { itemId: createdItemId, probability: 1 },
