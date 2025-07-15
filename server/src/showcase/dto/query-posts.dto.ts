@@ -41,9 +41,18 @@ export class QueryPostsDto {
 
     @IsOptional()
     @IsArray()
-    @Transform(({ value }) =>
-        typeof value === 'string' ? value.split(',').map(Number) : value,
-    )
+    @Transform(({ value }) => {
+        if (typeof value === 'string') {
+            return value.split(',').map(Number);
+        }
+        if (Array.isArray(value)) {
+            return value.map(Number);
+        }
+        if (typeof value === 'number') {
+            return [value];
+        }
+        return [];
+    })
     tagIds?: number[];
 
     @IsOptional()

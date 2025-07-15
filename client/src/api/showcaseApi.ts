@@ -1,3 +1,13 @@
+// 通过标签ID获取帖子列表
+export const getPostsByTagId = (
+    tagId: number,
+    query?: Record<string, any>
+): Promise<AxiosResponse<{ items: IPost[]; meta?: any }>> => {
+    // 直接复用 /showcase/posts，tagIds 参数为字符串
+    return apiClient.get(`/showcase/posts`, {
+        params: { tagIds: String(tagId), ...(query || {}), },
+    });
+};
 // 新增：创建标签
 export const createTag = (
     name: string,

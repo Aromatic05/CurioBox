@@ -38,7 +38,7 @@ export class ShowcaseService {
         private postRepository: Repository<ShowcasePost>,
         @InjectRepository(Tag)
         private tagRepository: Repository<Tag>,
-    ) {}
+    ) { }
 
     async createPost(
         userId: number,
@@ -66,7 +66,7 @@ export class ShowcaseService {
     }
 
     async getPosts(queryDto: QueryPostsDto & { userId?: number }) {
-        const {
+        let {
             sortBy = SortBy.LATEST,
             order = 'DESC',
             timeRange = TimeRange.ALL,
@@ -77,49 +77,55 @@ export class ShowcaseService {
             curioBoxId,
         } = queryDto;
 
-        // 创建查询构建器
+        // 强制 tagIds 为数组，防止 TypeORM IN 查询报错
+        if (typeof tagIds === 'string' && tagIds) {
+            tagIds = (tagIds as string).split(',').map(Number);
+        } else if (typeof tagIds === 'number') {
+            tagIds = [tagIds];
+        } else if (!Array.isArray(tagIds)) {
+            tagIds = [];
+        }
+
         const queryBuilder = this.postRepository
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .leftJoinAndSelect('post.tags', 'tags');
 
-        // 如果指定了时间范围
+        // 统一用 andWhere，避免覆盖
         if (timeRange !== TimeRange.ALL) {
             const startTime = this.getTimeRangeStart(timeRange);
-            queryBuilder.where('post.createdAt >= :startTime', { startTime });
+            queryBuilder.andWhere('post.createdAt >= :startTime', { startTime });
         }
 
-        // 如果指定了标签
         if (tagIds && tagIds.length > 0) {
             queryBuilder
-                .innerJoin('post.tags', 'tag')
-                .where('tag.id IN (:...tagIds)', { tagIds });
+                .innerJoin('post.tags', 'tag_filter', 'tag_filter.id IN (:...tagIds)', { tagIds });
         }
+        console.log('Querying posts with filters:', tagIds, userId, curioBoxId);
+        console.log('typeof tagIds:', typeof tagIds, 'tagIds:', tagIds);
 
-        // 如果指定了 userId
         if (userId) {
             queryBuilder.andWhere('post.userId = :userId', { userId });
         }
 
-        // 如果指定了 curioBoxId
         if (curioBoxId) {
             queryBuilder.andWhere('post.curioBoxId = :curioBoxId', { curioBoxId });
         }
 
-        // 应用排序
+        // 排序逻辑
+        const orderByValue = (order === 'ASC' || order === 'DESC') ? order : 'DESC';
         switch (sortBy) {
             case SortBy.HOT:
-                queryBuilder.orderBy('post.hotScore', order);
+                queryBuilder.orderBy('post.hotScore', orderByValue);
                 break;
             case SortBy.COMPREHENSIVE:
-                queryBuilder.orderBy('post.score', order);
+                queryBuilder.orderBy('post.score', orderByValue);
                 break;
             case SortBy.LATEST:
             default:
-                queryBuilder.orderBy('post.createdAt', order);
+                queryBuilder.orderBy('post.createdAt', orderByValue);
         }
 
-        // 应用分页
         const [posts, total] = await queryBuilder
             .skip((page - 1) * pageSize)
             .take(pageSize)
@@ -135,6 +141,7 @@ export class ShowcaseService {
             },
         };
     }
+
 
     async getPostById(id: number): Promise<ShowcasePost> {
         const post = await this.postRepository.findOne({
