@@ -11,20 +11,27 @@ import {
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateUserBoxDto } from '../user-boxes/dto/create-user-box.dto';
+import { PurchaseCurioBoxDto } from './dto/purchase-curio-box.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Orders')
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {}
 
-    // 购买盲盒（改造原有的抽盒接口）
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Purchase curio boxes' })
+    @ApiResponse({ status: 201, description: 'Curio boxes purchased successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 404, description: 'Curio box not found.' })
+    @ApiResponse({ status: 400, description: 'Bad Request (e.g., insufficient item stock).' })
     @Post('orders/purchase')
-    async purchase(@Body() createUserBoxDto: CreateUserBoxDto, @Request() req) {
+    async purchase(@Body() purchaseCurioBoxDto: PurchaseCurioBoxDto, @Request() req) {
         const userId = req.user.sub || req.user.sub;
         const result = await this.ordersService.purchase(
             userId,
-            createUserBoxDto,
+            purchaseCurioBoxDto,
         );
 
         return {
@@ -38,20 +45,31 @@ export class OrdersController {
         };
     }
 
-    // 获取用户订单列表
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get current user\'s orders' })
+    @ApiResponse({ status: 200, description: 'Returns a list of current user\'s orders.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get('orders')
     findAllByUser(@Request() req) {
         const userId = req.user.sub || req.user.sub;
         return this.ordersService.findAllByUser(userId);
     }
 
-    // 获取所有订单（仅管理员）
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get all orders (Admin only)' })
+    @ApiResponse({ status: 200, description: 'Returns a list of all orders.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Forbidden.' })
     @Get('orders/all')
     async findAll() {
         return this.ordersService.findAll();
     }
 
-    // 获取订单详情
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get single order details' })
+    @ApiResponse({ status: 200, description: 'Returns a single order with details.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 404, description: 'Order not found or not belonging to user.' })
     @Get('orders/:id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
         const userId = req.user.sub || req.user.sub;

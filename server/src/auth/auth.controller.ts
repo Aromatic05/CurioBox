@@ -3,13 +3,20 @@ import { UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } fr
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { SetNicknameDto } from './dto/set-nickname.dto';
+import { SetAvatarDto } from './dto/set-avatar.dto';
+import { DeleteUserDto } from './dto/delete-user.dto';
+import { BanUserDto } from './dto/ban-user.dto';
+import { UnbanUserDto } from './dto/unban-user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from '../users/users.service';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -17,45 +24,37 @@ export class AuthController {
         private readonly usersService: UsersService,
     ) { }
 
-    /**
-     * 用户注册端点
-     * POST /auth/register
-     * @param createUserDto 包含用户名和密码的对象
-     */
+    @ApiOperation({ summary: 'User registration' })
+    @ApiResponse({ status: 201, description: 'User registered successfully.' })
+    @ApiResponse({ status: 409, description: 'Username already exists.' })
+    @ApiResponse({ status: 400, description: 'Bad Request.' })
     @Post('register')
     signUp(@Body() createUserDto: CreateUserDto) {
         return this.authService.signUp(createUserDto);
     }
 
-    /**
-     * 用户登录端点
-     * POST /auth/login
-     * @param loginDto 包含用户名和密码的对象
-     */
+    @ApiOperation({ summary: 'User login' })
+    @ApiResponse({ status: 200, description: 'User logged in successfully, returns accessToken.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Post('login')
     @HttpCode(HttpStatus.OK)
     signIn(@Body() loginDto: LoginDto) {
         return this.authService.signIn(loginDto);
     }
 
-    /**
-    * 刷新token端点
-    * POST /auth/refresh
-    * @param body 包含refreshToken的对象
-    */
+    @ApiOperation({ summary: 'Refresh access token' })
+    @ApiResponse({ status: 200, description: 'Access token refreshed successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
     async refresh(@Body() body: { refreshToken: string }) {
         return await this.authService.refreshToken(body.refreshToken);
     }
 
-    /**
-     * 修改密码端点
-     * POST /auth/change-password
-     * @param req 请求对象，包含用户信息
-     * @param changePasswordDto 包含新密码的对象
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Change password' })
+    @ApiResponse({ status: 200, description: 'Password changed successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Post('change-password')
     @HttpCode(HttpStatus.OK)
     changePassword(
@@ -65,46 +64,42 @@ export class AuthController {
         return this.authService.changePassword(req.user.sub, changePasswordDto);
     }
 
-    /**
-     * 用户登出端点
-     * @param req 请求对象，包含用户信息
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'User logout' })
+    @ApiResponse({ status: 200, description: 'Logged out successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get('logout')
     logout(@Request() req: any) {
         const token = req.headers.authorization.split(' ')[1];
         return this.authService.logout(token);
     }
 
-    /**
-     * 设置昵称端点
-     * POST /auth/set-nickname
-     * @param req 请求对象，包含用户信息
-     * @param body 包含新昵称的对象
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Set or update user nickname' })
+    @ApiResponse({ status: 200, description: 'Nickname updated successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiBody({ type: SetNicknameDto })
     @Post('set-nickname')
     @HttpCode(HttpStatus.OK)
-    setNickname(@Request() req: any, @Body() body: { nickname: string }) {
+    setNickname(@Request() req: any, @Body() body: SetNicknameDto) {
         return this.authService.setNickname(req.user.sub, body.nickname);
     }
 
-    /**
-     * 获取当前用户信息
-     * GET /auth/me
-     * @param req 请求对象，包含用户信息
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get current user profile' })
+    @ApiResponse({ status: 200, description: 'Returns current user profile.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get('me')
     async getProfile(@Request() req: any) {
         const user = await this.usersService.findPublicById(req.user.sub);
         return user;
     }
 
-    /**
-     * 上传头像接口
-     * POST /auth/upload-avatar
-     */
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Upload avatar image' })
+    @ApiResponse({ status: 200, description: 'Avatar image uploaded successfully, returns URL.' })
+    @ApiResponse({ status: 400, description: 'Bad Request (e.g., invalid file type or size).' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Post('upload-avatar')
     @UseInterceptors(
         FileInterceptor('file', {
@@ -138,26 +133,27 @@ export class AuthController {
         return { url };
     }
 
-    /**
-     * 修改头像接口
-     * POST /auth/set-avatar
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Set user avatar' })
+    @ApiResponse({ status: 200, description: 'Avatar updated successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiBody({ type: SetAvatarDto })
     @Post('set-avatar')
     @HttpCode(HttpStatus.OK)
-    setAvatar(@Request() req: any, @Body() body: { avatar: string }) {
+    setAvatar(@Request() req: any, @Body() body: SetAvatarDto) {
         return this.authService.setAvatar(req.user.sub, body.avatar);
     }
 
-    /**
-     * 软删除用户端点
-     * POST /auth/delete-user
-     * 仅本人或管理员可操作
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Soft delete user (self or admin)' })
+    @ApiResponse({ status: 200, description: 'User deleted successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: 404, description: 'User not found.' })
+    @ApiBody({ type: DeleteUserDto })
     @Post('delete-user')
     @HttpCode(HttpStatus.OK)
-    async deleteUser(@Request() req: any, @Body() body: { userId?: number }) {
+    async deleteUser(@Request() req: any, @Body() body: DeleteUserDto) {
         const targetUserId = body.userId;
         if (req.user.role !== 'admin' && targetUserId && targetUserId !== req.user.sub) {
             throw new ForbiddenException('No permission to delete other users');
@@ -165,30 +161,32 @@ export class AuthController {
         return await this.authService.setUserStatus(targetUserId || req.user.sub, req.user.role, 'deleted');
     }
 
-    /**
-     * 封禁用户端点
-     * POST /auth/ban-user
-     * 仅管理员可操作
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Ban user (admin only)' })
+    @ApiResponse({ status: 200, description: 'User banned successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: 404, description: 'User not found.' })
+    @ApiBody({ type: BanUserDto })
     @Post('ban-user')
     @HttpCode(HttpStatus.OK)
-    async banUser(@Request() req: any, @Body() body: { userId: number }) {
+    async banUser(@Request() req: any, @Body() body: BanUserDto) {
         if (req.user.role !== 'admin') {
             throw new ForbiddenException('No permission');
         }
         return await this.authService.setUserStatus(body.userId, req.user.role, 'banned');
     }
 
-    /**
-     * 解封用户端点
-     * POST /auth/unban-user
-     * 仅管理员可操作
-     */
-    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Unban user (admin only)' })
+    @ApiResponse({ status: 200, description: 'User unbanned successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: 404, description: 'User not found.' })
+    @ApiBody({ type: UnbanUserDto })
     @Post('unban-user')
     @HttpCode(HttpStatus.OK)
-    async unbanUser(@Request() req: any, @Body() body: { userId: number }) {
+    async unbanUser(@Request() req: any, @Body() body: UnbanUserDto) {
         if (req.user.role !== 'admin') {
             throw new ForbiddenException('No permission');
         }
