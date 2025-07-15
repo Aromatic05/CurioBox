@@ -16,16 +16,11 @@ import {
     uploadItemImage,
 } from "../../api/itemApi";
 
-const categories = [
-    { value: "潮玩", label: "潮玩" },
-    { value: "手办", label: "手办" },
-    { value: "文创", label: "文创" },
-    { value: "其他", label: "其他" },
-];
 const rarities = [
-    { value: "普通", label: "普通" },
-    { value: "稀有", label: "稀有" },
-    { value: "传说", label: "传说" },
+    { value: "common", label: "普通" },
+    { value: "rare", label: "稀有" },
+    { value: "epic", label: "史诗" },
+    { value: "legendary", label: "传奇" },
 ];
 
 const ItemEditPage: React.FC = () => {
@@ -124,7 +119,6 @@ const ItemEditPage: React.FC = () => {
                     sx={{ mb: 2 }}
                 />
                 <TextField
-                    select
                     label="分类"
                     name="category"
                     value={form.category}
@@ -132,13 +126,7 @@ const ItemEditPage: React.FC = () => {
                     fullWidth
                     required
                     sx={{ mb: 2 }}
-                >
-                    {categories.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                />
                 <TextField
                     select
                     label="稀有度"

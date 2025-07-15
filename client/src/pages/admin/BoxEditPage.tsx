@@ -6,7 +6,6 @@ import {
     Button,
     TextField,
     Typography,
-    MenuItem,
     CircularProgress,
     Autocomplete,
 } from "@mui/material";
@@ -17,13 +16,6 @@ import {
     uploadCurioBoxImage,
 } from "../../api/curioBoxApi";
 import { getItems } from "../../api/itemApi";
-
-const categories = [
-    { value: "潮玩", label: "潮玩" },
-    { value: "手办", label: "手办" },
-    { value: "文创", label: "文创" },
-    { value: "其他", label: "其他" },
-];
 
 const BoxEditPage: React.FC = () => {
     const { id } = useParams();
@@ -223,7 +215,6 @@ const BoxEditPage: React.FC = () => {
                     sx={{ mb: 2 }}
                 />
                 <TextField
-                    select
                     label="分类"
                     name="category"
                     value={form.category}
@@ -231,13 +222,7 @@ const BoxEditPage: React.FC = () => {
                     fullWidth
                     required
                     sx={{ mb: 2 }}
-                >
-                    {categories.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                />
                 <TextField
                     label="价格"
                     name="price"
