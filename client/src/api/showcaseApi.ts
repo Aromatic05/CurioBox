@@ -1,3 +1,10 @@
+// 新增：创建标签
+export const createTag = (
+    name: string,
+    description?: string,
+): Promise<AxiosResponse<ITag>> => {
+    return apiClient.post("/showcase/tags", { name, description });
+};
 import apiClient from "./apiClient";
 import type { AxiosResponse } from "axios";
 

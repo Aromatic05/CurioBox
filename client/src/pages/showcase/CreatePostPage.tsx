@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
     createPost,
     getTags,
+    createTag,
     type ITag,
     type CreatePostPayload,
 } from "../../api/showcaseApi";
@@ -54,6 +55,10 @@ const CreatePostPage: React.FC = () => {
     // 选中的 curioBoxId（不是 userBox.id）
     const [selectedBoxId, setSelectedBoxId] = useState<number | "">("");
 
+    // 新增：标签输入框状态
+    const [newTagName, setNewTagName] = useState("");
+    const [addingTag, setAddingTag] = useState(false);
+
     // UI状态
     const [loading, setLoading] = useState(false);
     const [snackbar, setSnackbar] = useState<{
@@ -96,6 +101,30 @@ const CreatePostPage: React.FC = () => {
         setSelectedTagNames(
             typeof value === "string" ? value.split(",") : value,
         );
+    };
+
+    // 新增：添加新标签到后端
+    const handleAddTag = async () => {
+        const name = newTagName.trim();
+        if (!name) return;
+        // 检查是否已存在
+        if (availableTags.some((tag) => tag.name === name)) {
+            setSelectedTagNames((prev) => [...prev, name]);
+            setNewTagName("");
+            setAddingTag(false);
+            return;
+        }
+        try {
+            const res = await createTag(name);
+            const newTag = res.data;
+            setAvailableTags((prev) => [...prev, newTag]);
+            setSelectedTagNames((prev) => [...prev, newTag.name]);
+            setSnackbar({ open: true, message: "标签创建成功！", severity: "success" });
+        } catch (err) {
+            setSnackbar({ open: true, message: "标签创建失败，请重试。", severity: "error" });
+        }
+        setNewTagName("");
+        setAddingTag(false);
     };
 
     // 处理图片选择
@@ -300,6 +329,49 @@ const CreatePostPage: React.FC = () => {
                                 </MenuItem>
                             ))}
                         </Select>
+                        {/* 新增标签输入框和按钮 */}
+                        <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                            {addingTag ? (
+                                <>
+                                    <TextField
+                                        size="small"
+                                        value={newTagName}
+                                        onChange={(e) => setNewTagName(e.target.value)}
+                                        placeholder="输入新标签名"
+                                        sx={{ mr: 1, width: 180 }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleAddTag();
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        onClick={handleAddTag}
+                                        sx={{ mr: 1 }}
+                                    >
+                                        添加
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        variant="text"
+                                        onClick={() => { setAddingTag(false); setNewTagName(""); }}
+                                    >
+                                        取消
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => setAddingTag(true)}
+                                >
+                                    + 新增标签
+                                </Button>
+                            )}
+                        </Box>
                     </FormControl>
                     {/* 新增：选择已开启盲盒 */}
                     <FormControl fullWidth margin="normal">
