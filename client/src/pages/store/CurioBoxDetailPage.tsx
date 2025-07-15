@@ -141,6 +141,12 @@ const CurioBoxDetailPage: React.FC = () => {
 
     return (
         <Container maxWidth="lg" sx={{ my: 4 }}>
+            {/* 返回按钮 */}
+            <Box sx={{ mb: 2 }}>
+                <Button variant="text" onClick={() => window.history.back()}>
+                    返回
+                </Button>
+            </Box>
             <Paper elevation={3}>
                 <Box
                     sx={{

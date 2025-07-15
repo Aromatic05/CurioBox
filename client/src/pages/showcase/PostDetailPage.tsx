@@ -124,6 +124,12 @@ const PostDetailPage: React.FC = () => {
 
     return (
         <Container maxWidth="md" sx={{ py: 4 }}>
+            {/* 返回按钮 */}
+            <Box sx={{ mb: 2 }}>
+                <Button variant="text" onClick={() => window.history.back()}>
+                    返回
+                </Button>
+            </Box>
             <Paper sx={{ p: 4 }}>
                 {/* 编辑模式 */}
                 {editing ? (

@@ -166,6 +166,12 @@ const CreatePostPage: React.FC = () => {
 
     return (
         <Container maxWidth="md" sx={{ my: 4 }}>
+            {/* 返回按钮 */}
+            <Box sx={{ mb: 2 }}>
+                <Button variant="text" onClick={() => window.history.back()}>
+                    返回
+                </Button>
+            </Box>
             <Paper elevation={3} sx={{ p: 4 }}>
                 <Typography variant="h4" component="h1" gutterBottom>
                     创建新的玩家秀帖子
