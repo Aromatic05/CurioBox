@@ -55,6 +55,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Change password' })
     @ApiResponse({ status: 200, description: 'Password changed successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @UseGuards(JwtAuthGuard)
     @Post('change-password')
     @HttpCode(HttpStatus.OK)
     changePassword(
@@ -79,6 +80,7 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Nickname updated successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiBody({ type: SetNicknameDto })
+    @UseGuards(JwtAuthGuard)
     @Post('set-nickname')
     @HttpCode(HttpStatus.OK)
     setNickname(@Request() req: any, @Body() body: SetNicknameDto) {
@@ -152,6 +154,7 @@ export class AuthController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
     @ApiBody({ type: DeleteUserDto })
+    @UseGuards(JwtAuthGuard)
     @Post('delete-user')
     @HttpCode(HttpStatus.OK)
     async deleteUser(@Request() req: any, @Body() body: DeleteUserDto) {
@@ -169,6 +172,7 @@ export class AuthController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
     @ApiBody({ type: BanUserDto })
+    @UseGuards(JwtAuthGuard)
     @Post('ban-user')
     @HttpCode(HttpStatus.OK)
     async banUser(@Request() req: any, @Body() body: BanUserDto) {
@@ -185,6 +189,7 @@ export class AuthController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
     @ApiBody({ type: UnbanUserDto })
+    @UseGuards(JwtAuthGuard)
     @Post('unban-user')
     @HttpCode(HttpStatus.OK)
     async unbanUser(@Request() req: any, @Body() body: UnbanUserDto) {
