@@ -21,6 +21,7 @@ import {
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 
 import BoxOpenAnimation, { shake } from "../../components/BoxOpenAnimation";
+import RarityChip from "../../components/store/RarityChip";
 
 // 开箱结果弹窗组件
 const OpenResultDialog: React.FC<{
@@ -41,9 +42,11 @@ const OpenResultDialog: React.FC<{
                 <DialogContentText variant="h5" color="primary">
                     {item.name}
                 </DialogContentText>
-                <Typography variant="body2" color="text.secondary">
-                    稀有度: {item.rarity}
-                </Typography>
+                {item.rarity && (
+                    <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+                        <RarityChip rarity={item.rarity} />
+                    </Box>
+                )}
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} autoFocus>
