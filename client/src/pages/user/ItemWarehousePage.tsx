@@ -11,6 +11,7 @@ import {
     CardMedia,
     Chip
 } from "@mui/material";
+import RarityChip from "../../components/store/RarityChip";
 
 const ItemWarehousePage: React.FC = () => {
     const [items, setItems] = useState<any[]>([]);
@@ -93,10 +94,12 @@ const ItemWarehousePage: React.FC = () => {
                                     <Typography variant="h6" gutterBottom>
                                         {item.name || `物品 #${item.itemId}`}
                                     </Typography>
-                                    <Chip label={`数量：${item.count}`} color="primary" sx={{ mb: 1 }} />
-                                    {item.rarity && (
-                                        <Chip label={item.rarity} color="secondary" sx={{ ml: 1 }} />
-                                    )}
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
+                                        <Chip label={`数量：${item.count}`} color="primary" />
+                                        {item.rarity && (
+                                            <RarityChip rarity={item.rarity} />
+                                        )}
+                                    </Box>
                                 </CardContent>
                             </Card>
                         </Box>

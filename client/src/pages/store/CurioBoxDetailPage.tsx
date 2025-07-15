@@ -13,7 +13,6 @@ import {
     CircularProgress,
     Alert,
     Paper,
-    Chip,
     List,
     ListItem,
     ListItemAvatar,
@@ -22,23 +21,9 @@ import {
     Divider,
     Snackbar,
 } from "@mui/material";
+import RarityChip from "../../components/store/RarityChip";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { getItemById as fetchItemById } from "../../api/itemApi";
-
-// 根据稀有度返回不同颜色的 Chip
-const RarityChip: React.FC<{ rarity: IItem["rarity"] }> = ({ rarity }) => {
-    const colorMap: Record<
-        string,
-        "default" | "primary" | "secondary" | "error"
-    > = {
-        common: "default",
-        rare: "primary",
-        super_rare: "secondary",
-        legendary: "error",
-    };
-    const color = colorMap[rarity] ?? "default";
-    return <Chip label={rarity} color={color} size="small" />;
-};
 
 const CurioBoxDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();

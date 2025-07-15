@@ -1,38 +1,81 @@
 import React from "react";
 import { Chip } from "@mui/material";
 
-// 定义组件接收的 props 类型
 interface RarityChipProps {
-    // 我们允许 string 类型以增加灵活性，防止后端传来未预定义的稀有度时程序崩溃
-    rarity: "common" | "rare" | "super_rare" | "legendary" | string;
+    rarity: "common" | "rare" | "epic" | "legendary" | string;
 }
 
+const rarityLabel: Record<string, string> = {
+    common: "普通",
+    rare: "稀有",
+    epic: "史诗",
+    super_rare: "超级稀有", // 兼容旧数据
+    legendary: "传奇",
+};
+
 const RarityChip: React.FC<RarityChipProps> = ({ rarity }) => {
-    // 定义稀有度到MUI颜色的映射
-    const colorMap: {
-        [key: string]:
-            | "default"
-            | "primary"
-            | "secondary"
-            | "error"
-            | "info"
-            | "success"
-            | "warning";
-    } = {
-        common: "default",
-        rare: "primary",
-        super_rare: "secondary",
-        legendary: "error",
-    };
-
-    // 将稀有度文本首字母大写，例如 'super_rare' -> 'Super Rare'
-    const formattedLabel = rarity
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-
-    const chipColor = colorMap[rarity] || "default";
-
-    return <Chip label={formattedLabel} color={chipColor} size="small" />;
+    if (rarity === "legendary") {
+        return (
+            <Chip
+                label={rarityLabel[rarity] || rarity}
+                size="small"
+                sx={{
+                    background:
+                        "linear-gradient(90deg, #FFD700 0%, #FFF8DC 50%, #FFA500 100%)",
+                    color: "#7c5200",
+                    fontWeight: 700,
+                    boxShadow: "0 0 8px 2px #FFD700",
+                    border: "1px solid #FFD700",
+                }}
+            />
+        );
+    }
+    if (rarity === "epic" || rarity === "super_rare") {
+        return (
+            <Chip
+                label={rarityLabel[rarity] || rarity}
+                size="small"
+                sx={{
+                    backgroundColor: "#a259ec",
+                    color: "#fff",
+                    fontWeight: 700,
+                    border: "none",
+                }}
+            />
+        );
+    }
+    if (rarity === "rare") {
+        return (
+            <Chip
+                label={rarityLabel[rarity] || rarity}
+                size="small"
+                sx={{
+                    backgroundColor: "#ff9800",
+                    color: "#fff",
+                    fontWeight: 700,
+                    border: "none",
+                }}
+            />
+        );
+    }
+    if (rarity === "common") {
+        return (
+            <Chip
+                label={rarityLabel[rarity] || rarity}
+                size="small"
+                sx={{
+                    backgroundColor: "#fff",
+                    color: "#333",
+                    fontWeight: 700,
+                    border: "1px solid #eee",
+                }}
+            />
+        );
+    }
+    // 未知类型兜底
+    return (
+        <Chip label={rarityLabel[rarity] || rarity} size="small" />
+    );
 };
 
 export default RarityChip;
