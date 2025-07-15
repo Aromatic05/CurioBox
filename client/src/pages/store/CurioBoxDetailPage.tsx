@@ -24,13 +24,26 @@ import {
 import RarityChip from "../../components/store/RarityChip";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { getItemById as fetchItemById } from "../../api/itemApi";
+import { getPostsByCurioBoxId } from "../../api/showcaseApi";
+import PostCard from "../../components/showcase/PostCard";
 
 const CurioBoxDetailPage: React.FC = () => {
+    const [box, setBox] = useState<ICurioBox | null>(null);
+    // 相关帖子
+    const [relatedPosts, setRelatedPosts] = useState<import("../../api/showcaseApi").IPost[]>([]);
+    const [postsLoading, setPostsLoading] = useState(false);
+    useEffect(() => {
+        if (!box?.id) return;
+        setPostsLoading(true);
+        getPostsByCurioBoxId(box.id, 1, 6)
+            .then(res => setRelatedPosts(res.data.items || []))
+            .catch(() => setRelatedPosts([]))
+            .finally(() => setPostsLoading(false));
+    }, [box?.id]);
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
 
-    const [box, setBox] = useState<ICurioBox | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [purchaseLoading, setPurchaseLoading] = useState(false);
@@ -314,6 +327,26 @@ const CurioBoxDetailPage: React.FC = () => {
                         );
                     })}
                 </List>
+            </Box>
+            <Box sx={{ mt: 6 }}>
+                <Typography variant="h4" gutterBottom>
+                    相关玩家秀帖子
+                </Typography>
+                {postsLoading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+                        <CircularProgress />
+                    </Box>
+                ) : relatedPosts.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        暂无相关帖子
+                    </Typography>
+                ) : (
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" }, gap: 3 }}>
+                        {relatedPosts.map(post => (
+                            <PostCard key={post.id} post={post} />
+                        ))}
+                    </Box>
+                )}
             </Box>
             <Snackbar
                 open={snackbar.open}
