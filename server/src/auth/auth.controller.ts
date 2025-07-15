@@ -89,6 +89,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Get current user profile' })
     @ApiResponse({ status: 200, description: 'Returns current user profile.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @UseGuards(JwtAuthGuard)
     @Get('me')
     async getProfile(@Request() req: any) {
         const user = await this.usersService.findPublicById(req.user.sub);
