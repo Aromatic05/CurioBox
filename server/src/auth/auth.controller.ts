@@ -26,7 +26,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) { }
 
     /**
      * 用户注册端点
@@ -47,6 +47,17 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     signIn(@Body() loginDto: LoginDto) {
         return this.authService.signIn(loginDto);
+    }
+
+    /**
+    * 刷新token端点
+    * POST /auth/refresh
+    * @param body 包含refreshToken的对象
+    */
+    @Post('refresh')
+    @HttpCode(HttpStatus.OK)
+    async refresh(@Body() body: { refreshToken: string }) {
+        return await this.authService.refreshToken(body.refreshToken);
     }
 
     /**

@@ -9,6 +9,7 @@ interface LoginPayload {
 
 interface LoginResponse {
     accessToken: string;
+    refreshToken: string;
 }
 
 // 这里的 IUser 应该与 AuthContext 中定义的一致

@@ -6,6 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
+import { v4 as uuidv4 } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BlocklistedToken } from './entities/blocklisted-token.entity';
@@ -55,11 +56,11 @@ export class AuthService {
 
     async signIn(loginDto: any) {
         const { username, password } = loginDto;
-
-        // 查询用户时，需要显式地请求password字段
+        // 查询用户时，需要显式地请求password字段和refreshToken字段
         const user = await this.usersRepository
             .createQueryBuilder('user')
             .addSelect('user.password')
+            .addSelect('user.refreshToken')
             .where('user.username = :username', { username })
             .getOne();
 
@@ -79,9 +80,37 @@ export class AuthService {
             jti: randomUUID(),
         };
         const accessToken = await this.jwtService.signAsync(payload);
+        // 生成 refreshToken（可用 uuid 或 JWT，简单用 uuid）
+        const refreshToken = uuidv4();
+        user.refreshToken = refreshToken;
+        await this.usersRepository.save(user);
         return {
             message: 'Login successful',
-            accessToken: accessToken,
+            accessToken,
+            refreshToken,
+        };
+    }
+    async refreshToken(refreshToken: string) {
+        // 查找用户
+        const user = await this.usersRepository.findOne({ where: { refreshToken } });
+        if (!user) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+        // 生成新的 accessToken
+        const payload = {
+            sub: user.id,
+            username: user.username,
+            role: user.role,
+            jti: randomUUID(),
+        };
+        const accessToken = await this.jwtService.signAsync(payload);
+        // 可选：生成新的 refreshToken（更安全，防止重放攻击）
+        const newRefreshToken = uuidv4();
+        user.refreshToken = newRefreshToken;
+        await this.usersRepository.save(user);
+        return {
+            accessToken,
+            refreshToken: newRefreshToken,
         };
     }
 

@@ -33,3 +33,37 @@ apiClient.interceptors.request.use(
 
 // 3. 导出实例
 export default apiClient;
+
+// 4. 响应拦截器：自动刷新 token
+apiClient.interceptors.response.use(
+    response => response,
+    async error => {
+        const originalRequest = error.config;
+        // 401 且未重试过
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            const refreshToken = localStorage.getItem("refreshToken");
+            if (refreshToken) {
+                try {
+                    // 用 refreshToken 请求新 accessToken
+                    const res = await axios.post("/auth/refresh", { refreshToken }, {
+                        baseURL: apiClient.defaults.baseURL,
+                        headers: { "Content-Type": "application/json" },
+                    });
+                    localStorage.setItem("accessToken", res.data.accessToken);
+                    localStorage.setItem("refreshToken", res.data.refreshToken);
+                    // 更新请求头并重试原请求
+                    originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+                    return apiClient(originalRequest);
+                } catch {
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
+                    window.location.href = "/login";
+                }
+            } else {
+                window.location.href = "/login";
+            }
+        }
+        return Promise.reject(error);
+    }
+);

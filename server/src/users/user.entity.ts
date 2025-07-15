@@ -37,6 +37,9 @@ export class User {
     @UpdateDateColumn() // 自动设置为更新时的时间
     updatedAt: Date;
 
+    @Column({ nullable: true, select: false }) // 刷新令牌，可为空，默认不查询
+    refreshToken?: string;
+
     @OneToMany(() => UserItem, userItem => userItem.user)
     userItems: UserItem[];
 }

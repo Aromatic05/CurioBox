@@ -33,7 +33,11 @@ const LoginPage: React.FC = () => {
 
         try {
             const loginResponse = await loginUser({ username, password });
-            const { accessToken } = loginResponse.data;
+            const { accessToken, refreshToken } = loginResponse.data;
+
+            // 保存 token 到 localStorage
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("refreshToken", refreshToken);
 
             // 登录成功后，用新 token 获取用户信息
             apiClient.defaults.headers.common["Authorization"] =
