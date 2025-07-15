@@ -167,16 +167,45 @@ export class AuthController {
     }
 
     /**
-     * 删除用户端点
-     * DELETE /auth/delete-user
+     * 软删除用户端点
+     * POST /auth/delete-user
      * 仅本人或管理员可操作
      */
     @UseGuards(JwtAuthGuard)
     @Post('delete-user')
     @HttpCode(HttpStatus.OK)
     async deleteUser(@Request() req: any, @Body() body: { userId?: number }) {
-        // 调试信息输出
         const targetUserId = req.user.role === 'admin' && body.userId ? body.userId : req.user.sub;
-        return await this.authService.deleteUser(targetUserId, req.user.role);
+        return await this.authService.setUserStatus(targetUserId, req.user.role, 'deleted');
+    }
+
+    /**
+     * 封禁用户端点
+     * POST /auth/ban-user
+     * 仅管理员可操作
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('ban-user')
+    @HttpCode(HttpStatus.OK)
+    async banUser(@Request() req: any, @Body() body: { userId: number }) {
+        if (req.user.role !== 'admin') {
+            return { message: 'No permission' };
+        }
+        return await this.authService.setUserStatus(body.userId, req.user.role, 'banned');
+    }
+
+    /**
+     * 解封用户端点
+     * POST /auth/unban-user
+     * 仅管理员可操作
+     */
+    @UseGuards(JwtAuthGuard)
+    @Post('unban-user')
+    @HttpCode(HttpStatus.OK)
+    async unbanUser(@Request() req: any, @Body() body: { userId: number }) {
+        if (req.user.role !== 'admin') {
+            return { message: 'No permission' };
+        }
+        return await this.authService.setUserStatus(body.userId, req.user.role, 'active');
     }
 }

@@ -2,7 +2,73 @@
 
 本文档详细说明了 CurioBox 盲盒系统的所有 API，包括认证、社区、盲盒、物品、订单、个人仓库等。
 
----
+
+## 用户状态管理相关接口（软删除/封禁/解封）
+
+### 删除用户（软删除）
+
+- **Endpoint:** `POST /auth/delete-user`
+- **描述:** 删除当前登录用户（或管理员删除任意用户，实际为软删除，status 设为 deleted）。
+- **认证:** 需要 Bearer Token。
+- **请求体 (Body):**
+    ```json
+    {
+        "userId": 123 // 管理员删除时传递
+    }
+    ```
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "message": "User deleted successfully"
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录或无权限。
+    - `404 Not Found`: 用户不存在。
+
+### 封禁用户
+
+- **Endpoint:** `POST /auth/ban-user`
+- **描述:** 管理员封禁指定用户（将 status 设为 banned）。
+- **认证:** 需要管理员 Bearer Token。
+- **请求体 (Body):**
+    ```json
+    {
+        "userId": 123
+    }
+    ```
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "message": "User banned successfully"
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录或无权限。
+    - `404 Not Found`: 用户不存在。
+
+### 解封用户
+
+- **Endpoint:** `POST /auth/unban-user`
+- **描述:** 管理员解封指定用户（将 status 设为 active）。
+- **认证:** 需要管理员 Bearer Token。
+- **请求体 (Body):**
+    ```json
+    {
+        "userId": 123
+    }
+    ```
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "message": "User unbanned successfully"
+    }
+    ```
+- **错误响应:**
+    - `401 Unauthorized`: 未登录或无权限。
+    - `404 Not Found`: 用户不存在。
+
+> 说明：所有用户相关查询、登录等接口需自动过滤 status 为 deleted 或 banned 的用户。
 ### **3.x. 获取某个盲盒下的所有帖子**
 
 - **Endpoint:** `GET /curio-boxes/:id/posts`

@@ -28,7 +28,7 @@ export class AuthService {
         private jwtService: JwtService,
         @InjectRepository(BlocklistedToken)
         private blocklistedTokenRepository: Repository<BlocklistedToken>,
-    ) {}
+    ) { }
 
     async signUp(createUserDto: any): Promise<Omit<User, 'password'>> {
         const { username, password, role } = createUserDto;
@@ -188,5 +188,16 @@ export class AuthService {
         }
         await this.usersRepository.remove(user);
         return { message: 'User deleted successfully' };
+    }
+
+    async setUserStatus(userId: number, role: string, status: 'active' | 'banned' | 'deleted') {
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
+        if (!user) throw new UnauthorizedException('User not found');
+        if (role !== 'admin' && user.id !== userId) {
+            throw new UnauthorizedException('No permission to change this user');
+        }
+        user.status = status;
+        await this.usersRepository.save(user);
+        return { message: `User status set to ${status}` };
     }
 }

@@ -40,6 +40,9 @@ export class User {
     @Column({ nullable: true, select: false }) // 刷新令牌，可为空，默认不查询
     refreshToken?: string;
 
+    @Column({ default: 'active' }) // 用户状态: active, banned, deleted
+    status: 'active' | 'banned' | 'deleted';
+
     @OneToMany(() => UserItem, userItem => userItem.user)
     userItems: UserItem[];
 }
