@@ -44,7 +44,7 @@ export class ShowcaseService {
         userId: number,
         createPostDto: CreatePostDto,
     ): Promise<ShowcasePost> {
-        const { title, content, images, tagIds } = createPostDto;
+        const { title, content, images, tagIds, curioBoxId } = createPostDto;
 
         // 创建新帖子
         const post = this.postRepository.create({
@@ -52,6 +52,7 @@ export class ShowcaseService {
             content,
             images,
             userId,
+            curioBoxId
         });
 
         // 如果有标签，关联标签

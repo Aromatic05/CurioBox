@@ -243,4 +243,53 @@ describe('CurioBoxController (e2e)', () => {
             expect(res.body.itemProbabilities.length).toBe(2);
         });
     });
+
+    // 新增：GET /curio-boxes/:id/posts 测试
+    describe('GET /curio-boxes/:id/posts', () => {
+        let postBoxId: number;
+        let postId: number;
+        beforeAll(async () => {
+            // 新建一个盲盒
+            const boxRes = await request(app.getHttpServer())
+                .post('/curio-boxes')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    name: 'PostBox',
+                    description: 'desc',
+                    price: 50,
+                    boxCount: 1,
+                    itemIds: [createdItemId],
+                    itemProbabilities: [
+                        { itemId: createdItemId, probability: 1 },
+                    ],
+                    category: 'test',
+                })
+                .expect(201);
+            postBoxId = boxRes.body.id;
+
+            // 新建一个帖子并绑定到该盲盒
+            const postRes = await request(app.getHttpServer())
+                .post('/showcase/posts')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    title: '盲盒帖子',
+                    content: '内容',
+                    images: [],
+                    tagIds: [],
+                    curioBoxId: postBoxId,
+                })
+                .expect(201);
+            postId = postRes.body.id;
+        });
+        it('should get posts by curioBoxId', async () => {
+            const res = await request(app.getHttpServer())
+                .get(`/curio-boxes/${postBoxId}/posts`)
+                .expect(200);
+            expect(Array.isArray(res.body.items)).toBe(true);
+            expect(res.body.items.length).toBeGreaterThan(0);
+            const found = res.body.items.find((p: any) => p.id === postId);
+            expect(found).toBeDefined();
+            expect(found.curioBoxId).toBe(postBoxId);
+        });
+    });
 });

@@ -12,8 +12,4 @@ export class CreateCommentDto {
     @IsOptional()
     @IsNumber()
     parentId?: number;
-
-    @IsOptional()
-    @IsNumber()
-    curioBoxId?: number;
 }
