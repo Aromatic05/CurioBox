@@ -13,6 +13,11 @@ export interface IPost {
         username: string;
     };
     createdAt: string;
+    curioBoxId?: number;
+    curioBox?: {
+        id: number;
+        name: string;
+    };
 }
 
 export interface IComment {
@@ -39,6 +44,7 @@ export type CreatePostPayload = {
     content: string;
     images: string[];
     tagIds: number[];
+    curioBoxId?: number;
 };
 
 // 2. API 函数
@@ -65,6 +71,17 @@ export const createPost = (
     data: CreatePostPayload,
 ): Promise<AxiosResponse<IPost>> => {
     return apiClient.post("/showcase/posts", data);
+};
+
+// 新增：获取某个盲盒下的帖子列表
+export const getPostsByCurioBoxId = (
+    curioBoxId: number,
+    page: number = 1,
+    pageSize: number = 10,
+): Promise<AxiosResponse<{ items: IPost[]; meta: any }>> => {
+    return apiClient.get(`/curio-boxes/${curioBoxId}/posts`, {
+        params: { page, pageSize },
+    });
 };
 
 // 新增：获取所有标签

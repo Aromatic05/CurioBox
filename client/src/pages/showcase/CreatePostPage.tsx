@@ -6,6 +6,7 @@ import {
     type ITag,
     type CreatePostPayload,
 } from "../../api/showcaseApi";
+import { getMyBoxes, type IUserBox } from "../../api/orderApi";
 import {
     Container,
     Paper,
@@ -48,6 +49,10 @@ const CreatePostPage: React.FC = () => {
     const [imagePreviews, setImagePreviews] = useState<string[]>([]); // 图片预览URL
     const [availableTags, setAvailableTags] = useState<ITag[]>([]);
     const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
+    // 新增：已开启盲盒选择
+    const [openedBoxes, setOpenedBoxes] = useState<IUserBox[]>([]);
+    // 选中的 curioBoxId（不是 userBox.id）
+    const [selectedBoxId, setSelectedBoxId] = useState<number | "">("");
 
     // UI状态
     const [loading, setLoading] = useState(false);
@@ -57,17 +62,29 @@ const CreatePostPage: React.FC = () => {
         severity: "success" | "error";
     } | null>(null);
 
-    // 加载可用标签
+    // 加载可用标签和已开启盲盒（去重）
     useEffect(() => {
-        const fetchTags = async () => {
+        const fetchTagsAndBoxes = async () => {
             try {
-                const response = await getTags();
-                setAvailableTags(response.data);
+                const [tagsRes, boxesRes] = await Promise.all([
+                    getTags(),
+                    getMyBoxes("OPENED"),
+                ]);
+                setAvailableTags(tagsRes.data);
+                // 去重，只保留唯一的 curioBox（按 curioBox.id）
+                const uniqueBoxesMap = new Map<number, IUserBox>();
+                for (const box of boxesRes.data.boxes) {
+                    if (box.curioBox && !uniqueBoxesMap.has(box.curioBox.id)) {
+                        uniqueBoxesMap.set(box.curioBox.id, box);
+                    }
+                }
+                const uniqueBoxes = Array.from(uniqueBoxesMap.values());
+                setOpenedBoxes(uniqueBoxes);
             } catch (error) {
-                console.error("Failed to fetch tags:", error);
+                console.error("Failed to fetch tags or boxes:", error);
             }
         };
-        fetchTags();
+        fetchTagsAndBoxes();
     }, []);
 
     const handleTagChange = (
@@ -114,6 +131,14 @@ const CreatePostPage: React.FC = () => {
             });
             return;
         }
+        if (!selectedBoxId) {
+            setSnackbar({
+                open: true,
+                message: "请选择已开启的盲盒！",
+                severity: "error",
+            });
+            return;
+        }
         setLoading(true);
 
         // 从标签名找到对应的标签ID
@@ -143,6 +168,7 @@ const CreatePostPage: React.FC = () => {
             content,
             images: imageUrls,
             tagIds: selectedTagIds,
+            curioBoxId: typeof selectedBoxId === "number" ? selectedBoxId : undefined,
         };
         try {
             const response = await createPost(payload);
@@ -274,6 +300,28 @@ const CreatePostPage: React.FC = () => {
                                 </MenuItem>
                             ))}
                         </Select>
+                    </FormControl>
+                    {/* 新增：选择已开启盲盒 */}
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="select-box-label">选择已开启盲盒</InputLabel>
+                        <Select
+                            labelId="select-box-label"
+                            value={selectedBoxId}
+                            onChange={(e) => setSelectedBoxId(Number(e.target.value))}
+                            input={<OutlinedInput label="选择已开启盲盒" />}
+                        >
+                            <MenuItem value="">
+                                <em>请选择盲盒</em>
+                            </MenuItem>
+                            {openedBoxes.map((box) => (
+                                <MenuItem key={box.curioBox.id} value={box.curioBox.id}>
+                                    {box.curioBox?.name || `盲盒ID: ${box.curioBox?.id}`}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                            只能选择已开启的盲盒，评价更客观。
+                        </Typography>
                     </FormControl>
                     <Box sx={{ position: "relative", mt: 3 }}>
                         <Button
