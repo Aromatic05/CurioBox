@@ -47,6 +47,27 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     <Typography gutterBottom variant="h6" component="h2" noWrap>
                         {post.title}
                     </Typography>
+                    {/* 标签展示（只显示名称） */}
+                    {post.tags && post.tags.length > 0 && (
+                        <Box sx={{ mb: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
+                            {post.tags.map(tag => (
+                                <Box
+                                    key={tag.id}
+                                    sx={{
+                                        px: 1.2,
+                                        py: 0.3,
+                                        bgcolor: "#e0f7fa",
+                                        borderRadius: 1,
+                                        fontSize: 13,
+                                        color: "#00796b",
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    {tag.name}
+                                </Box>
+                            ))}
+                        </Box>
+                    )}
                     {/* 盲盒信息展示 */}
                     {post.curioBoxId && (
                         <Box sx={{ mb: 1 }}>

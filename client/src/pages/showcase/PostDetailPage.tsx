@@ -197,6 +197,38 @@ const PostDetailPage: React.FC = () => {
                         <Typography variant="h3" component="h1" gutterBottom>
                             {post.title}
                         </Typography>
+                        {/* 标签展示+调试信息 */}
+                        <Box sx={{ mb: 2 }}>
+                            {post.tags && post.tags.length > 0 ? (
+                                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                                    {post.tags.map((tag) => (
+                                        <Box
+                                            key={tag.id}
+                                            sx={{
+                                                px: 1.5,
+                                                py: 0.5,
+                                                bgcolor: "#e0f7fa",
+                                                borderRadius: 1,
+                                                fontSize: 14,
+                                                color: "#00796b",
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            {tag.name}
+                                            {/* {tag.description && (
+                                                <span style={{ color: '#888', marginLeft: 4, fontSize: 12 }}>
+                                                    ({tag.description})
+                                                </span>
+                                            )} */}
+                                        </Box>
+                                    ))}
+                                </Box>
+                            ) : (
+                                <Typography variant="body2" color="error">
+                                    暂无标签
+                                </Typography>
+                            )}
+                        </Box>
                         <Box sx={{ mb: 2, color: "text.secondary" }}>
                             <Typography variant="body2" component="span">
                                 作者: {post.user?.username || "Anonymous"}

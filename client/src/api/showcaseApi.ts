@@ -15,6 +15,7 @@ export interface IPost {
     content: string;
     images: string[];
     tagIds: number[];
+    tags?: ITag[];
     user: {
         id: number;
         username: string;
