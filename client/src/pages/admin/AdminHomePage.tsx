@@ -59,6 +59,15 @@ const AdminHomePage: React.FC = () => {
                 >
                     订单管理
                 </Button>
+                <Button
+                    variant="contained"
+                    size="large"
+                    color="warning"
+                    sx={{ flex: 1, minWidth: 180 }}
+                    onClick={() => navigate("/admin/posts")}
+                >
+                    帖子管理
+                </Button>
             </Box>
         </Box>
     );

@@ -96,6 +96,18 @@ const AdminLayout: React.FC = () => {
                                 <ListItemText primary="订单管理" />
                             </ListItemButton>
                         </ListItem>
+                        <ListItem
+                            disablePadding
+                            component={RouterLink}
+                            to="/admin/posts"
+                        >
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <InboxIcon />
+                                </ListItemIcon>
+                                <ListItemText primary="帖子管理" />
+                            </ListItemButton>
+                        </ListItem>
                     </List>
                 </Box>
             </Drawer>
