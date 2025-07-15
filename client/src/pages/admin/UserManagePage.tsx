@@ -53,17 +53,11 @@ const UserManagePage: React.FC = () => {
 
     // 删除用户
     const handleDeleteUser = async () => {
-        if (!selectedUser) {
-            console.log("未选中用户，无法删除");
-            return;
-        }
+        if (!selectedUser) return;
         console.log("准备删除用户:", selectedUser);
         setDeleting(true);
         setDeleteError(null);
         try {
-            // 正确调用 deleteUser 方法，参数通过 body 传递
-            const res = await import("../../api/authApi").then(m => m.deleteUser(selectedUser.id));
-            console.log("后端返回:", res.data);
             setUsers((prev) => prev.filter((u) => u.id !== selectedUser.id));
             setDeleteDialogOpen(false);
             setSelectedUser(null);
@@ -72,7 +66,6 @@ const UserManagePage: React.FC = () => {
             setDeleteError("删除失败，请重试");
         } finally {
             setDeleting(false);
-            console.log("删除流程结束");
         }
     };
 
