@@ -47,6 +47,7 @@ export class AuthService {
             username,
             password: hashedPassword,
             role: role || 'user',
+            status: 'active',
         });
 
         await this.usersRepository.save(newUser);
@@ -67,12 +68,13 @@ export class AuthService {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
-
+        if (user.status !== 'active') {
+            throw new UnauthorizedException('User is banned or deleted');
+        }
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
-
         const payload = {
             sub: user.id,
             username: user.username,
@@ -95,6 +97,9 @@ export class AuthService {
         const user = await this.usersRepository.findOne({ where: { refreshToken } });
         if (!user) {
             throw new UnauthorizedException('Invalid refresh token');
+        }
+        if (user.status !== 'active') {
+            throw new UnauthorizedException('User is banned or deleted');
         }
         // 生成新的 accessToken
         const payload = {
@@ -126,7 +131,9 @@ export class AuthService {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
-
+        if (user.status !== 'active') {
+            throw new UnauthorizedException('User is banned or deleted');
+        }
         const isPasswordMatch = await bcrypt.compare(
             oldPassword,
             user.password,
@@ -134,12 +141,9 @@ export class AuthService {
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
-
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(newPassword, salt);
-
         await this.usersRepository.save(user); // 保存更新
-
         return { message: 'Password changed successfully' };
     }
 
@@ -170,24 +174,6 @@ export class AuthService {
         user.avatar = avatar;
         await this.usersRepository.save(user);
         return { message: 'Avatar updated successfully' };
-    }
-
-    async deleteUser(userId: number, role: string) {
-        console.log('Deleting user with ID:', userId, 'by role:', role);
-        const user = await this.usersRepository.findOne({
-            where: { id: userId },
-        });
-        if (!user) {
-            throw new UnauthorizedException('User not found');
-        }
-        // 只有本人或管理员可以删除
-        if (role !== 'admin' && user.id !== userId) {
-            throw new UnauthorizedException(
-                'No permission to delete this user',
-            );
-        }
-        await this.usersRepository.remove(user);
-        return { message: 'User deleted successfully' };
     }
 
     async setUserStatus(userId: number, role: string, status: 'active' | 'banned' | 'deleted') {
