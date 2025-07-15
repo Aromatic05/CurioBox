@@ -87,3 +87,21 @@ export const deleteUser = (userId?: number): Promise<AxiosResponse<{ message: st
     console.log("deleteUser 请求体: 空");
     return apiClient.post("/auth/delete-user");
 };
+
+// 封禁用户（仅管理员）
+export const banUser = (userId: number): Promise<AxiosResponse<{ message: string }>> => {
+    return apiClient.post("/auth/ban-user", { userId });
+};
+
+// 解封用户（仅管理员）
+export const unbanUser = (userId: number): Promise<AxiosResponse<{ message: string }>> => {
+    return apiClient.post("/auth/unban-user", { userId });
+};
+
+// 设置用户状态（仅管理员，通用接口）
+export const setUserStatus = (
+    userId: number,
+    status: 'active' | 'banned' | 'deleted',
+): Promise<AxiosResponse<{ message: string }>> => {
+    return apiClient.post("/auth/set-status", { userId, status });
+};

@@ -8,6 +8,7 @@ import { ShowcaseController } from './showcase.controller';
 import { ShowcaseService } from './showcase.service';
 import { TagService } from './tag.service';
 import { CommentService } from './comment.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { CommentService } from './comment.service';
             Comment,
             BlocklistedToken,
         ]),
+        AuthModule,
     ],
     controllers: [ShowcaseController],
     providers: [ShowcaseService, TagService, CommentService],

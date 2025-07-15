@@ -24,6 +24,7 @@ interface IUser {
     role: string;
     nickname?: string;
     avatar?: string;
+    status?: 'active' | 'banned' | 'deleted';
 }
 
 const UserManagePage: React.FC = () => {
@@ -44,6 +45,7 @@ const UserManagePage: React.FC = () => {
                 setUsers(res.data);
             } catch (err) {
                 setError("无法获取用户列表");
+                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -51,21 +53,40 @@ const UserManagePage: React.FC = () => {
         fetchUsers();
     }, []);
 
-    // 删除用户
+    // 删除用户（软删除）
     const handleDeleteUser = async () => {
         if (!selectedUser) return;
-        console.log("准备删除用户:", selectedUser);
         setDeleting(true);
         setDeleteError(null);
         try {
-            setUsers((prev) => prev.filter((u) => u.id !== selectedUser.id));
+            await apiClient.post("/auth/delete-user", { userId: selectedUser.id });
+            setUsers((prev) => prev.map(u => u.id === selectedUser.id ? { ...u, status: 'deleted' } : u));
             setDeleteDialogOpen(false);
             setSelectedUser(null);
         } catch (err) {
-            console.error("删除用户出错:", err);
             setDeleteError("删除失败，请重试");
         } finally {
             setDeleting(false);
+        }
+    };
+
+    // 封禁用户
+    const handleBanUser = async (user: IUser) => {
+        try {
+            await apiClient.post("/auth/ban-user", { userId: user.id });
+            setUsers((prev) => prev.map(u => u.id === user.id ? { ...u, status: 'banned' } : u));
+        } catch (err) {
+            alert("封禁失败");
+        }
+    };
+
+    // 解封用户
+    const handleUnbanUser = async (user: IUser) => {
+        try {
+            await apiClient.post("/auth/unban-user", { userId: user.id });
+            setUsers((prev) => prev.map(u => u.id === user.id ? { ...u, status: 'active' } : u));
+        } catch (err) {
+            alert("解封失败");
         }
     };
 
@@ -90,6 +111,7 @@ const UserManagePage: React.FC = () => {
                                 <TableCell>角色</TableCell>
                                 <TableCell>昵称</TableCell>
                                 <TableCell>头像</TableCell>
+                                <TableCell>状态</TableCell>
                                 <TableCell align="center">操作</TableCell>
                             </TableRow>
                         </TableHead>
@@ -99,9 +121,7 @@ const UserManagePage: React.FC = () => {
                                     <TableCell>{user.id}</TableCell>
                                     <TableCell>{user.username}</TableCell>
                                     <TableCell>{user.role}</TableCell>
-                                    <TableCell>
-                                        {user.nickname || "-"}
-                                    </TableCell>
+                                    <TableCell>{user.nickname || "-"}</TableCell>
                                     <TableCell>
                                         {user.avatar ? (
                                             <img
@@ -113,10 +133,9 @@ const UserManagePage: React.FC = () => {
                                                     borderRadius: "50%",
                                                 }}
                                             />
-                                        ) : (
-                                            "-"
-                                        )}
+                                        ) : "-"}
                                     </TableCell>
+                                    <TableCell>{user.status || "-"}</TableCell>
                                     <TableCell align="center">
                                         <Button
                                             color="error"
@@ -126,9 +145,32 @@ const UserManagePage: React.FC = () => {
                                                 setSelectedUser(user);
                                                 setDeleteDialogOpen(true);
                                             }}
+                                            disabled={user.status === 'deleted'}
                                         >
                                             删除
                                         </Button>
+                                        {user.status === 'active' && (
+                                            <Button
+                                                color="warning"
+                                                variant="outlined"
+                                                size="small"
+                                                sx={{ ml: 1 }}
+                                                onClick={() => handleBanUser(user)}
+                                            >
+                                                封禁
+                                            </Button>
+                                        )}
+                                        {user.status === 'banned' && (
+                                            <Button
+                                                color="success"
+                                                variant="outlined"
+                                                size="small"
+                                                sx={{ ml: 1 }}
+                                                onClick={() => handleUnbanUser(user)}
+                                            >
+                                                解封
+                                            </Button>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))}

@@ -8,9 +8,10 @@ import { CurioBox } from '../curio-box/entities/curio-box.entity';
 import { UserItem } from './entities/user-item.entity';
 import { UserItemsService } from './user-items.service';
 import { UserItemsController } from './user-items.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([BlocklistedToken, Item, CurioBox, UserItem])],
+    imports: [TypeOrmModule.forFeature([BlocklistedToken, Item, CurioBox, UserItem]), AuthModule],
     controllers: [ItemsController, UserItemsController],
     providers: [ItemsService, UserItemsService],
     exports: [UserItemsService],
