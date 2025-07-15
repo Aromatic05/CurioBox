@@ -73,6 +73,7 @@ export class ShowcaseService {
             page = 1,
             pageSize = 20,
             userId,
+            curioBoxId,
         } = queryDto;
 
         // 创建查询构建器
@@ -97,6 +98,11 @@ export class ShowcaseService {
         // 如果指定了 userId
         if (userId) {
             queryBuilder.andWhere('post.userId = :userId', { userId });
+        }
+
+        // 如果指定了 curioBoxId
+        if (curioBoxId) {
+            queryBuilder.andWhere('post.curioBoxId = :curioBoxId', { curioBoxId });
         }
 
         // 应用排序

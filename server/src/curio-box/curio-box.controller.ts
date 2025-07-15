@@ -15,6 +15,7 @@ import {
     MaxFileSizeValidator,
 } from '@nestjs/common';
 import { CurioBoxService } from './curio-box.service';
+import { ShowcaseService } from '../showcase/showcase.service';
 import { CreateCurioBoxDto } from './dto/create-curio-box.dto';
 import { UpdateCurioBoxDto } from './dto/update-curio-box.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -26,7 +27,19 @@ import { extname } from 'path';
 
 @Controller('curio-boxes') // 路由前缀统一为复数形式
 export class CurioBoxController {
-    constructor(private readonly curioBoxService: CurioBoxService) {}
+    constructor(
+        private readonly curioBoxService: CurioBoxService,
+        private readonly showcaseService: ShowcaseService,
+    ) {}
+    /**
+     * 获取某个盲盒下的所有帖子
+     * GET /curio-boxes/:id/posts
+     */
+    @Get(':id/posts')
+    getPostsByCurioBoxId(@Param('id', ParseIntPipe) id: number, @Query() query: any) {
+        // 支持分页等参数，curioBoxId 传递给 getPosts
+        return this.showcaseService.getPosts({ ...query, curioBoxId: id });
+    }
 
     @Post('upload')
     @UseGuards(JwtAuthGuard, RolesGuard)

@@ -12,6 +12,7 @@ import {
 import { User } from '../../users/user.entity';
 import { Tag } from './tag.entity';
 import { Comment } from './comment.entity';
+import { CurioBox } from '../../curio-box/entities/curio-box.entity';
 
 @Entity('showcase_posts')
 export class ShowcasePost {
@@ -29,6 +30,12 @@ export class ShowcasePost {
 
     @Column()
     userId: number;
+
+    @Column({ nullable: true })
+    curioBoxId?: number;
+
+    @ManyToOne(() => CurioBox, (curioBox) => curioBox.posts, { nullable: true })
+    curioBox?: CurioBox;
 
     @ManyToOne(() => User)
     user: User;

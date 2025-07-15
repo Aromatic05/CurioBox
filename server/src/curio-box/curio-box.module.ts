@@ -5,9 +5,13 @@ import { CurioBoxService } from './curio-box.service';
 import { CurioBoxController } from './curio-box.controller';
 import { BlocklistedToken } from '../auth/entities/blocklisted-token.entity';
 import { Item } from '../items/entities/item.entity';
+import { ShowcaseModule } from '../showcase/showcase.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CurioBox, Item, BlocklistedToken])],
+    imports: [
+        TypeOrmModule.forFeature([CurioBox, Item, BlocklistedToken]),
+        ShowcaseModule,
+    ],
     controllers: [CurioBoxController],
     providers: [CurioBoxService],
 })

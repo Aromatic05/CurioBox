@@ -1,9 +1,43 @@
-
 # **API 文档**
 
 本文档详细说明了 CurioBox 盲盒系统的所有 API，包括认证、社区、盲盒、物品、订单、个人仓库等。
 
 ---
+### **3.x. 获取某个盲盒下的所有帖子**
+
+- **Endpoint:** `GET /curio-boxes/:id/posts`
+- **描述:** 获取指定盲盒下的所有帖子，支持分页、排序等参数。
+- **查询参数 (Query Parameters):**
+    - `sortBy` (可选): 排序方式（如 'latest', 'hot', 'comprehensive'）。
+    - `order` (可选): 排序顺序（'ASC' 或 'DESC'）。
+    - `page` (可选): 页码，默认 1。
+    - `pageSize` (可选): 每页数量，默认 20。
+    - 其它帖子查询参数同 `/showcase/posts`。
+- **成功响应 (200 OK):**
+    ```json
+    {
+        "items": [
+            {
+                "id": 1,
+                "title": "帖子标题",
+                "content": "帖子内容",
+                "images": ["image1.jpg"],
+                "userId": 2,
+                "curioBoxId": 1,
+                "tags": [],
+                "createdAt": "2025-07-15T12:00:00Z"
+            }
+        ],
+        "meta": {
+            "page": 1,
+            "pageSize": 20,
+            "total": 1,
+            "totalPages": 1
+        }
+    }
+    ```
+- **错误响应:**
+    - `404 Not Found`: 盲盒不存在。
 
 > 说明：本系统所有用户相关接口均以 JWT 的 `sub` 字段作为唯一用户ID标识，响应体中的 `id` 或 `userId` 均为此 ID。
 

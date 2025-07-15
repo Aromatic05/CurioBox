@@ -5,8 +5,10 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     ManyToMany,
+    OneToMany,
 } from 'typeorm';
 import { Item } from '../../items/entities/item.entity';
+import { ShowcasePost } from '../../showcase/entities/showcase-post.entity';
 
 @Entity()
 export class CurioBox {
@@ -36,6 +38,9 @@ export class CurioBox {
 
     @ManyToMany(() => Item, (item) => item.curioBoxes)
     items: Item[];
+
+    @OneToMany(() => ShowcasePost, (post) => post.curioBox)
+    posts: ShowcasePost[];
 
     @CreateDateColumn()
     createdAt: Date;

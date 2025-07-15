@@ -60,4 +60,8 @@ export class QueryPostsDto {
     @IsOptional()
     @IsNumber()
     userId?: number;
+
+    @IsOptional()
+    @IsNumber()
+    curioBoxId?: number;
 }
