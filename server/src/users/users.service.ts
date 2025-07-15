@@ -8,7 +8,12 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-    ) {}
+    ) { }
+
+    async findActiveById(id: number): Promise<User | null> {
+        const user = await this.userRepository.findOne({ where: { id, status: 'active' } });
+        return user;
+    }
 
     async findPublicById(id: number): Promise<Partial<User>> {
         const user = await this.userRepository.findOne({ where: { id } });

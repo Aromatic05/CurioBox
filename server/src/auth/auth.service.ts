@@ -14,13 +14,6 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
-    async getUserById(id: number) {
-        const user = await this.usersRepository.findOne({ where: { id } });
-        if (!user) {
-            throw new UnauthorizedException('User not found');
-        }
-        return user;
-    }
     // 注入User的Repository
     constructor(
         @InjectRepository(User)
@@ -68,9 +61,11 @@ export class AuthService {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
+        // 先校验用户状态
         if (user.status !== 'active') {
             throw new UnauthorizedException('User is banned or deleted');
         }
+        // 再校验密码
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
@@ -131,9 +126,11 @@ export class AuthService {
         if (!user || !user.password) {
             throw new UnauthorizedException('Invalid credentials');
         }
+        // 先校验用户状态
         if (user.status !== 'active') {
             throw new UnauthorizedException('User is banned or deleted');
         }
+        // 再校验密码
         const isPasswordMatch = await bcrypt.compare(
             oldPassword,
             user.password,

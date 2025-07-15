@@ -9,9 +9,11 @@ import { JwtStrategy } from './jwt.strategy'; // 导入
 import { BlocklistedToken } from './entities/blocklisted-token.entity';
 import { RolesGuard } from './roles.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { UsersModule } from '../users/users.module';
 
 @Module({
     imports: [
+        UsersModule,
         TypeOrmModule.forFeature([User, BlocklistedToken]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.register({

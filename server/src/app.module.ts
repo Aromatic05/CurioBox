@@ -3,8 +3,6 @@ import { CurioBoxModule } from './curio-box/curio-box.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
 import { CurioBox } from './curio-box/entities/curio-box.entity';
 import { ItemsModule } from './items/items.module';
 import { Item } from './items/entities/item.entity';
@@ -18,6 +16,7 @@ import { Tag } from './showcase/entities/tag.entity';
 import { UserBoxesModule } from './user-boxes/user-boxes.module';
 import { UserBox } from './user-boxes/entities/user-box.entity';
 import { UserItem } from './items/entities/user-item.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -44,8 +43,9 @@ import { UserItem } from './items/entities/user-item.entity';
         OrdersModule,
         ShowcaseModule,
         UserBoxesModule,
+        UsersModule,
     ],
-    controllers: [UsersController],
-    providers: [UsersService],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}

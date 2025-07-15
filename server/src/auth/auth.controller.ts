@@ -1,20 +1,5 @@
-import {
-    Controller,
-    Post,
-    Body,
-    HttpCode,
-    HttpStatus,
-    UseGuards,
-    Request,
-    Get,
-} from '@nestjs/common';
-import {
-    UseInterceptors,
-    UploadedFile,
-    ParseFilePipe,
-    MaxFileSizeValidator,
-    FileTypeValidator,
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request, Get, ForbiddenException } from '@nestjs/common';
+import { UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -23,10 +8,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+    constructor(
+        private readonly authService: AuthService,
+        private readonly usersService: UsersService,
+    ) { }
 
     /**
      * 用户注册端点
@@ -108,14 +97,8 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Get('me')
     async getProfile(@Request() req: any) {
-        const user = await this.authService.getUserById(req.user.sub);
-        return {
-            id: user.id,
-            username: user.username,
-            role: user.role,
-            nickname: user.nickname,
-            avatar: user.avatar,
-        };
+        const user = await this.usersService.findPublicById(req.user.sub);
+        return user;
     }
 
     /**
@@ -175,8 +158,11 @@ export class AuthController {
     @Post('delete-user')
     @HttpCode(HttpStatus.OK)
     async deleteUser(@Request() req: any, @Body() body: { userId?: number }) {
-        const targetUserId = req.user.role === 'admin' && body.userId ? body.userId : req.user.sub;
-        return await this.authService.setUserStatus(targetUserId, req.user.role, 'deleted');
+        const targetUserId = body.userId;
+        if (req.user.role !== 'admin' && targetUserId && targetUserId !== req.user.sub) {
+            throw new ForbiddenException('No permission to delete other users');
+        }
+        return await this.authService.setUserStatus(targetUserId || req.user.sub, req.user.role, 'deleted');
     }
 
     /**
@@ -189,7 +175,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async banUser(@Request() req: any, @Body() body: { userId: number }) {
         if (req.user.role !== 'admin') {
-            return { message: 'No permission' };
+            throw new ForbiddenException('No permission');
         }
         return await this.authService.setUserStatus(body.userId, req.user.role, 'banned');
     }
@@ -204,7 +190,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async unbanUser(@Request() req: any, @Body() body: { userId: number }) {
         if (req.user.role !== 'admin') {
-            return { message: 'No permission' };
+            throw new ForbiddenException('No permission');
         }
         return await this.authService.setUserStatus(body.userId, req.user.role, 'active');
     }
