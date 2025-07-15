@@ -160,14 +160,6 @@ const CreatePostPage: React.FC = () => {
             });
             return;
         }
-        if (!selectedBoxId) {
-            setSnackbar({
-                open: true,
-                message: "请选择已开启的盲盒！",
-                severity: "error",
-            });
-            return;
-        }
         setLoading(true);
 
         // 从标签名找到对应的标签ID
@@ -197,7 +189,7 @@ const CreatePostPage: React.FC = () => {
             content,
             images: imageUrls,
             tagIds: selectedTagIds,
-            curioBoxId: typeof selectedBoxId === "number" ? selectedBoxId : undefined,
+            curioBoxId: selectedBoxId !== "" ? Number(selectedBoxId) : undefined,
         };
         try {
             const response = await createPost(payload);

@@ -69,9 +69,9 @@ const ShowcasePage: React.FC = () => {
                     发布新帖子
                 </Button>
             </Box>
-            {/* 排序和标签筛选区 */}
-            <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
-                <Box sx={{ display: "flex", gap: 1 }}>
+            {/* 排序和标签筛选分两行展示 */}
+            <Box sx={{ mb: 2 }}>
+                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
                     <Button
                         variant={sortBy === 'latest' ? "contained" : "outlined"}
                         color="primary"
