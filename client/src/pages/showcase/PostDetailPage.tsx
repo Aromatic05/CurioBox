@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById } from "../../api/showcaseApi";
+import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById, deleteCommentById } from "../../api/showcaseApi";
 import { getCurioBoxById } from "../../api/curioBoxApi";
 import type { IComment, IPost } from "../../api/showcaseApi";
 import {
@@ -55,6 +55,17 @@ const PostDetailPage: React.FC = () => {
             setSubmitError("评论失败，请重试。");
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    // 删除评论相关
+    const handleDeleteComment = async (commentId: number) => {
+        if (!window.confirm("确定要删除这条评论吗？")) return;
+        try {
+            await deleteCommentById(commentId);
+            setComments((prev) => prev.filter((c) => c.id !== commentId));
+        } catch (err) {
+            alert("删除失败，请重试。");
         }
     };
 
@@ -301,6 +312,7 @@ const PostDetailPage: React.FC = () => {
                                 p: 2,
                                 bgcolor: "background.paper",
                                 borderRadius: 2,
+                                position: "relative",
                             }}
                         >
                             <Box
@@ -325,6 +337,18 @@ const PostDetailPage: React.FC = () => {
                                         comment.createdAt,
                                     ).toLocaleString()}
                                 </Typography>
+                                {/* 仅帖子所有者可见删除按钮 */}
+                                {currentUser?.id === post.user?.id && (
+                                    <Button
+                                        size="small"
+                                        color="error"
+                                        variant="text"
+                                        sx={{ ml: 2 }}
+                                        onClick={() => handleDeleteComment(comment.id)}
+                                    >
+                                        删除
+                                    </Button>
+                                )}
                             </Box>
                             <Typography
                                 variant="body2"
