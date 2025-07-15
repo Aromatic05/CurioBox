@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import {
-    getPostById,
-    getCommentsByPostId,
-    addCommentToPost,
-    updatePostById,
-} from "../../api/showcaseApi";
+import { useParams, useNavigate } from "react-router-dom";
+import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById } from "../../api/showcaseApi";
+import { getCurioBoxById } from "../../api/curioBoxApi";
 import type { IComment, IPost } from "../../api/showcaseApi";
 import {
     Container,
@@ -21,8 +17,20 @@ import {
 import { useAuth } from "../../context/AuthContext";
 
 const PostDetailPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    // 盲盒名称和跳转逻辑
+    const [curioBoxName, setCurioBoxName] = useState<string | null>(null);
+    const navigate = useNavigate();
     const [post, setPost] = useState<IPost | null>(null);
+    useEffect(() => {
+        if (post?.curioBoxId) {
+            getCurioBoxById(post.curioBoxId)
+                .then(res => setCurioBoxName(res.data.name || null))
+                .catch(() => setCurioBoxName(null));
+        } else {
+            setCurioBoxName(null);
+        }
+    }, [post?.curioBoxId]);
+    const { id } = useParams<{ id: string }>();
     const [comments, setComments] = useState<IComment[]>([]);
     const [commentContent, setCommentContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -205,6 +213,20 @@ const PostDetailPage: React.FC = () => {
                                 }}
                             />
                         ))}
+                        {/* 盲盒跳转链接展示 */}
+                        {post.curioBoxId && (
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="body2" color="primary">
+                                    盲盒：
+                                    <span
+                                        style={{ textDecoration: "underline", color: "#1976d2", cursor: "pointer" }}
+                                        onClick={() => navigate(`/box/${post.curioBoxId}`)}
+                                    >
+                                        {curioBoxName || `ID: ${post.curioBoxId}`}
+                                    </span>
+                                </Typography>
+                            </Box>
+                        )}
                         <Typography
                             variant="body1"
                             sx={{ mt: 2, whiteSpace: "pre-wrap" }}
