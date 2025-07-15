@@ -67,11 +67,12 @@ export type CreatePostPayload = {
 
 // 2. API 函数
 export const getPosts = (
-    page: number = 1,
-    pageSize: number = 10,
+page: number = 1,
+pageSize: number = 10,
+sortBy: 'latest' | 'hot' | 'comprehensive' = 'latest',
 ): Promise<AxiosResponse<{ items: IPost[] }>> => {
     return apiClient.get("/showcase/posts", {
-        params: { page, pageSize, sortBy: "latest" },
+        params: { page, pageSize, sortBy },
     });
 };
 

@@ -101,8 +101,6 @@ export class ShowcaseService {
             queryBuilder
                 .innerJoin('post.tags', 'tag_filter', 'tag_filter.id IN (:...tagIds)', { tagIds });
         }
-        console.log('Querying posts with filters:', tagIds, userId, curioBoxId);
-        console.log('typeof tagIds:', typeof tagIds, 'tagIds:', tagIds);
 
         if (userId) {
             queryBuilder.andWhere('post.userId = :userId', { userId });

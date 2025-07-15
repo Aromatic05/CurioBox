@@ -18,6 +18,7 @@ const ShowcasePage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [tags, setTags] = useState<ITag[]>([]);
     const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
+    const [sortBy, setSortBy] = useState<'latest' | 'hot' | 'comprehensive'>('latest');
 
     useEffect(() => {
         // 加载所有标签
@@ -32,11 +33,9 @@ const ShowcasePage: React.FC = () => {
                 setLoading(true);
                 let response;
                 if (selectedTagId) {
-                    // 可根据需要传递排序参数
-                    response = await getPostsByTagId(selectedTagId, { sortBy: "latest" });
-                    console.log("selectedTagId", selectedTagId, "Fetched posts by tag:", response.data.items);
+                    response = await getPostsByTagId(selectedTagId, { sortBy });
                 } else {
-                    response = await getPosts();
+                    response = await getPosts(1, 10, sortBy); // 传递 sortBy 参数
                 }
                 setPosts(response.data.items);
             } catch (err) {
@@ -46,7 +45,7 @@ const ShowcasePage: React.FC = () => {
             }
         };
         fetchPosts();
-    }, [selectedTagId]);
+    }, [selectedTagId, sortBy]);
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -70,30 +69,58 @@ const ShowcasePage: React.FC = () => {
                     发布新帖子
                 </Button>
             </Box>
-            {/* 标签筛选区 */}
-            {tags.length > 0 && (
-                <Box sx={{ mb: 3, display: "flex", gap: 1, flexWrap: "wrap" }}>
+            {/* 排序和标签筛选区 */}
+            <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+                <Box sx={{ display: "flex", gap: 1 }}>
                     <Button
-                        variant={selectedTagId === null ? "contained" : "outlined"}
-                        color="secondary"
+                        variant={sortBy === 'latest' ? "contained" : "outlined"}
+                        color="primary"
                         size="small"
-                        onClick={() => setSelectedTagId(null)}
+                        onClick={() => setSortBy('latest')}
                     >
-                        全部
+                        最新
                     </Button>
-                    {tags.map(tag => (
+                    <Button
+                        variant={sortBy === 'hot' ? "contained" : "outlined"}
+                        color="primary"
+                        size="small"
+                        onClick={() => setSortBy('hot')}
+                    >
+                        热门
+                    </Button>
+                    <Button
+                        variant={sortBy === 'comprehensive' ? "contained" : "outlined"}
+                        color="primary"
+                        size="small"
+                        onClick={() => setSortBy('comprehensive')}
+                    >
+                        综合
+                    </Button>
+                </Box>
+                {tags.length > 0 && (
+                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                         <Button
-                            key={tag.id}
-                            variant={selectedTagId === tag.id ? "contained" : "outlined"}
+                            variant={selectedTagId === null ? "contained" : "outlined"}
                             color="secondary"
                             size="small"
-                            onClick={() => setSelectedTagId(tag.id)}
+                            onClick={() => setSelectedTagId(null)}
                         >
-                            {tag.name}
+                            全部
                         </Button>
-                    ))}
-                </Box>
-            )}
+                        {tags.map(tag => (
+                            <Button
+                                key={tag.id}
+                                variant={selectedTagId === tag.id ? "contained" : "outlined"}
+                                color="secondary"
+                                size="small"
+                                onClick={() => setSelectedTagId(tag.id)}
+                            >
+                                {tag.name}
+                            </Button>
+                        ))}
+                    </Box>
+                )}
+            </Box>
 
             {loading && (
                 <Box sx={{ display: "flex", justifyContent: "center" }}>
