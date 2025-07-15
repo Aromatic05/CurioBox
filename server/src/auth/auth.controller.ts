@@ -174,8 +174,13 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('delete-user')
     @HttpCode(HttpStatus.OK)
-    async deleteUser(@Request() req: any) {
-        // 这里假设 authService.deleteUser(userId, role) 实现了权限校验和删除逻辑
-        return await this.authService.deleteUser(req.user.sub, req.user.role);
+    async deleteUser(@Request() req: any, @Body() body: { userId?: number }) {
+        // 调试信息输出
+        console.log('删除用户接口调用:');
+        console.log('req.user:', req.user);
+        console.log('body.userId:', body.userId);
+        const targetUserId = req.user.role === 'admin' && body.userId ? body.userId : req.user.sub;
+        console.log('最终 targetUserId:', targetUserId);
+        return await this.authService.deleteUser(targetUserId, req.user.role);
     }
 }

@@ -78,6 +78,12 @@ export const uploadAvatar = async (
 };
 
 // 删除用户（仅本人或管理员）
-export const deleteUser = (): Promise<AxiosResponse<{ message: string }>> => {
+// 删除用户（仅本人或管理员，支持传递 userId）
+export const deleteUser = (userId?: number): Promise<AxiosResponse<{ message: string }>> => {
+    if (userId) {
+        console.log("deleteUser 请求体:", { userId });
+        return apiClient.post("/auth/delete-user", { userId });
+    }
+    console.log("deleteUser 请求体: 空");
     return apiClient.post("/auth/delete-user");
 };

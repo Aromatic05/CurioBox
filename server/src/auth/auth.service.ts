@@ -173,6 +173,7 @@ export class AuthService {
     }
 
     async deleteUser(userId: number, role: string) {
+        console.log('Deleting user with ID:', userId, 'by role:', role);
         const user = await this.usersRepository.findOne({
             where: { id: userId },
         });
