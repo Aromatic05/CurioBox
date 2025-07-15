@@ -36,6 +36,7 @@ export interface IPost {
         id: number;
         name: string;
     };
+    views: number;
 }
 
 export interface IComment {

@@ -230,17 +230,23 @@ const PostDetailPage: React.FC = () => {
                             )}
                         </Box>
                         <Box sx={{ mb: 2, color: "text.secondary" }}>
-                            <Typography variant="body2" component="span">
-                                作者: {post.user?.username || "Anonymous"}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                component="span"
-                                sx={{ ml: 2 }}
-                            >
-                                发布于:{" "}
-                                {new Date(post.createdAt).toLocaleString()}
-                            </Typography>
+                    <Typography variant="body2" component="span">
+                        作者: {post.user?.username || "Anonymous"}
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ ml: 2 }}
+                    >
+                        发布于: {new Date(post.createdAt).toLocaleString()}
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        component="span"
+                        sx={{ ml: 2 }}
+                    >
+                        浏览量: {post.views ?? 0}
+                    </Typography>
                         </Box>
                         <Divider sx={{ my: 2 }} />
                         {post.images?.map((image, index) => (
