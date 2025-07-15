@@ -18,6 +18,11 @@ const UserProfileSettings: React.FC = () => {
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordMsg, setPasswordMsg] = useState("");
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [deleteMsg, setDeleteMsg] = useState("");
 
     const handleNicknameSave = async () => {
         setLoading(true);
@@ -56,6 +61,41 @@ const UserProfileSettings: React.FC = () => {
         setLoading(false);
     };
 
+    // 修改密码
+    const handleChangePassword = async () => {
+        setLoading(true);
+        setPasswordMsg("");
+        try {
+            await apiClient.post("/auth/change-password", {
+                oldPassword,
+                newPassword,
+            });
+            setPasswordMsg("密码已修改，请重新登录");
+            setOldPassword("");
+            setNewPassword("");
+        } catch (err) {
+            setPasswordMsg("密码修改失败，请检查原密码");
+        }
+        setLoading(false);
+    };
+
+    // 删除账号
+    const handleDeleteAccount = async () => {
+        setLoading(true);
+        setDeleteMsg("");
+        try {
+            await apiClient.post("/auth/delete-user");
+            setDeleteMsg("账号已删除，您将被登出");
+            // 可选：登出并跳转首页
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 1500);
+        } catch (err) {
+            setDeleteMsg("删除失败，请重试");
+        }
+        setLoading(false);
+    };
+
     return (
         <Box
             maxWidth={400}
@@ -69,6 +109,7 @@ const UserProfileSettings: React.FC = () => {
                 个人设置
             </Typography>
             <Stack spacing={3}>
+                {/* 头像设置 */}
                 <Box display="flex" alignItems="center" gap={2}>
                     <Avatar src={avatar} sx={{ width: 64, height: 64 }} />
                     <Button
@@ -92,6 +133,7 @@ const UserProfileSettings: React.FC = () => {
                         保存头像
                     </Button>
                 </Box>
+                {/* 昵称设置 */}
                 <TextField
                     label="昵称"
                     value={nickname}
@@ -107,7 +149,75 @@ const UserProfileSettings: React.FC = () => {
                     保存昵称
                 </Button>
                 {message && <Typography color="primary">{message}</Typography>}
+
+                {/* 修改密码 */}
+                <Typography variant="subtitle1">修改密码</Typography>
+                <TextField
+                    label="原密码"
+                    type="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    fullWidth
+                    disabled={loading}
+                />
+                <TextField
+                    label="新密码"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    fullWidth
+                    disabled={loading}
+                />
+                <Button
+                    variant="contained"
+                    color="warning"
+                    onClick={handleChangePassword}
+                    disabled={loading || !oldPassword || !newPassword}
+                >
+                    修改密码
+                </Button>
+                {passwordMsg && <Typography color="warning.main">{passwordMsg}</Typography>}
+
+                {/* 删除账号 */}
+                <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => setDeleteDialogOpen(true)}
+                    disabled={loading}
+                >
+                    删除账号
+                </Button>
             </Stack>
+            {/* 删除账号确认弹窗 */}
+            {deleteDialogOpen && (
+                <Box
+                    position="fixed"
+                    top={0}
+                    left={0}
+                    width="100vw"
+                    height="100vh"
+                    bgcolor="rgba(0,0,0,0.3)"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    zIndex={9999}
+                >
+                    <Box bgcolor="background.paper" p={4} borderRadius={2} boxShadow={3} minWidth={300}>
+                        <Typography mb={2}>
+                            确定要删除账号吗？此操作不可恢复。
+                        </Typography>
+                        {deleteMsg && <Typography color="error">{deleteMsg}</Typography>}
+                        <Stack direction="row" spacing={2} mt={2}>
+                            <Button onClick={() => setDeleteDialogOpen(false)} disabled={loading}>
+                                取消
+                            </Button>
+                            <Button color="error" variant="contained" onClick={handleDeleteAccount} disabled={loading}>
+                                确认删除
+                            </Button>
+                        </Stack>
+                    </Box>
+                </Box>
+            )}
         </Box>
     );
 };
