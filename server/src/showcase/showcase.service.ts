@@ -66,16 +66,16 @@ export class ShowcaseService {
     }
 
     async getPosts(queryDto: QueryPostsDto & { userId?: number }) {
-        let {
+        const {
             sortBy = SortBy.LATEST,
             order = 'DESC',
             timeRange = TimeRange.ALL,
-            tagIds,
             page = 1,
             pageSize = 20,
             userId,
             curioBoxId,
         } = queryDto;
+        let tagIds = queryDto.tagIds;
 
         // 强制 tagIds 为数组，防止 TypeORM IN 查询报错
         if (typeof tagIds === 'string' && tagIds) {
@@ -92,7 +92,7 @@ export class ShowcaseService {
             .leftJoinAndSelect('post.tags', 'tags');
 
         // 统一用 andWhere，避免覆盖
-        if (timeRange !== TimeRange.ALL) {
+        if (timeRange !== undefined && (timeRange as unknown) !== (TimeRange.ALL as unknown)) {
             const startTime = this.getTimeRangeStart(timeRange);
             queryBuilder.andWhere('post.createdAt >= :startTime', { startTime });
         }
@@ -111,7 +111,8 @@ export class ShowcaseService {
         }
 
         // 排序逻辑
-        const orderByValue = (order === 'ASC' || order === 'DESC') ? order : 'DESC';
+        const orderUpper = typeof order === 'string' ? order.toUpperCase() : '';
+        const orderByValue = (orderUpper === 'ASC' || orderUpper === 'DESC') ? orderUpper : 'DESC';
         switch (sortBy) {
             case SortBy.HOT:
                 queryBuilder.orderBy('post.hotScore', orderByValue);

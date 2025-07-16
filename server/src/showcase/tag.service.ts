@@ -98,7 +98,7 @@ export class TagService {
     async getHotTags(limit: number = 10): Promise<Tag[]> {
         // 这里可以根据标签的使用次数来排序
         // 需要和帖子表关联查询
-        const tags = await this.tagRepository
+        const rawTags: Array<{ id: string | number; name: string }> = await this.tagRepository
             .createQueryBuilder('tag')
             .leftJoin('tag.posts', 'post')
             .select('tag.id', 'id')
@@ -109,6 +109,10 @@ export class TagService {
             .limit(limit)
             .getRawMany();
 
-        return tags;
+        // 只返回 id 和 name 字段，类型安全
+        return rawTags.map((t) => ({
+            id: typeof t.id === 'string' ? Number(t.id) : t.id,
+            name: t.name,
+        })) as Tag[];
     }
 }

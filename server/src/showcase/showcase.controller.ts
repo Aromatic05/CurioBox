@@ -38,8 +38,12 @@ export class ShowcaseController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Post('posts')
     @UseGuards(JwtAuthGuard)
-    createPost(@Request() req, @Body() createPostDto: CreatePostDto) {
-        return this.showcaseService.createPost(req.user.sub, createPostDto);
+    createPost(
+        @Request() req: { user: { sub: number | string } },
+        @Body() createPostDto: CreatePostDto
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.showcaseService.createPost(userId, createPostDto);
     }
 
     @ApiOperation({ summary: 'Get a list of posts' })
@@ -66,9 +70,10 @@ export class ShowcaseController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get('me/posts')
     @UseGuards(JwtAuthGuard)
-    async getMyPosts(@Request() req) {
+    async getMyPosts(@Request() req: { user: { sub: number | string } }) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         return this.showcaseService.getPosts({
-            userId: req.user.sub,
+            userId,
             page: 1,
             pageSize: 20,
         });
@@ -83,11 +88,12 @@ export class ShowcaseController {
     @Put('posts/:id')
     @UseGuards(JwtAuthGuard)
     updatePost(
-        @Request() req,
+        @Request() req: { user: { sub: number | string } },
         @Param('id') id: string,
         @Body() body: Partial<CreatePostDto>,
     ) {
-        return this.showcaseService.updatePost(Number(id), req.user.sub, body);
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.showcaseService.updatePost(Number(id), userId, body);
     }
 
     @ApiBearerAuth()
@@ -98,11 +104,16 @@ export class ShowcaseController {
     @ApiResponse({ status: 404, description: 'Post not found.' })
     @Delete('posts/:id')
     @UseGuards(JwtAuthGuard)
-    deletePost(@Request() req, @Param('id') id: string) {
+    deletePost(
+        @Request() req: { user: { sub: number | string; role?: string } },
+        @Param('id') id: string
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        const userRole = req.user?.role ?? '';
         return this.showcaseService.deletePost(
             Number(id),
-            req.user.sub,
-            req.user.role,
+            userId,
+            userRole,
         );
     }
 
@@ -113,9 +124,13 @@ export class ShowcaseController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Post('comments')
     @UseGuards(JwtAuthGuard)
-    createComment(@Request() req, @Body() createCommentDto: CreateCommentDto) {
+    createComment(
+        @Request() req: { user: { sub: number | string } },
+        @Body() createCommentDto: CreateCommentDto
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         return this.commentService.createComment(
-            req.user.sub,
+            userId,
             createCommentDto,
         );
     }
@@ -144,13 +159,14 @@ export class ShowcaseController {
     @Put('comments/:id')
     @UseGuards(JwtAuthGuard)
     updateComment(
-        @Request() req,
+        @Request() req: { user: { sub: number | string } },
         @Param('id') id: string,
         @Body() updateCommentDto: UpdateCommentDto,
     ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         return this.commentService.updateComment(
             Number(id),
-            req.user.sub,
+            userId,
             updateCommentDto.content,
         );
     }
@@ -163,11 +179,16 @@ export class ShowcaseController {
     @ApiResponse({ status: 404, description: 'Comment not found.' })
     @Delete('comments/:id')
     @UseGuards(JwtAuthGuard)
-    deleteComment(@Request() req, @Param('id') id: string) {
+    deleteComment(
+        @Request() req: { user: { sub: number | string; role?: string } },
+        @Param('id') id: string
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        const userRole = req.user?.role ?? '';
         return this.commentService.deleteComment(
             Number(id),
-            req.user.sub,
-            req.user.role,
+            userId,
+            userRole,
         );
     }
 
