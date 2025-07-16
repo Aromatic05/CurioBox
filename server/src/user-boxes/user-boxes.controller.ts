@@ -30,23 +30,20 @@ export class UserBoxesController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get('me/boxes')
     async getBoxes(
-        @Request() req,
-        @Query('status') status: BoxStatusQuery = 'UNOPENED', // 直接在这里设置默认值
+        @Request() req: { user: { sub: number | string } },
+        @Query('status') status: BoxStatusQuery = 'UNOPENED',
     ) {
-        // 在 Controller 层进行简单的输入验证
         const allowedStatuses: BoxStatusQuery[] = ['UNOPENED', 'OPENED', 'ALL'];
         if (!allowedStatuses.includes(status)) {
             throw new BadRequestException(
                 `Invalid status value. Allowed values are: ${allowedStatuses.join(', ')}.`,
             );
         }
-
-        // 调用统一的服务层方法
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         const boxes = await this.userBoxesService.findUserBoxesByStatus(
-            req.user.sub,
+            userId,
             status,
         );
-        
         return { boxes };
     }
 
@@ -58,7 +55,11 @@ export class UserBoxesController {
     @ApiResponse({ status: 400, description: 'Bad Request (e.g., box already opened).' })
     @Post('me/boxes/open')
     @HttpCode(200)
-    async openBoxes(@Request() req, @Body() openBoxDto: OpenBoxDto) {
-        return this.userBoxesService.openBoxes(req.user.sub, openBoxDto);
+    async openBoxes(
+        @Request() req: { user: { sub: number | string } },
+        @Body() openBoxDto: OpenBoxDto
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.userBoxesService.openBoxes(userId, openBoxDto);
     }
 }

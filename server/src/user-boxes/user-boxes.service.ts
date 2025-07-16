@@ -36,7 +36,7 @@ export class UserBoxesService {
         userId: number,
         status: 'UNOPENED' | 'OPENED' | 'ALL',
     ): Promise<UserBox[]> {
-        const whereCondition: any = { userId };
+        const whereCondition: { userId: number; status?: UserBoxStatus } = { userId };
         if (status !== 'ALL') {
             whereCondition.status =
                 status === 'OPENED'
