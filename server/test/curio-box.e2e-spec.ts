@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -16,10 +16,34 @@ const normalUser = {
     password: 'userpass123',
 };
 
+
 let adminToken: string;
 let userToken: string;
 let createdBoxId: number;
 let createdItemId: number;
+
+// 响应体类型定义
+interface LoginResponse {
+    accessToken: string;
+}
+interface ItemResponse {
+    id: number;
+}
+interface CurioBoxResponse {
+    id: number;
+    items: any[];
+    itemProbabilities: any[];
+    coverImage: string;
+    name?: string;
+}
+interface PatchBoxResponse {
+    id: number;
+    items: any[];
+    itemProbabilities: any[];
+}
+interface PostsResponse {
+    items: Array<{ id: number; curioBoxId: number }>;
+}
 
 describe('CurioBoxController (e2e)', () => {
     let app: NestExpressApplication;
@@ -50,7 +74,7 @@ describe('CurioBoxController (e2e)', () => {
                 password: adminUser.password,
             })
             .expect(200);
-        adminToken = adminRes.body.accessToken;
+        adminToken = (adminRes.body as LoginResponse).accessToken;
 
         // 注册普通用户
         await request(app.getHttpServer())
@@ -65,7 +89,7 @@ describe('CurioBoxController (e2e)', () => {
                 password: normalUser.password,
             })
             .expect(200);
-        userToken = userRes.body.accessToken;
+        userToken = (userRes.body as LoginResponse).accessToken;
 
         // 创建一个 item 供盲盒使用（用图片上传接口）
         const itemRes = await request(app.getHttpServer())
@@ -77,7 +101,7 @@ describe('CurioBoxController (e2e)', () => {
             .field('rarity', 'rare')
             .attach('image', __dirname + '/1.jpg')
             .expect(201);
-        createdItemId = itemRes.body.id;
+        createdItemId = (itemRes.body as ItemResponse).id;
     });
 
     afterAll(async () => {
@@ -115,19 +139,20 @@ describe('CurioBoxController (e2e)', () => {
                 .field('itemProbabilities', `[{"itemId":${createdItemId},"probability":1}]`)
                 .attach('coverImage', __dirname + '/1.jpg')
                 .expect(201);
-            expect(res.body).toHaveProperty('id');
-            expect(res.body.items.length).toBe(1);
-            expect(res.body.itemProbabilities.length).toBe(1);
-            expect(res.body.coverImage).toMatch(/\/static\//);
-            createdBoxId = res.body.id;
+            const body = res.body as CurioBoxResponse;
+            expect(body).toHaveProperty('id');
+            expect(body.items.length).toBe(1);
+            expect(body.itemProbabilities.length).toBe(1);
+            expect(body.coverImage).toMatch(/\/static\//);
+            createdBoxId = body.id;
 
             // 新增：测试图片能否正常访问
-            const imageUrl = res.body.coverImage;
+            const imageUrl = body.coverImage;
             const imageRes = await request(app.getHttpServer())
                 .get(imageUrl)
                 .expect(200);
             expect(imageRes.headers['content-type']).toMatch(/^image\//);
-            expect(imageRes.body.length).toBeGreaterThan(0);
+            expect((imageRes.body as Buffer).length).toBeGreaterThan(0);
         });
     });
 
@@ -168,7 +193,7 @@ describe('CurioBoxController (e2e)', () => {
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({ name: 'newName' })
                 .expect(200);
-            expect(res.body.name).toBe('newName');
+            expect((res.body as CurioBoxResponse).name).toBe('newName');
         });
     });
 
@@ -212,7 +237,7 @@ describe('CurioBoxController (e2e)', () => {
                     category: 'test',
                 })
                 .expect(201);
-            patchBoxId = res.body.id;
+            patchBoxId = (res.body as CurioBoxResponse).id;
         });
         it('should allow admin to update items and probabilities', async () => {
             // 新建一个 item
@@ -227,7 +252,7 @@ describe('CurioBoxController (e2e)', () => {
                     curioBoxIds: [],
                 })
                 .expect(201);
-            const newItemId = itemRes.body.id;
+            const newItemId = (itemRes.body as ItemResponse).id;
             const res = await request(app.getHttpServer())
                 .patch(`/curio-boxes/${patchBoxId}/items-and-probabilities`)
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -239,8 +264,9 @@ describe('CurioBoxController (e2e)', () => {
                     ],
                 })
                 .expect(200);
-            expect(res.body.items.length).toBe(2);
-            expect(res.body.itemProbabilities.length).toBe(2);
+            const patchBody = res.body as PatchBoxResponse;
+            expect(patchBody.items.length).toBe(2);
+            expect(patchBody.itemProbabilities.length).toBe(2);
         });
     });
 
@@ -265,7 +291,7 @@ describe('CurioBoxController (e2e)', () => {
                     category: 'test',
                 })
                 .expect(201);
-            postBoxId = boxRes.body.id;
+            postBoxId = (boxRes.body as CurioBoxResponse).id;
 
             // 新建一个帖子并绑定到该盲盒
             const postRes = await request(app.getHttpServer())
@@ -279,17 +305,18 @@ describe('CurioBoxController (e2e)', () => {
                     curioBoxId: postBoxId,
                 })
                 .expect(201);
-            postId = postRes.body.id;
+            postId = (postRes.body as { id: number }).id;
         });
         it('should get posts by curioBoxId', async () => {
             const res = await request(app.getHttpServer())
                 .get(`/curio-boxes/${postBoxId}/posts`)
                 .expect(200);
-            expect(Array.isArray(res.body.items)).toBe(true);
-            expect(res.body.items.length).toBeGreaterThan(0);
-            const found = res.body.items.find((p: any) => p.id === postId);
+            const postsBody = res.body as PostsResponse;
+            expect(Array.isArray(postsBody.items)).toBe(true);
+            expect(postsBody.items.length).toBeGreaterThan(0);
+            const found = postsBody.items.find((p) => p.id === postId);
             expect(found).toBeDefined();
-            expect(found.curioBoxId).toBe(postBoxId);
+            expect(found!.curioBoxId).toBe(postBoxId);
         });
     });
 });
