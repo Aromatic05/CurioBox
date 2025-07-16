@@ -27,7 +27,7 @@ const OrderManagementPage: React.FC = () => {
             field: "curioBox",
             headerName: "盲盒名称",
             width: 180,
-            valueGetter: (params: any) => params.row?.curioBox?.name || "",
+            valueGetter: (params: { row: { curioBox?: { name?: string } } }) => params.row?.curioBox?.name || "",
         },
     ];
 

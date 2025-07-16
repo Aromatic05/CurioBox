@@ -96,7 +96,7 @@ const ItemEditPage: React.FC = () => {
                 await createItem(payload);
             }
             navigate("/admin/items");
-        } catch (err) {
+        } catch {
             setError("提交失败，请重试");
         } finally {
             setLoading(false);

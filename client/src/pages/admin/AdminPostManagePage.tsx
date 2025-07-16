@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, IconButton, CircularProgress } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getPosts, getCommentsByPostId, deleteCommentById } from "../../api/showcaseApi";
+import { getPosts, getCommentsByPostId, deleteCommentById, type IPost, type IComment } from "../../api/showcaseApi";
 
 const AdminPostManagePage: React.FC = () => {
-    const [posts, setPosts] = useState<any[]>([]);
+    const [posts, setPosts] = useState<IPost[]>([]);
     const [loading, setLoading] = useState(false);
-    const [commentsMap, setCommentsMap] = useState<Record<number, any[]>>({});
+    const [commentsMap, setCommentsMap] = useState<Record<number, IComment[]>>({});
     const [deleting, setDeleting] = useState<{[key:number]: boolean}>({});
     const [deletingPost, setDeletingPost] = useState<{[key:number]: boolean}>({});
 
@@ -69,7 +69,7 @@ const AdminPostManagePage: React.FC = () => {
                         {(commentsMap[post.id] || []).length === 0 ? (
                             <Typography variant="body2" color="text.secondary">暂无评论</Typography>
                         ) : (
-                            (commentsMap[post.id] || []).map((comment: any) => (
+                            (commentsMap[post.id] || []).map((comment: IComment) => (
                                 <Box key={comment.id} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                                     <Typography variant="body2" sx={{ flex: 1 }}>
                                         {comment.user.username}: {comment.content}

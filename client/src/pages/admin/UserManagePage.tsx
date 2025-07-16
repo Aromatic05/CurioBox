@@ -43,9 +43,8 @@ const UserManagePage: React.FC = () => {
                 setLoading(true);
                 const res = await apiClient.get("/auth/users"); // 需后端提供 GET /users 接口
                 setUsers(res.data);
-            } catch (err) {
+            } catch {
                 setError("无法获取用户列表");
-                console.error(err);
             } finally {
                 setLoading(false);
             }
@@ -63,7 +62,7 @@ const UserManagePage: React.FC = () => {
             setUsers((prev) => prev.map(u => u.id === selectedUser.id ? { ...u, status: 'deleted' } : u));
             setDeleteDialogOpen(false);
             setSelectedUser(null);
-        } catch (err) {
+        } catch {
             setDeleteError("删除失败，请重试");
         } finally {
             setDeleting(false);
@@ -75,7 +74,7 @@ const UserManagePage: React.FC = () => {
         try {
             await apiClient.post("/auth/ban-user", { userId: user.id });
             setUsers((prev) => prev.map(u => u.id === user.id ? { ...u, status: 'banned' } : u));
-        } catch (err) {
+        } catch {
             alert("封禁失败");
         }
     };
@@ -85,7 +84,7 @@ const UserManagePage: React.FC = () => {
         try {
             await apiClient.post("/auth/unban-user", { userId: user.id });
             setUsers((prev) => prev.map(u => u.id === user.id ? { ...u, status: 'active' } : u));
-        } catch (err) {
+        } catch {
             alert("解封失败");
         }
     };

@@ -15,7 +15,7 @@ import {
     updateCurioBox,
     uploadCurioBoxImage,
 } from "../../api/curioBoxApi";
-import { getItems } from "../../api/itemApi";
+import { getItems, type IItem } from "../../api/itemApi";
 
 const BoxEditPage: React.FC = () => {
     const { id } = useParams();
@@ -36,8 +36,8 @@ const BoxEditPage: React.FC = () => {
     const [error, setError] = useState("");
 
     // 物品相关
-    const [allItems, setAllItems] = useState<any[]>([]); // 所有物品
-    const [selectedItems, setSelectedItems] = useState<any[]>([]); // 选中的物品
+    const [allItems, setAllItems] = useState<IItem[]>([]); // 所有物品
+    const [selectedItems, setSelectedItems] = useState<IItem[]>([]); // 选中的物品
     const [itemProbabilities, setItemProbabilities] = useState<
         { itemId: number; probability: number }[]
     >([]);
@@ -68,10 +68,10 @@ const BoxEditPage: React.FC = () => {
                     // 根据 itemProbabilities 的 itemId 反查物品
                     if (res.data.itemProbabilities && allItems.length > 0) {
                         const selected = res.data.itemProbabilities
-                            .map((ip) =>
+                            .map((ip: { itemId: number }) =>
                                 allItems.find((ai) => ai.id === ip.itemId),
                             )
-                            .filter(Boolean);
+                            .filter(Boolean) as IItem[];
                         setSelectedItems(selected);
                     } else {
                         setSelectedItems([]);
@@ -80,7 +80,7 @@ const BoxEditPage: React.FC = () => {
                 .catch(() => setError("加载盲盒信息失败"))
                 .finally(() => setLoading(false));
         }
-    }, [id, isEdit, allItems]);
+    }, [id, isEdit, allItems, selectedItems]);
 
     // allItems加载后，修正selectedItems为allItems中的引用
     useEffect(() => {
@@ -90,10 +90,10 @@ const BoxEditPage: React.FC = () => {
             );
             setSelectedItems(fixed);
         }
-    }, [allItems]);
+    }, [isEdit, allItems, selectedItems]);
 
     // 物品选择变化
-    const handleItemsChange = (_: any, value: any[]) => {
+    const handleItemsChange = (_: unknown, value: IItem[]) => {
         setSelectedItems(value);
         // 保持概率数组与选中物品同步
         const newProb = value.map((item) => {
@@ -171,7 +171,7 @@ const BoxEditPage: React.FC = () => {
                 await createCurioBox(payload);
             }
             navigate("/admin/boxes");
-        } catch (err) {
+        } catch {
             setError("提交失败，请重试");
         } finally {
             setLoading(false);
