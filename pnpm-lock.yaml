@@ -156,6 +156,9 @@ importers:
       typeorm:
         specifier: ^0.3.25
         version: 0.3.25(babel-plugin-macros@3.1.0)(better-sqlite3@11.10.0)(reflect-metadata@0.2.2)(sqlite3@5.1.7)(ts-node@10.9.2(@swc/core@1.12.11)(@types/node@22.16.2)(typescript@5.8.3))
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0

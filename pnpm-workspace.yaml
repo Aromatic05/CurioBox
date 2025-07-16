@@ -4,7 +4,10 @@ packages:
 
 onlyBuiltDependencies:
   - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@scarf/scarf'
   - '@swc/core'
+  - '@tailwindcss/oxide'
   - bcrypt
   - better-sqlite3
   - esbuild
