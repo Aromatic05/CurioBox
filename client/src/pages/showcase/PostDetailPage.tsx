@@ -65,6 +65,7 @@ const PostDetailPage: React.FC = () => {
             await deleteCommentById(commentId);
             setComments((prev) => prev.filter((c) => c.id !== commentId));
         } catch (err) {
+            console.log(err);
             alert("删除失败，请重试。");
         }
     };
@@ -90,6 +91,7 @@ const PostDetailPage: React.FC = () => {
                 setPost(postResponse.data);
                 setComments(commentsResponse.data);
             } catch (err) {
+                console.log(err);
                 setError("无法加载帖子详情。");
             } finally {
                 setLoading(false);
@@ -121,6 +123,7 @@ const PostDetailPage: React.FC = () => {
             setPost(postResponse.data);
             setEditing(false);
         } catch (err) {
+            console.log(err);
             setEditError("保存失败，请重试。");
         } finally {
             setEditLoading(false);
