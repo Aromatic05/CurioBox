@@ -15,7 +15,8 @@ import {
 import RarityChip from "../../components/store/RarityChip";
 
 const ItemWarehousePage: React.FC = () => {
-    const [items, setItems] = useState<any[]>([]);
+    type ItemWithCount = (IItem & { count: number }) | { id: number; name: string; count: number };
+    const [items, setItems] = useState<ItemWithCount[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +36,7 @@ const ItemWarehousePage: React.FC = () => {
                         return { id: userItem.itemId, name: `物品 #${userItem.itemId}`, count: userItem.count };
                     }
                 });
-                const itemsWithDetail: IItem[] = await Promise.all(detailPromises);
+                const itemsWithDetail: ItemWithCount[] = await Promise.all(detailPromises);
                 setItems(itemsWithDetail);
             } catch (err) {
                 setError("无法加载您的物品仓库，请稍后再试。");
@@ -73,47 +74,53 @@ const ItemWarehousePage: React.FC = () => {
                         mt: 2,
                     }}
                 >
-                    {items.map((item) => (
-                        <Box
-                            key={item.id ?? item.itemId}
-                            sx={{
-                                width: { xs: "100%", sm: "48%", md: "31%", lg: "23%" },
-                                minWidth: 220,
-                                maxWidth: 320,
-                                flex: "1 1 220px",
-                            }}
-                        >
-                            <Card sx={{ height: "100%" }}>
-                                {item.image && (
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={item.image}
-                                        alt={item.name}
-                                    />
-                                )}
-                                <CardContent>
-                                    <Typography variant="h6" gutterBottom>
-                                        {item.name || `物品 #${item.itemId}`}
-                                    </Typography>
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
-                                        <Chip label={`数量：${item.count}`} color="primary" />
-                                        {item.rarity && (
-                                            <RarityChip rarity={item.rarity} />
-                                        )}
-                                    </Box>
-                                    <Box sx={{ mt: 2 }}>
-                                        <Chip
-                                            label="详情"
-                                            color="info"
-                                            clickable
-                                            onClick={() => navigate(`/user/items/${item.id ?? item.itemId}`, { state: { count: item.count } })}
+                    {items.map((item) => {
+                        // 判断 item 是否为 IItem & { count: number }
+                        const isFullItem = (it: ItemWithCount): it is IItem & { count: number } => {
+                            return "image" in it || "rarity" in it;
+                        };
+                        return (
+                            <Box
+                                key={item.id}
+                                sx={{
+                                    width: { xs: "100%", sm: "48%", md: "31%", lg: "23%" },
+                                    minWidth: 220,
+                                    maxWidth: 320,
+                                    flex: "1 1 220px",
+                                }}
+                            >
+                                <Card sx={{ height: "100%" }}>
+                                    {isFullItem(item) && item.image && (
+                                        <CardMedia
+                                            component="img"
+                                            height="140"
+                                            image={item.image}
+                                            alt={item.name}
                                         />
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Box>
-                    ))}
+                                    )}
+                                    <CardContent>
+                                        <Typography variant="h6" gutterBottom>
+                                            {item.name}
+                                        </Typography>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
+                                            <Chip label={`数量：${item.count}`} color="primary" />
+                                            {isFullItem(item) && item.rarity && (
+                                                <RarityChip rarity={item.rarity} />
+                                            )}
+                                        </Box>
+                                        <Box sx={{ mt: 2 }}>
+                                            <Chip
+                                                label="详情"
+                                                color="info"
+                                                clickable
+                                                onClick={() => navigate(`/user/items/${item.id}`, { state: { count: item.count } })}
+                                            />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Box>
+                        );
+                    })}
                 </Box>
             )}
         </Box>

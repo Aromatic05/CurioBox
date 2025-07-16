@@ -15,6 +15,7 @@ const MyPostsPage: React.FC = () => {
                 const response = await getMyPosts();
                 setPosts(response.data.items);
             } catch (err) {
+                console.log(err);
                 setError("无法加载您的帖子列表。");
             } finally {
                 setLoading(false);
