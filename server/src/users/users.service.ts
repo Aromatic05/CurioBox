@@ -19,13 +19,19 @@ export class UsersService {
         const user = await this.userRepository.findOne({ where: { id } });
         if (!user) throw new NotFoundException('用户不存在');
         // 只返回公开字段
-        const { password, ...publicInfo } = user;
+        const publicInfo = Object.fromEntries(
+            Object.entries(user).filter(([key]) => key !== 'password')
+        );
         return publicInfo;
     }
 
     async findAllPublic(): Promise<Partial<User>[]> {
         const users = await this.userRepository.find();
         // 只返回公开字段
-        return users.map(({ password, ...publicInfo }) => publicInfo);
+        return users.map(user => {
+            return Object.fromEntries(
+                Object.entries(user).filter(([key]) => key !== 'password')
+            );
+        });
     }
 }

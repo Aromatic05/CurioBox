@@ -30,8 +30,9 @@ export class UsersController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @UseGuards(JwtAuthGuard)
     @Get('users')
-    async getAllUsers(@Request() req: any) {
-        if (req.user.role !== 'admin') {
+    async getAllUsers(@Request() req: { user: { role?: string } }) {
+        const userRole = req.user?.role ?? '';
+        if (userRole !== 'admin') {
             throw new ForbiddenException('Only admin can view all users');
         }
         return this.usersService.findAllPublic();
