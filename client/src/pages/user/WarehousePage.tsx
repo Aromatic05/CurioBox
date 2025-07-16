@@ -87,6 +87,7 @@ const WarehousePage: React.FC = () => {
             });
             setGroupedBoxes(Array.from(map.values()));
         } catch (err) {
+            console.log(err);
             setError("无法加载您的仓库，请稍后再试。");
         } finally {
             setLoading(false);
@@ -126,6 +127,7 @@ const WarehousePage: React.FC = () => {
                         fetchUnopenedBoxes();
                     }
                 } catch (err) {
+                    console.log(err);
                     alert("开箱失败！");
                 } finally {
                     setOpeningId(null);

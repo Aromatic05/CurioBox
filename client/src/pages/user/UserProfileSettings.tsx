@@ -29,8 +29,9 @@ const UserProfileSettings: React.FC = () => {
         try {
             await setNickname(nickname);
             setMessage("昵称已更新");
-            refreshUser && refreshUser();
+            if (refreshUser) refreshUser();
         } catch (err) {
+            console.log(err);
             setMessage("昵称更新失败");
         }
         setLoading(false);
@@ -54,8 +55,9 @@ const UserProfileSettings: React.FC = () => {
             // 更新用户头像到后端
             await apiClient.post("/auth/set-avatar", { avatar: url });
             setMessage("头像已更新");
-            refreshUser && refreshUser();
+            if (refreshUser) refreshUser();
         } catch (err) {
+            console.log(err);
             setMessage("头像上传失败");
         }
         setLoading(false);
@@ -74,6 +76,7 @@ const UserProfileSettings: React.FC = () => {
             setOldPassword("");
             setNewPassword("");
         } catch (err) {
+            console.log(err);
             setPasswordMsg("密码修改失败，请检查原密码");
         }
         setLoading(false);
@@ -91,6 +94,7 @@ const UserProfileSettings: React.FC = () => {
                 window.location.href = "/";
             }, 1500);
         } catch (err) {
+            console.log(err);
             setDeleteMsg("删除失败，请重试");
         }
         setLoading(false);
