@@ -56,8 +56,19 @@ export const openBox = (
     return apiClient.post("/me/boxes/open", data);
 };
 
+// 定义订单类型（与后端 Order 实体保持一致）
+export interface IOrder {
+    id: number;
+    price: string;
+    status: "completed" | "pending" | "cancelled";
+    createdAt: string;
+    userId: number;
+    curioBoxId: number;
+    drawnItemId?: number | null;
+}
+
 // 获取所有订单（仅管理员）
-export const getAllOrders = (): Promise<AxiosResponse<any[]>> => {
+export const getAllOrders = (): Promise<AxiosResponse<IOrder[]>> => {
     return apiClient.get("/orders/all");
 };
 
