@@ -14,7 +14,7 @@ export class CurioBoxService {
         private readonly curioBoxRepository: Repository<CurioBox>,
         @InjectItemRepository(Item)
         private readonly itemRepository: Repository<Item>,
-    ) {}
+    ) { }
 
     async create(createCurioBoxDto: CreateCurioBoxDto): Promise<CurioBox> {
         // 兼容 itemIds/itemProbabilities 可选
@@ -222,9 +222,35 @@ export class CurioBoxService {
         createCurioBoxDto: CreateCurioBoxDto,
     ): Promise<CurioBox> {
         const coverImage = `/static/${file.filename}`;
-        // 直接信任 DTO 的转换结果，无需手动解析
+        const finalDtoData = { ...createCurioBoxDto };
+        if (typeof finalDtoData.itemIds === 'string') {
+            try {
+                const parsedIds = JSON.parse(finalDtoData.itemIds) as unknown;
+                if (Array.isArray(parsedIds)) {
+                    finalDtoData.itemIds = parsedIds as number[];
+                } else {
+                    finalDtoData.itemIds = [];
+                }
+            } catch {
+                finalDtoData.itemIds = [];
+            }
+        }
+
+        if (typeof finalDtoData.itemProbabilities === 'string') {
+            try {
+                const parsedProbs = JSON.parse(finalDtoData.itemProbabilities) as unknown;
+                if (Array.isArray(parsedProbs)) {
+                    finalDtoData.itemProbabilities = parsedProbs as { itemId: number; probability: number }[];
+                } else {
+                    finalDtoData.itemProbabilities = [];
+                }
+            } catch {
+                finalDtoData.itemProbabilities = [];
+            }
+        }
+
         return this.create({
-            ...createCurioBoxDto,
+            ...finalDtoData,
             coverImage,
         });
     }
