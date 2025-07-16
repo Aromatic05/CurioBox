@@ -50,10 +50,10 @@ export class CurioBoxService {
     private async validateItemProbabilities(
         itemProbabilities: { itemId: number; probability: number }[],
         items: Item[] | number[],
-    ) {
+    ): Promise<void> {
         if (!itemProbabilities || itemProbabilities.length === 0) {
             // 允许无概率时跳过校验
-            return;
+            return Promise.resolve();
         }
         // 概率和为1
         const total = itemProbabilities.reduce(
@@ -64,20 +64,21 @@ export class CurioBoxService {
             throw new Error('所有物品概率之和必须为1');
         }
         // itemId 不重复
-        const idSet = new Set();
+        const idSet = new Set<number>();
         for (const ip of itemProbabilities) {
             if (idSet.has(ip.itemId)) throw new Error('itemId 不能重复');
             idSet.add(ip.itemId);
         }
         // itemId 必须属于 items
         const itemIds = Array.isArray(items)
-            ? items.map((i) => (typeof i === 'number' ? i : i.id))
+            ? items.map((i) => (typeof i === 'number' ? i : (i as Item).id))
             : [];
         for (const ip of itemProbabilities) {
             if (!itemIds.includes(ip.itemId)) {
                 throw new Error(`itemId ${ip.itemId} 不属于本盲盒`);
             }
         }
+        return Promise.resolve();
     }
 
     findAll(): Promise<CurioBox[]> {
@@ -204,7 +205,7 @@ export class CurioBoxService {
     search(query: string): Promise<CurioBox[]> {
         return this.curioBoxRepository.find({
             where: {
-                name: Like(`%${query}%`),
+                name: Like(`%${String(query)}%`),
             },
         });
     }
@@ -212,7 +213,7 @@ export class CurioBoxService {
     // 上传图片并返回图片链接（不创建盲盒，仅返回图片URL）
     async uploadImage(file: Express.Multer.File): Promise<{ url: string }> {
         const url = `/static/${file.filename}`;
-        return { url };
+        return Promise.resolve({ url });
     }
 
     // 带图片创建盲盒（multipart/form-data）
@@ -221,16 +222,9 @@ export class CurioBoxService {
         createCurioBoxDto: CreateCurioBoxDto,
     ): Promise<CurioBox> {
         const coverImage = `/static/${file.filename}`;
-        // 兼容 multipart/form-data 字段为字符串的情况
-        const dto = { ...createCurioBoxDto };
-        if (typeof dto.itemIds === 'string') {
-            dto.itemIds = JSON.parse(dto.itemIds);
-        }
-        if (typeof dto.itemProbabilities === 'string') {
-            dto.itemProbabilities = JSON.parse(dto.itemProbabilities);
-        }
+        // 直接信任 DTO 的转换结果，无需手动解析
         return this.create({
-            ...dto,
+            ...createCurioBoxDto,
             coverImage,
         });
     }

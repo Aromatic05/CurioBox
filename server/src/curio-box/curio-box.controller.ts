@@ -20,6 +20,7 @@ import { CreateCurioBoxDto } from './dto/create-curio-box.dto';
 import { UpdateCurioBoxDto } from './dto/update-curio-box.dto';
 import { UpdateItemsAndProbabilitiesDto } from './dto/update-items-and-probabilities.dto';
 import { UpdateBoxCountDto } from './dto/update-box-count.dto';
+import { QueryPostsDto } from '../showcase/dto/query-posts.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -44,7 +45,10 @@ export class CurioBoxController {
     @ApiResponse({ status: 200, description: 'Returns a list of posts.' })
     @ApiResponse({ status: 404, description: 'Curio box not found.' })
     @Get(':id/posts')
-    getPostsByCurioBoxId(@Param('id', ParseIntPipe) id: number, @Query() query: any) {
+    getPostsByCurioBoxId(
+        @Param('id', ParseIntPipe) id: number,
+        @Query() query: QueryPostsDto
+    ) {
         return this.showcaseService.getPosts({ ...query, curioBoxId: id });
     }
 
