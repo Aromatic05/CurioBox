@@ -1,7 +1,7 @@
 // src/routes/PrivateRoute.tsx
 import React from "react";
 import { useLocation, Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 const PrivateRoute: React.FC = () => {
     const { isAuthenticated } = useAuth();

@@ -14,7 +14,7 @@ import {
     TextField,
     Button,
 } from "@mui/material";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 
 const PostDetailPage: React.FC = () => {
     // 盲盒名称和跳转逻辑

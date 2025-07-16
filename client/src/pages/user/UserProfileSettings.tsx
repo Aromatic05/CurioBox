@@ -8,7 +8,7 @@ import {
     Stack,
 } from "@mui/material";
 import { setNickname, uploadAvatar } from "../../api/authApi";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import apiClient from "../../api/apiClient";
 
 const UserProfileSettings: React.FC = () => {

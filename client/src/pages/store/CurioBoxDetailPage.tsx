@@ -4,7 +4,7 @@ import { getCurioBoxById } from "../../api/curioBoxApi";
 import type { ICurioBox } from "../../api/curioBoxApi";
 import type { IItem } from "../../api/itemApi";
 import { purchaseCurioBox } from "../../api/orderApi";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import {
     Container,
     Box,
