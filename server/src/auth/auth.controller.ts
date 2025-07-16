@@ -45,6 +45,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Refresh access token' })
     @ApiResponse({ status: 200, description: 'Access token refreshed successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @UseGuards(JwtAuthGuard)
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
     async refresh(@Body() body: { refreshToken: string }) {
@@ -69,6 +70,7 @@ export class AuthController {
     @ApiOperation({ summary: 'User logout' })
     @ApiResponse({ status: 200, description: 'Logged out successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @UseGuards(JwtAuthGuard)
     @Get('logout')
     logout(@Request() req: any) {
         const token = req.headers.authorization.split(' ')[1];
@@ -141,6 +143,7 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Avatar updated successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiBody({ type: SetAvatarDto })
+    @UseGuards(JwtAuthGuard)
     @Post('set-avatar')
     @HttpCode(HttpStatus.OK)
     setAvatar(@Request() req: any, @Body() body: SetAvatarDto) {
