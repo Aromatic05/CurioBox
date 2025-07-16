@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import apiClient from "../api/apiClient";
 import { fetchUserData } from "../api/authApi";
@@ -22,7 +22,7 @@ export interface AuthContextType {
 }
 
 // 2. 创建 Context
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from "./AuthContextMode";
 
 // 3. 创建 Provider 组件
 interface AuthProviderProps {
