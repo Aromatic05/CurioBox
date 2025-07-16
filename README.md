@@ -45,6 +45,16 @@ pnpm install
 
 ---
 
+
+## 后端 API 文档（Swagger）
+
+后端已集成 Swagger，可用于在线查看和调试所有 API 接口。
+
+- 启动后端服务后，访问：
+  - 本地开发环境：`http://localhost:3000/api`
+
+---
+
 ## 常用命令
 
 ### 根目录（Monorepo 管理）
