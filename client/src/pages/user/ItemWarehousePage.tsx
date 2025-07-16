@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getUserItems } from "../../api/userItemApi";
 import { getItemById, type IItem } from "../../api/itemApi";
 import {
@@ -18,6 +19,7 @@ const ItemWarehousePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchItems = async () => {
             try {
@@ -99,6 +101,14 @@ const ItemWarehousePage: React.FC = () => {
                                         {item.rarity && (
                                             <RarityChip rarity={item.rarity} />
                                         )}
+                                    </Box>
+                                    <Box sx={{ mt: 2 }}>
+                                        <Chip
+                                            label="详情"
+                                            color="info"
+                                            clickable
+                                            onClick={() => navigate(`/user/items/${item.id ?? item.itemId}`, { state: { count: item.count } })}
+                                        />
                                     </Box>
                                 </CardContent>
                             </Card>
