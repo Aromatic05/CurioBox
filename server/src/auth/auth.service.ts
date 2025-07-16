@@ -23,7 +23,7 @@ export class AuthService {
         private blocklistedTokenRepository: Repository<BlocklistedToken>,
     ) { }
 
-    async signUp(createUserDto: any): Promise<Omit<User, 'password'>> {
+    async signUp(createUserDto: { username: string; password: string; role?: string }): Promise<Omit<User, 'password'>> {
         const { username, password, role } = createUserDto;
 
         const userExists = await this.usersRepository.findOne({
@@ -44,11 +44,12 @@ export class AuthService {
         });
 
         await this.usersRepository.save(newUser);
-        const { password: _, ...result } = newUser;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _pw, ...result } = newUser;
         return result;
     }
 
-    async signIn(loginDto: any) {
+    async signIn(loginDto: { username: string; password: string }) {
         const { username, password } = loginDto;
         // 查询用户时，需要显式地请求password字段和refreshToken字段
         const user = await this.usersRepository
@@ -58,7 +59,7 @@ export class AuthService {
             .where('user.username = :username', { username })
             .getOne();
 
-        if (!user || !user.password) {
+        if (!user || typeof user.password !== 'string') {
             throw new UnauthorizedException('Invalid credentials');
         }
         // 先校验用户状态
@@ -66,7 +67,7 @@ export class AuthService {
             throw new UnauthorizedException('User is banned or deleted');
         }
         // 再校验密码
-        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        const isPasswordMatch = await bcrypt.compare(String(password), user.password);
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
@@ -114,7 +115,7 @@ export class AuthService {
         };
     }
 
-    async changePassword(userId: number, changePasswordDto: any) {
+    async changePassword(userId: number, changePasswordDto: { oldPassword: string; newPassword: string }) {
         const { oldPassword, newPassword } = changePasswordDto;
 
         const user = await this.usersRepository
@@ -123,7 +124,7 @@ export class AuthService {
             .where('user.id = :userId', { userId })
             .getOne();
 
-        if (!user || !user.password) {
+        if (!user || typeof user.password !== 'string') {
             throw new UnauthorizedException('Invalid credentials');
         }
         // 先校验用户状态
@@ -132,14 +133,14 @@ export class AuthService {
         }
         // 再校验密码
         const isPasswordMatch = await bcrypt.compare(
-            oldPassword,
+            String(oldPassword),
             user.password,
         );
         if (!isPasswordMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
         const salt = await bcrypt.genSalt();
-        user.password = await bcrypt.hash(newPassword, salt);
+        user.password = await bcrypt.hash(String(newPassword), salt);
         await this.usersRepository.save(user); // 保存更新
         return { message: 'Password changed successfully' };
     }
