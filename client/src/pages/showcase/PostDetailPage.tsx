@@ -46,7 +46,6 @@ const PostDetailPage: React.FC = () => {
         try {
             // 直接调用已导入的 addCommentToPost
             // id 可能为 string，API 兼容 string/number
-            // @ts-ignore
             const res = await addCommentToPost(id, commentContent);
             setComments((prev) => [...prev, res.data]);
             setCommentContent("");

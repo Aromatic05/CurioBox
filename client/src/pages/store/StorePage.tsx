@@ -40,6 +40,7 @@ const StorePage: React.FC = () => {
                 const response = await getCurioBoxes();
                 setBoxes(response.data);
             } catch (err) {
+                console.log(err);
                 setError("无法加载盲盒列表，请稍后再试。");
             } finally {
                 setSearching(false);
@@ -51,6 +52,7 @@ const StorePage: React.FC = () => {
             const response = await searchCurioBoxes(search.trim());
             setBoxes(response.data);
         } catch (err) {
+            console.log(err);
             setError("搜索失败，请稍后再试。");
         } finally {
             setSearching(false);

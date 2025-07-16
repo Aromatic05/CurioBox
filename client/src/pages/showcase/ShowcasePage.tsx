@@ -39,6 +39,7 @@ const ShowcasePage: React.FC = () => {
                 }
                 setPosts(response.data.items);
             } catch (err) {
+                console.log(err);
                 setError("无法加载帖子列表。");
             } finally {
                 setLoading(false);

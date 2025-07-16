@@ -71,6 +71,7 @@ const CurioBoxDetailPage: React.FC = () => {
                 const response = await getCurioBoxById(Number(id));
                 setBox(response?.data ?? response);
             } catch (err) {
+                console.log(err);
                 setError("无法加载盲盒详情。");
             } finally {
                 setLoading(false);
@@ -111,9 +112,9 @@ const CurioBoxDetailPage: React.FC = () => {
             });
             // 可选：延迟一会跳转到仓库页面
             setTimeout(() => navigate("/user/warehouse"), 2000);
-        } catch (err: any) {
-            const errorMessage =
-                err.response?.data?.message || "购买失败，库存可能不足。";
+        } catch (err) {
+            console.log(err);
+            const errorMessage = "购买失败，库存可能不足。";
             setSnackbar({
                 open: true,
                 message: errorMessage,

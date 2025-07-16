@@ -121,6 +121,7 @@ const CreatePostPage: React.FC = () => {
             setSelectedTagNames((prev) => [...prev, newTag.name]);
             setSnackbar({ open: true, message: "标签创建成功！", severity: "success" });
         } catch (err) {
+            console.log(err);
             setSnackbar({ open: true, message: "标签创建失败，请重试。", severity: "error" });
         }
         setNewTagName("");
@@ -175,6 +176,7 @@ const CreatePostPage: React.FC = () => {
             try {
                 imageUrls = await uploadImages(imageFiles);
             } catch (err) {
+                console.log(err);
                 setSnackbar({
                     open: true,
                     message: "图片上传失败",
@@ -201,7 +203,8 @@ const CreatePostPage: React.FC = () => {
             setTimeout(() => {
                 navigate(`/showcase/${response.data.id}`);
             }, 1000);
-        } catch (error) {
+        } catch (err) {
+            console.log(err);
             setSnackbar({
                 open: true,
                 message: "发布失败，请稍后再试。",
