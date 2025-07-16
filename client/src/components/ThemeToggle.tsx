@@ -28,7 +28,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ mode, onToggle }) => {
 
     const handleClick = () => {
         if (isControlled) {
-            onToggle && onToggle();
+            if (onToggle) onToggle();
         } else {
             setLocalTheme((prev) => (prev === "dark" ? "light" : "dark"));
         }
