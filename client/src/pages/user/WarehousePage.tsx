@@ -20,7 +20,7 @@ import {
 
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 
-import BoxOpenAnimation, { shake } from "../../components/BoxOpenAnimation";
+import BoxOpenAnimation from "../../components/BoxOpenAnimation";
 import RarityChip from "../../components/store/RarityChip";
 
 // 开箱结果弹窗组件
@@ -263,10 +263,8 @@ const WarehousePage: React.FC = () => {
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                         zIndex: (theme) => theme.zIndex.drawer + 2,
-                        animation:
-                            centerStep === "shake"
-                                ? `${shake} 0.7s`
-                                : undefined,
+                        // animation 由 BoxOpenAnimation 内部处理
+                        animation: undefined,
                         transition: "none", // 禁止定位变化动画
                     }}
                 >
