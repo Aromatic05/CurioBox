@@ -4,6 +4,7 @@ import {
     ExecutionContext,
     UnauthorizedException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,22 +19,20 @@ export class RolesGuard implements CanActivate {
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const req = context.switchToHttp().getRequest();
-        const authHeader =
-            req.headers['authorization'] || req.headers['Authorization'];
+        const req = context.switchToHttp().getRequest<Request>();
+        const authHeader = req.headers['authorization'] || req.headers['Authorization'];
         if (authHeader && typeof authHeader === 'string') {
             const parts = authHeader.split(' ');
             if (parts.length === 2 && parts[0] === 'Bearer') {
                 const token = parts[1];
                 try {
-                    const exists =
-                        await this.blocklistedTokenRepository.findOne({
-                            where: { token },
-                        });
+                    const exists = await this.blocklistedTokenRepository.findOne({
+                        where: { token },
+                    });
                     if (exists) {
                         throw new UnauthorizedException('Token is blocklisted');
                     }
-                } catch (err) {
+                } catch {
                     // 数据库异常时不抛 500，直接拒绝访问更安全
                     throw new UnauthorizedException('Token check failed');
                 }
@@ -47,7 +46,7 @@ export class RolesGuard implements CanActivate {
         if (!requiredRoles) {
             return true;
         }
-        const { user } = req;
-        return requiredRoles.includes(user.role);
+        const { user } = req as { user?: { role?: string } };
+        return !!user && requiredRoles.includes(user.role ?? '');
     }
 }

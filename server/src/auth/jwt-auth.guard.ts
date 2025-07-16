@@ -3,6 +3,7 @@ import {
     UnauthorizedException,
     ExecutionContext,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,9 +23,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         const can = await super.canActivate(context);
         if (!can) return false;
         // blocklist 校验
-        const req = context.switchToHttp().getRequest();
-        const authHeader =
-            req.headers['authorization'] || req.headers['Authorization'];
+        const req = context.switchToHttp().getRequest<Request>();
+        const authHeader = req.headers['authorization'] || req.headers['Authorization'];
         if (authHeader && typeof authHeader === 'string') {
             const parts = authHeader.split(' ');
             if (parts.length === 2 && parts[0] === 'Bearer') {
