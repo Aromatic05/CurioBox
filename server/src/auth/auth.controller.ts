@@ -45,7 +45,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Refresh access token' })
     @ApiResponse({ status: 200, description: 'Access token refreshed successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
     async refresh(@Body() body: { refreshToken: string }) {
