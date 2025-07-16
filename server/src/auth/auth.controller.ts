@@ -60,7 +60,7 @@ export class AuthController {
     @Post('change-password')
     @HttpCode(HttpStatus.OK)
     changePassword(
-        @Request() req: any,
+        @Request() req: { user: { sub: number } },
         @Body() changePasswordDto: ChangePasswordDto,
     ) {
         return this.authService.changePassword(req.user.sub, changePasswordDto);
@@ -72,8 +72,9 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @UseGuards(JwtAuthGuard)
     @Get('logout')
-    logout(@Request() req: any) {
-        const token = req.headers.authorization.split(' ')[1];
+    logout(@Request() req: { headers: { authorization: string } }) {
+        const authHeader = req.headers.authorization;
+        const token = typeof authHeader === 'string' ? authHeader.split(' ')[1] : '';
         return this.authService.logout(token);
     }
 
@@ -85,7 +86,10 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('set-nickname')
     @HttpCode(HttpStatus.OK)
-    setNickname(@Request() req: any, @Body() body: SetNicknameDto) {
+    setNickname(
+        @Request() req: { user: { sub: number } },
+        @Body() body: SetNicknameDto
+    ) {
         return this.authService.setNickname(req.user.sub, body.nickname);
     }
 
@@ -95,7 +99,7 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @UseGuards(JwtAuthGuard)
     @Get('me')
-    async getProfile(@Request() req: any) {
+    async getProfile(@Request() req: { user: { sub: number } }) {
         const user = await this.usersService.findPublicById(req.user.sub);
         return user;
     }
@@ -133,9 +137,9 @@ export class AuthController {
             }),
         )
         file: Express.Multer.File,
-    ) {
+    ): Promise<{ url: string }> {
         const url = `/static/${file.filename}`;
-        return { url };
+        return Promise.resolve({ url });
     }
 
     @ApiBearerAuth()
@@ -146,7 +150,10 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('set-avatar')
     @HttpCode(HttpStatus.OK)
-    setAvatar(@Request() req: any, @Body() body: SetAvatarDto) {
+    setAvatar(
+        @Request() req: { user: { sub: number } },
+        @Body() body: SetAvatarDto
+    ) {
         return this.authService.setAvatar(req.user.sub, body.avatar);
     }
 
@@ -160,7 +167,10 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('delete-user')
     @HttpCode(HttpStatus.OK)
-    async deleteUser(@Request() req: any, @Body() body: DeleteUserDto) {
+    async deleteUser(
+        @Request() req: { user: { sub: number; role: string } },
+        @Body() body: DeleteUserDto
+    ) {
         const targetUserId = body.userId;
         if (req.user.role !== 'admin' && targetUserId && targetUserId !== req.user.sub) {
             throw new ForbiddenException('No permission to delete other users');
@@ -178,7 +188,10 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('ban-user')
     @HttpCode(HttpStatus.OK)
-    async banUser(@Request() req: any, @Body() body: BanUserDto) {
+    async banUser(
+        @Request() req: { user: { role: string } },
+        @Body() body: BanUserDto
+    ) {
         if (req.user.role !== 'admin') {
             throw new ForbiddenException('No permission');
         }
@@ -195,7 +208,10 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Post('unban-user')
     @HttpCode(HttpStatus.OK)
-    async unbanUser(@Request() req: any, @Body() body: UnbanUserDto) {
+    async unbanUser(
+        @Request() req: { user: { role: string } },
+        @Body() body: UnbanUserDto
+    ) {
         if (req.user.role !== 'admin') {
             throw new ForbiddenException('No permission');
         }
