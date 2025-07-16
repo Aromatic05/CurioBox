@@ -37,4 +37,4 @@ async function bootstrap() {
     // 监听 0.0.0.0 允许局域网访问
     await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
-bootstrap();
+void bootstrap();
