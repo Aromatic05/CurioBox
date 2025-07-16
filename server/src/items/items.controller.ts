@@ -9,8 +9,7 @@ import {
     UseInterceptors,
     UploadedFile,
     ParseFilePipe,
-    MaxFileSizeValidator,
-    FileTypeValidator,
+    MaxFileSizeValidator
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -121,7 +120,7 @@ export class ItemsController {
             }),
         }),
     )
-    async uploadImage(
+    uploadImage(
         @UploadedFile(
             new ParseFilePipe({
                 validators: [

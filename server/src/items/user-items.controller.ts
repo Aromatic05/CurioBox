@@ -22,8 +22,9 @@ export class UserItemsController {
     @ApiResponse({ status: 200, description: 'Returns a list of items owned by the user.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get()
-    async getUserItems(@Request() req) {
-        const items = await this.userItemsService.findAllByUser(req.user.sub);
+    async getUserItems(@Request() req: { user: { sub: number } }) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        const items = await this.userItemsService.findAllByUser(userId);
         return { items };
     }
 
@@ -35,10 +36,11 @@ export class UserItemsController {
     @ApiResponse({ status: 404, description: 'Item not found.' })
     @Delete(':itemId')
     async removeUserItem(
-        @Request() req,
+        @Request() req: { user: { sub: number } },
         @Param('itemId') itemId: number,
         @Query('count') count: number = 1,
     ) {
-        return await this.userItemsService.removeItem(req.user.sub, itemId, Number(count));
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return await this.userItemsService.removeItem(userId, itemId, Number(count));
     }
 }

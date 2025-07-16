@@ -16,8 +16,7 @@ export class ItemsService {
     ) {}
 
     async create(createItemDto: CreateItemDto): Promise<Item> {
-        const { name, image, category, stock, rarity, curioBoxIds } =
-            createItemDto;
+        const { name, image, category, stock, rarity, curioBoxIds } = createItemDto;
         let curioBoxes: CurioBox[] = [];
         if (curioBoxIds && curioBoxIds.length > 0) {
             curioBoxes = await this.curioBoxRepository.find({
@@ -35,12 +34,7 @@ export class ItemsService {
             rarity,
             curioBoxes,
         });
-        try {
-            const saved = await this.itemRepository.save(newItem);
-            return saved;
-        } catch (err) {
-            throw err;
-        }
+        return this.itemRepository.save(newItem);
     }
 
     async findAll(): Promise<Item[]> {

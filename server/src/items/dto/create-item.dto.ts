@@ -2,7 +2,6 @@ import {
     IsString,
     IsNotEmpty,
     IsNumber,
-    IsUrl,
     IsArray,
     IsOptional,
 } from 'class-validator';
@@ -32,14 +31,28 @@ export class CreateItemDto {
 
     @IsOptional()
     @Transform(({ value }) => {
-        if (Array.isArray(value)) return value.map(Number);
-        if (typeof value === 'string' && value.startsWith('['))
+        const toNumber = (v: unknown): number | undefined => {
+            if (typeof v === 'number' && !isNaN(v)) return v;
+            if (typeof v === 'string') {
+                const n = Number(v);
+                return !isNaN(n) ? n : undefined;
+            }
+            return undefined;
+        };
+        if (Array.isArray(value)) return value.map(toNumber).filter((v): v is number => v !== undefined);
+        if (typeof value === 'string' && value.startsWith('[')) {
             try {
-                return JSON.parse(value).map(Number);
+                const arr: unknown = JSON.parse(value);
+                if (Array.isArray(arr)) return arr.map(toNumber).filter((v): v is number => v !== undefined);
+                return [];
             } catch {
                 return [];
             }
-        if (typeof value === 'string') return [Number(value)];
+        }
+        if (typeof value === 'string') {
+            const n = Number(value);
+            return !isNaN(n) ? [n] : [];
+        }
         if (typeof value === 'number') return [value];
         return [];
     })
