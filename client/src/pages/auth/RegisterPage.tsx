@@ -27,8 +27,8 @@ const RegisterPage: React.FC = () => {
         try {
             await registerUser({ username, password });
             setSuccess("注册成功，请返回登录页面登录！");
-        } catch (err: any) {
-            setError(err.response?.data?.message || "注册失败，请重试");
+        } catch {
+            setError("注册失败，请重试");
         } finally {
             setLoading(false);
         }

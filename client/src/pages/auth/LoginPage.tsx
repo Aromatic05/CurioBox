@@ -49,11 +49,8 @@ const LoginPage: React.FC = () => {
 
             // 跳转到之前的页面或首页
             navigate(from, { replace: true });
-        } catch (err: any) {
-            setError(
-                err.response?.data?.message ||
-                    "登录失败，请检查您的用户名和密码",
-            );
+        } catch {
+            setError("登录失败，请检查您的用户名和密码");
         } finally {
             setLoading(false);
         }
