@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import * as http from 'http';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AuthService } from '../src/auth/auth.service';
@@ -44,7 +45,7 @@ describe('ShowcaseController (e2e)', () => {
 
     describe('标签管理', () => {
         it('应该创建一个新标签', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .post('/showcase/tags')
                 .set('Authorization', `Bearer ${userToken}`)
                 .send({
@@ -53,13 +54,14 @@ describe('ShowcaseController (e2e)', () => {
                 });
 
             expect(response.status).toBe(201);
-            expect(response.body).toHaveProperty('id');
-            expect(response.body.name).toBe(testTagName);
-            testTagId = parseInt(response.body.id, 10);
+            const tagBody = response.body as { id: string | number; name: string };
+            expect(tagBody).toHaveProperty('id');
+            expect(tagBody.name).toBe(testTagName);
+            testTagId = parseInt(tagBody.id as string, 10);
         }, 10000);
 
         it('应该获取所有标签', async () => {
-            const response = await request(app.getHttpServer()).get(
+            const response = await request(app.getHttpServer() as http.Server).get(
                 '/showcase/tags',
             );
 
@@ -77,30 +79,32 @@ describe('ShowcaseController (e2e)', () => {
                 tagIds: [testTagId],
             };
 
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .post('/showcase/posts')
                 .set('Authorization', `Bearer ${userToken}`)
                 .send(createPostDto);
 
             expect(response.status).toBe(201);
-            expect(response.body).toHaveProperty('id');
-            expect(response.body.title).toBe(createPostDto.title);
-            testPostId = parseInt(response.body.id, 10);
+            const postBody = response.body as { id: string | number; title: string };
+            expect(postBody).toHaveProperty('id');
+            expect(postBody.title).toBe(createPostDto.title);
+            testPostId = parseInt(postBody.id as string, 10);
         }, 10000);
 
         it('应该修改帖子内容', async () => {
             const newTitle = testPostTitle + ' updated';
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .put(`/showcase/posts/${testPostId}`)
                 .set('Authorization', `Bearer ${userToken}`)
                 .send({ title: newTitle });
 
             expect(response.status).toBe(200);
-            expect(response.body.title).toBe(newTitle);
+            const postBody = response.body as { title: string };
+            expect(postBody.title).toBe(newTitle);
         }, 10000);
 
         it('应该获取帖子列表', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .get('/showcase/posts')
                 .query({
                     sortBy: 'latest',
@@ -109,18 +113,20 @@ describe('ShowcaseController (e2e)', () => {
                 });
 
             expect(response.status).toBe(200);
-            expect(response.body).toHaveProperty('items');
-            expect(response.body).toHaveProperty('meta');
-            expect(Array.isArray(response.body.items)).toBe(true);
+            const listBody = response.body as { items: any[]; meta: any };
+            expect(listBody).toHaveProperty('items');
+            expect(listBody).toHaveProperty('meta');
+            expect(Array.isArray(listBody.items)).toBe(true);
         }, 10000);
 
         it('应该获取单个帖子详情', async () => {
-            const response = await request(app.getHttpServer()).get(
+            const response = await request(app.getHttpServer() as http.Server).get(
                 `/showcase/posts/${testPostId}`,
             );
 
             expect(response.status).toBe(200);
-            expect(parseInt(response.body.id, 10)).toBe(testPostId);
+            const postBody = response.body as { id: string | number };
+            expect(parseInt(postBody.id as string, 10)).toBe(testPostId);
         }, 10000);
     });
 
@@ -133,19 +139,20 @@ describe('ShowcaseController (e2e)', () => {
                 postId: testPostId,
             };
 
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .post('/showcase/comments')
                 .set('Authorization', `Bearer ${userToken}`)
                 .send(createCommentDto);
 
             expect(response.status).toBe(201);
-            expect(response.body).toHaveProperty('id');
-            expect(response.body.content).toBe(createCommentDto.content);
-            testCommentId = parseInt(response.body.id, 10);
+            const commentBody = response.body as { id: string | number; content: string };
+            expect(commentBody).toHaveProperty('id');
+            expect(commentBody.content).toBe(createCommentDto.content);
+            testCommentId = parseInt(commentBody.id as string, 10);
         }, 10000);
 
         it('应该获取帖子的评论列表', async () => {
-            const response = await request(app.getHttpServer()).get(
+            const response = await request(app.getHttpServer() as http.Server).get(
                 `/showcase/posts/${testPostId}/comments`,
             );
 
@@ -160,18 +167,19 @@ describe('ShowcaseController (e2e)', () => {
                 parentId: testCommentId,
             };
 
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .post('/showcase/comments')
                 .set('Authorization', `Bearer ${userToken}`)
                 .send(createReplyDto);
 
             expect(response.status).toBe(201);
-            expect(parseInt(response.body.parentId, 10)).toBe(testCommentId);
-            replyCommentId = parseInt(response.body.id, 10);
+            const replyBody = response.body as { id: string | number; parentId: string | number };
+            expect(parseInt(replyBody.parentId as string, 10)).toBe(testCommentId);
+            replyCommentId = parseInt(replyBody.id as string, 10);
         }, 10000);
 
         it('应该删除回复评论', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .delete(`/showcase/comments/${replyCommentId}`)
                 .set('Authorization', `Bearer ${userToken}`);
 
@@ -180,7 +188,7 @@ describe('ShowcaseController (e2e)', () => {
         }, 10000);
 
         it('应该删除主评论', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .delete(`/showcase/comments/${testCommentId}`)
                 .set('Authorization', `Bearer ${userToken}`);
 
@@ -191,12 +199,12 @@ describe('ShowcaseController (e2e)', () => {
 
     describe('帖子管理-删除', () => {
         it('应该删除帖子', async () => {
-            const response = await request(app.getHttpServer())
+            const response = await request(app.getHttpServer() as http.Server)
                 .delete(`/showcase/posts/${testPostId}`)
                 .set('Authorization', `Bearer ${userToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toHaveProperty('message');
+            expect((response.body as { message: string }).message).toBeDefined();
         }, 10000);
     });
 
