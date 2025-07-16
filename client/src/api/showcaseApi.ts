@@ -1,8 +1,14 @@
-// 通过标签ID获取帖子列表
+export interface IMeta {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+}
+
 export const getPostsByTagId = (
     tagId: number,
-    query?: Record<string, any>
-): Promise<AxiosResponse<{ items: IPost[]; meta?: any }>> => {
+    query?: Record<string, unknown>
+): Promise<AxiosResponse<{ items: IPost[]; meta?: IMeta }>> => {
     // 直接复用 /showcase/posts，tagIds 参数为字符串
     return apiClient.get(`/showcase/posts`, {
         params: { tagIds: String(tagId), ...(query || {}), },
@@ -55,7 +61,9 @@ export interface IComment {
 export interface ITag {
     id: number;
     name: string;
-    description: string;
+    description: string | null;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export type CreatePostPayload = {
@@ -97,8 +105,8 @@ export const createPost = (
 export const getPostsByCurioBoxId = (
     curioBoxId: number,
     page: number = 1,
-    pageSize: number = 10,
-): Promise<AxiosResponse<{ items: IPost[]; meta: any }>> => {
+    pageSize: number = 10
+): Promise<AxiosResponse<{ items: IPost[]; meta: IMeta }>> => {
     return apiClient.get(`/curio-boxes/${curioBoxId}/posts`, {
         params: { page, pageSize },
     });
