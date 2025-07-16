@@ -27,13 +27,15 @@ export class OrdersController {
     @ApiResponse({ status: 404, description: 'Curio box not found.' })
     @ApiResponse({ status: 400, description: 'Bad Request (e.g., insufficient item stock).' })
     @Post('orders/purchase')
-    async purchase(@Body() purchaseCurioBoxDto: PurchaseCurioBoxDto, @Request() req) {
-        const userId = req.user.sub || req.user.sub;
+    async purchase(
+        @Body() purchaseCurioBoxDto: PurchaseCurioBoxDto,
+        @Request() req: { user: { sub: number | string } }
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         const result = await this.ordersService.purchase(
             userId,
             purchaseCurioBoxDto,
         );
-
         return {
             message: '购买成功',
             order: {
@@ -50,8 +52,8 @@ export class OrdersController {
     @ApiResponse({ status: 200, description: 'Returns a list of current user\'s orders.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @Get('orders')
-    findAllByUser(@Request() req) {
-        const userId = req.user.sub || req.user.sub;
+    findAllByUser(@Request() req: { user: { sub: number | string } }) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         return this.ordersService.findAllByUser(userId);
     }
 
@@ -71,8 +73,11 @@ export class OrdersController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Order not found or not belonging to user.' })
     @Get('orders/:id')
-    async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-        const userId = req.user.sub || req.user.sub;
+    async findOne(
+        @Param('id', ParseIntPipe) id: number,
+        @Request() req: { user: { sub: number | string } }
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         if (isNaN(id)) {
             throw new NotFoundException('订单ID无效');
         }

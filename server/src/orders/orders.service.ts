@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
-import { User } from '../users/user.entity'; // 虽然未使用，但保留以备将来之需
+// import { User } from '../users/user.entity'; // 虽然未使用，但保留以备将来之需
 import { CurioBox } from '../curio-box/entities/curio-box.entity';
 import { UserBox, UserBoxStatus } from '../user-boxes/entities/user-box.entity';
 import { Item } from '../items/entities/item.entity';
@@ -121,7 +121,7 @@ export class OrdersService {
         const createdUserBoxes: UserBox[] = [];
         for (let i = 0; i < quantity; i++) {
             // 抽奖以确定盲盒内容。
-            const drawnItem = await this.drawItem(curioBox);
+            const drawnItem = this.drawItem(curioBox);
 
             // 减少物品库存。drawItem已过滤无库存物品，此处作为最后防线和实际操作。
             drawnItem.stock--;
@@ -149,7 +149,7 @@ export class OrdersService {
      * @param curioBox - 包含物品和概率信息的CurioBox实体。
      * @returns 返回抽中的Item实体。
      */
-    private async drawItem(curioBox: CurioBox): Promise<Item> {
+    private drawItem(curioBox: CurioBox): Item {
         const { items, itemProbabilities } = curioBox;
 
         // 1. 筛选出所有有库存的物品及其对应的概率。
@@ -234,8 +234,8 @@ export class OrdersService {
      * @returns 返回单个订单实体，如果不存在或不属于该用户则返回null。
      */
     async findOne(id: number, userId?: number): Promise<Order | null> {
-        const whereCondition: any = { id };
-        if (userId) {
+        const whereCondition: { id: number; userId?: number } = { id };
+        if (typeof userId === 'number') {
             whereCondition.userId = userId;
         }
         return this.orderRepository.findOne({
