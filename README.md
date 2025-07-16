@@ -1,5 +1,23 @@
 # CurioBox 项目说明
 
+## 技术栈
+
+- **前端**：
+  - 使用 React 19 + TypeScript 进行开发，基于 Vite 构建，具备高效的开发体验和现代化特性。
+  - 组件库采用 MUI（Material UI），提供丰富的高质量 UI 组件，支持主题定制。
+  - 样式方案结合 Tailwind CSS，实现原子化 CSS 快速开发。
+  - 路由管理采用 React Router（react-router-dom），支持多页面和嵌套路由。
+  - 网络请求通过 Axios 实现，便于与后端 API 交互。
+
+- **后端**：
+  - 基于 NestJS 11 + TypeScript，采用模块化架构，便于扩展和维护。
+  - 数据库使用 SQLite，轻量级、易于本地开发和测试。
+  - 数据访问层采用 TypeORM，支持实体建模和数据库迁移。
+  - 认证与权限采用 JWT（JSON Web Token）机制，配合 Passport 实现多策略认证。
+
+- **包管理**：
+  - 采用 pnpm 进行依赖管理和 Monorepo 多包统一管理，提升安装速度和一致性。
+
 ## 安装依赖
 
 本项目采用 [pnpm](https://pnpm.io/) 进行包管理。首次拉取代码后请先执行：
@@ -17,6 +35,74 @@ pnpm install
 > 以允许依赖包的编译。
 
 如遇依赖相关问题，请优先确认已执行上述命令。
+
+---
+
+## 目录结构
+
+- `client/` 前端项目，基于 React + Vite
+- `server/` 后端项目，基于 NestJS
+
+---
+
+## 常用命令
+
+### 根目录（Monorepo 管理）
+
+- 启动前后端开发环境：
+  ```sh
+  pnpm dev
+  ```
+- 统一构建所有子项目：
+  ```sh
+  pnpm build
+  ```
+- 统一代码检查：
+  ```sh
+  pnpm lint
+  ```
+- 统一代码格式化：
+  ```sh
+  pnpm format
+  ```
+
+### 前端 client/
+
+- 启动开发环境：
+  ```sh
+  pnpm --filter client dev
+  ```
+- 构建生产包：
+  ```sh
+  pnpm --filter client build
+  ```
+- 预览生产包：
+  ```sh
+  pnpm --filter client preview
+  ```
+- 代码检查：
+  ```sh
+  pnpm --filter client lint
+  ```
+
+### 后端 server/
+
+- 启动开发环境（自动重载）：
+  ```sh
+  pnpm --filter server start:dev
+  ```
+- 启动生产环境：
+  ```sh
+  pnpm --filter server start:prod
+  ```
+- 运行 e2e 测试：
+  ```sh
+  pnpm --filter server test:e2e
+  ```
+- 代码检查：
+  ```sh
+  pnpm --filter server lint
+  ```
 
 ---
 
