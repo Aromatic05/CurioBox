@@ -2,8 +2,9 @@ import axios from "axios";
 
 // 1. 创建 Axios 实例
 const apiClient = axios.create({
-    // 请将 'http://localhost:3000/api' 替换为你的实际后端API地址
-    baseURL: "http://localhost:3000/",
+    // ⚠️ 注意：如需在局域网访问，请将 baseURL 设置为后端服务器的内网 IP
+    // 例如：baseURL: "http://192.168.0.153:3000/"
+    baseURL: "http://192.168.0.153:3000/", // ← 修改为你的后端实际 IP
     timeout: 10000, // 请求超时时间 10 秒
     headers: {
         "Content-Type": "application/json",

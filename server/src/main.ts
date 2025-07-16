@@ -19,7 +19,7 @@ async function bootstrap() {
 
     // 启用 CORS，允许前端跨域访问
     app.enableCors({
-        origin: 'http://localhost:5173',
+        origin: ['http://localhost:5173', 'http://192.168.0.153:5173'], // 允许局域网访问
         credentials: true,
     });
 
@@ -32,6 +32,7 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
 
-    await app.listen(process.env.PORT ?? 3000);
+    // 监听 0.0.0.0 允许局域网访问
+    await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
