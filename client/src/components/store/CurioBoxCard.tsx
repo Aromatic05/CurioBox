@@ -41,7 +41,7 @@ const CurioBoxCard: React.FC<CurioBoxCardProps> = ({ box }) => {
                             }}
                         >
                             <img
-                                src={process.env.PUBLIC_URL + "/maidiaole.png"}
+                                src={"/maidiaole.png"}
                                 alt="卖完了"
                                 style={{
                                     maxWidth: "70%",
