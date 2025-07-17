@@ -80,7 +80,7 @@ const BoxEditPage: React.FC = () => {
                 .catch(() => setError("加载盲盒信息失败"))
                 .finally(() => setLoading(false));
         }
-    }, [id, isEdit, allItems, selectedItems]);
+    }, [id, isEdit, allItems]);
 
     // allItems加载后，修正selectedItems为allItems中的引用
     useEffect(() => {
@@ -90,7 +90,7 @@ const BoxEditPage: React.FC = () => {
             );
             setSelectedItems(fixed);
         }
-    }, [isEdit, allItems, selectedItems]);
+    }, [isEdit, allItems]);
 
     // 物品选择变化
     const handleItemsChange = (_: unknown, value: IItem[]) => {
