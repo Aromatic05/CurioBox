@@ -215,8 +215,10 @@ const PostDetailPage: React.FC = () => {
         setSubmitting(true);
         setSubmitError(null);
         try {
-            const res = await addCommentToPost(id, commentContent);
-            setComments((prev) => [...prev, res.data]);
+            await addCommentToPost(id, commentContent);
+            // 重新拉取评论，保证用户信息完整
+            const commentsResponse = await getCommentsByPostId(id);
+            setComments(commentsResponse.data);
             setCommentContent("");
         } catch (err) {
             console.log(err);
@@ -230,8 +232,10 @@ const PostDetailPage: React.FC = () => {
     const handleReplySubmit = async (parentId: number, content: string) => {
         if (!content.trim() || !id) return;
         try {
-            const res = await addCommentToPost(id, content, parentId);
-            setComments((prev) => [...prev, res.data]);
+            await addCommentToPost(id, content, parentId);
+            // 重新拉取评论，保证用户信息完整
+            const commentsResponse = await getCommentsByPostId(id);
+            setComments(commentsResponse.data);
         } catch (err) {
             // 可选：全局错误处理
         }
