@@ -1,9 +1,7 @@
 import React from "react";
 import Markdown from "markdown-to-jsx";
 import { Typography, Box, Paper, TextField, Button } from "@mui/material";
-import type { IComment } from "../../api/showcaseApi";
-
-export type CommentTree = IComment & { children: CommentTree[] };
+import type { CommentTree } from "./buildCommentTree";
 
 export interface CommentItemProps {
     comment: CommentTree;
@@ -28,6 +26,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDe
             setLocalReplyContent("");
             setShowReply(false);
         } catch (err) {
+            console.log(err)
             setLocalReplyError("回复失败，请重试。");
         } finally {
             setLocalReplySubmitting(false);
@@ -157,21 +156,5 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDe
         </Box>
     );
 };
-
-export function buildCommentTree(flatComments: IComment[]): Array<CommentTree> {
-    const map = new Map<number, CommentTree>();
-    const roots: Array<CommentTree> = [];
-    flatComments.forEach((c) => {
-        map.set(c.id, { ...c, children: [] });
-    });
-    map.forEach((comment) => {
-        if (comment.parentId && map.has(comment.parentId)) {
-            map.get(comment.parentId)!.children.push(comment);
-        } else {
-            roots.push(comment);
-        }
-    });
-    return roots;
-}
 
 export default CommentItem;

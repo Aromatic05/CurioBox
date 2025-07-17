@@ -16,7 +16,8 @@ import {
     Button,
 } from "@mui/material";
 import { useAuth } from "../../context/useAuth";
-import CommentItem, { buildCommentTree } from "../../components/showcase/CommentItem";
+import { buildCommentTree } from "../../components/showcase/buildCommentTree";
+import CommentItem from "../../components/showcase/CommentItem";
 import TagList from "../../components/showcase/TagList";
 import CurioBoxLink from "../../components/showcase/CurioBoxLink";
 import PostMeta from "../../components/showcase/PostMeta";
@@ -73,6 +74,7 @@ const PostDetailPage: React.FC = () => {
             setComments(commentsResponse.data);
         } catch (err) {
             // 可选：全局错误处理
+            console.log(err);
         }
     };
 
