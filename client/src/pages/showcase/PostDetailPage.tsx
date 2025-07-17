@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Markdown from "markdown-to-jsx";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById, deleteCommentById } from "../../api/showcaseApi";
 import { getCurioBoxById } from "../../api/curioBoxApi";
 import type { IComment, IPost } from "../../api/showcaseApi";
@@ -17,12 +17,15 @@ import {
 } from "@mui/material";
 import { useAuth } from "../../context/useAuth";
 import CommentItem, { buildCommentTree } from "../../components/showcase/CommentItem";
+import TagList from "../../components/showcase/TagList";
+import CurioBoxLink from "../../components/showcase/CurioBoxLink";
+import PostMeta from "../../components/showcase/PostMeta";
+import PostEditForm from "../../components/showcase/PostEditForm";
 
 
 const PostDetailPage: React.FC = () => {
     // 盲盒名称和跳转逻辑
     const [curioBoxName, setCurioBoxName] = useState<string | null>(null);
-    const navigate = useNavigate();
     const [post, setPost] = useState<IPost | null>(null);
     useEffect(() => {
         if (post?.curioBoxId) {
@@ -170,102 +173,29 @@ const PostDetailPage: React.FC = () => {
             <Paper sx={{ p: 4 }}>
                 {/* 编辑模式 */}
                 {editing ? (
-                    <>
-                        <TextField
-                            label="标题"
-                            fullWidth
-                            value={editTitle}
-                            onChange={(e) => setEditTitle(e.target.value)}
-                            sx={{ mb: 2 }}
-                        />
-                        <TextField
-                            label="内容"
-                            fullWidth
-                            multiline
-                            minRows={5}
-                            value={editContent}
-                            onChange={(e) => setEditContent(e.target.value)}
-                            sx={{ mb: 2 }}
-                        />
-                        {editError && (
-                            <Alert severity="error" sx={{ mb: 2 }}>
-                                {editError}
-                            </Alert>
-                        )}
-                        <Box sx={{ display: "flex", gap: 2 }}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleEditSave}
-                                disabled={editLoading}
-                            >
-                                {editLoading ? "保存中..." : "保存"}
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                onClick={() => setEditing(false)}
-                                disabled={editLoading}
-                            >
-                                取消
-                            </Button>
-                        </Box>
-                    </>
+                    <PostEditForm
+                        title={editTitle}
+                        content={editContent}
+                        loading={editLoading}
+                        error={editError}
+                        onTitleChange={setEditTitle}
+                        onContentChange={setEditContent}
+                        onSave={handleEditSave}
+                        onCancel={() => setEditing(false)}
+                    />
                 ) : (
                     <>
                         <Typography variant="h3" component="h1" gutterBottom>
                             {post.title}
                         </Typography>
-                        {/* 标签展示+调试信息 */}
-                        <Box sx={{ mb: 2 }}>
-                            {post.tags && post.tags.length > 0 ? (
-                                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                                    {post.tags.map((tag) => (
-                                        <Box
-                                            key={tag.id}
-                                            sx={{
-                                                px: 1.5,
-                                                py: 0.5,
-                                                bgcolor: "#e0f7fa",
-                                                borderRadius: 1,
-                                                fontSize: 14,
-                                                color: "#00796b",
-                                                fontWeight: 500,
-                                            }}
-                                        >
-                                            {tag.name}
-                                            {/* {tag.description && (
-                                                <span style={{ color: '#888', marginLeft: 4, fontSize: 12 }}>
-                                                    ({tag.description})
-                                                </span>
-                                            )} */}
-                                        </Box>
-                                    ))}
-                                </Box>
-                            ) : (
-                                <Typography variant="body2" color="error">
-                                    暂无标签
-                                </Typography>
-                            )}
-                        </Box>
-                        <Box sx={{ mb: 2, color: "text.secondary" }}>
-                            <Typography variant="body2" component="span">
-                                作者: {post.user?.username || "Anonymous"}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                component="span"
-                                sx={{ ml: 2 }}
-                            >
-                                发布于: {new Date(post.createdAt).toLocaleString()}
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                component="span"
-                                sx={{ ml: 2 }}
-                            >
-                                浏览量: {post.views ?? 0}
-                            </Typography>
-                        </Box>
+                        {/* 标签展示组件 */}
+                        <TagList tags={(post.tags || []).map(tag => ({ ...tag, description: tag.description ?? undefined }))} />
+                        {/* 帖子作者与元信息展示组件 */}
+                        <PostMeta
+                            username={post.user?.username}
+                            createdAt={post.createdAt}
+                            views={post.views}
+                        />
                         <Divider sx={{ my: 2 }} />
                         {post.images?.map((image, index) => (
                             <Box
@@ -280,19 +210,9 @@ const PostDetailPage: React.FC = () => {
                                 }}
                             />
                         ))}
-                        {/* 盲盒跳转链接展示 */}
+                        {/* 盲盒跳转链接展示组件 */}
                         {post.curioBoxId && (
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="body2" color="primary">
-                                    盲盒：
-                                    <span
-                                        style={{ textDecoration: "underline", color: "#1976d2", cursor: "pointer" }}
-                                        onClick={() => navigate(`/box/${post.curioBoxId}`)}
-                                    >
-                                        {curioBoxName || `ID: ${post.curioBoxId}`}
-                                    </span>
-                                </Typography>
-                            </Box>
+                            <CurioBoxLink curioBoxId={post.curioBoxId} curioBoxName={curioBoxName} />
                         )}
                         <Markdown
                             options={{
