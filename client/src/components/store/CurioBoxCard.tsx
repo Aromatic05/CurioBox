@@ -17,14 +17,41 @@ interface CurioBoxCardProps {
 const CurioBoxCard: React.FC<CurioBoxCardProps> = ({ box }) => {
     return (
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            <CardActionArea component={RouterLink} to={`/box/${box.id}`}>
-                <CardMedia
-                    component="img"
-                    height="200"
-                    // 您可以将这里的占位符图片替换为 box.coverImage 属性
-                    image={box.coverImage || "哈哈哈"}
-                    alt={box.name}
-                />
+            <CardActionArea component={RouterLink} to={`/box/${box.id}`}>  
+                <Box sx={{ position: "relative" }}>
+                    <CardMedia
+                        component="img"
+                        height="200"
+                        image={box.coverImage || "哈哈哈"}
+                        alt={box.name}
+                    />
+                    {box.boxCount === 0 && (
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                backgroundColor: "rgba(0,0,0,0.3)",
+                                zIndex: 2,
+                            }}
+                        >
+                            <img
+                                src={process.env.PUBLIC_URL + "/maidiaole.png"}
+                                alt="卖完了"
+                                style={{
+                                    maxWidth: "70%",
+                                    maxHeight: "70%",
+                                    opacity: 0.85,
+                                }}
+                            />
+                        </Box>
+                    )}
+                </Box>
                 <CardContent sx={{ flexGrow: 1 }}>
                     <Typography
                         gutterBottom
