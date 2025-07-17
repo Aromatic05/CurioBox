@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Markdown from "markdown-to-jsx";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById, deleteCommentById } from "../../api/showcaseApi";
 import { getCurioBoxById } from "../../api/curioBoxApi";
@@ -278,12 +279,19 @@ const PostDetailPage: React.FC = () => {
                                 </Typography>
                             </Box>
                         )}
-                        <Typography
-                            variant="body1"
-                            sx={{ mt: 2, whiteSpace: "pre-wrap" }}
+                        <Markdown
+                            options={{
+                                forceBlock: true,
+                                overrides: {
+                                    h1: { component: Typography, props: { variant: "h4", gutterBottom: true } },
+                                    h2: { component: Typography, props: { variant: "h5", gutterBottom: true } },
+                                    h3: { component: Typography, props: { variant: "h6", gutterBottom: true } },
+                                    p:  { component: Typography, props: { variant: "body1", sx: { mt: 2, whiteSpace: "pre-wrap", mb: 0 } } },
+                                },
+                            }}
                         >
                             {post.content}
-                        </Typography>
+                        </Markdown>
                         {/* 仅作者可见编辑按钮 */}
                         {currentUser?.id &&
                             post.user?.id === currentUser.id && (
@@ -390,12 +398,19 @@ const PostDetailPage: React.FC = () => {
                                     </Button>
                                 )}
                             </Box>
-                            <Typography
-                                variant="body2"
-                                sx={{ whiteSpace: "pre-wrap" }}
+                            <Markdown
+                                options={{
+                                    forceBlock: true,
+                                    overrides: {
+                                        h1: { component: Typography, props: { variant: "h6", gutterBottom: true } },
+                                        h2: { component: Typography, props: { variant: "subtitle1", gutterBottom: true } },
+                                        h3: { component: Typography, props: { variant: "subtitle2", gutterBottom: true } },
+                                        p:  { component: Typography, props: { variant: "body2", sx: { whiteSpace: "pre-wrap", mb: 0 } } },
+                                    },
+                                }}
                             >
                                 {comment.content}
-                            </Typography>
+                            </Markdown>
                         </Paper>
                     </Box>
                 ))}
