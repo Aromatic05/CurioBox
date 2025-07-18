@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@midwayjs/core':
+        specifier: ^3.20.4
+        version: 3.20.4
       '@nestjs/swagger':
         specifier: ^11.2.0
         version: 11.2.0(@nestjs/common@11.1.3(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.3)(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)
@@ -18,6 +21,9 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(express@5.1.0)
     devDependencies:
+      '@midwayjs/bundle-helper':
+        specifier: ^1.3.0
+        version: 1.3.0
       '@types/bcrypt':
         specifier: ^5.0.2
         version: 5.0.2
@@ -36,6 +42,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.3
         version: 6.0.3
+      '@vercel/ncc':
+        specifier: ^0.38.3
+        version: 0.38.3
       concurrently:
         specifier: ^9.2.0
         version: 9.2.0
@@ -1017,6 +1026,18 @@ packages:
 
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
+
+  '@midwayjs/bundle-helper@1.3.0':
+    resolution: {integrity: sha512-wZHIGeWzK+nTzrp4KFl4arfff9XS4bZkEnSWCHpWl4/PJII2voQ1OCJni02WRydb97Ec3wklM5toN4R8JLkmDQ==}
+    engines: {node: '>=12.0.0'}
+    hasBin: true
+
+  '@midwayjs/core@3.20.4':
+    resolution: {integrity: sha512-ePwj5XFAzhJXErKh2TnkGi1B+QsIJdoQpef3i/c4NEeW5bjXfDTaQO02lxq/Ln6h6hVHi9lPN3Qh4sS1ufqJPA==}
+    engines: {node: '>=12'}
+
+  '@midwayjs/glob@1.1.1':
+    resolution: {integrity: sha512-xoNU+JdCxE214KQrB0qgs88+Da7KYVICeuTL9VeKwaxZXj6a/PbpmEaH4+5BHLvZRRe78tHGR19+nKZrmMHBJg==}
 
   '@mui/core-downloads-tracker@7.2.0':
     resolution: {integrity: sha512-d49s7kEgI5iX40xb2YPazANvo7Bx0BLg/MNRwv+7BVpZUzXj1DaVCKlQTDex3gy/0jsCb4w7AY2uH4t4AJvSog==}
@@ -2008,6 +2029,10 @@ packages:
   '@typescript-eslint/visitor-keys@8.36.0':
     resolution: {integrity: sha512-vZrhV2lRPWDuGoxcmrzRZyxAggPL+qp3WzUrlZD+slFueDiYHxeBa34dUXPuC0RmGKzl4lS5kFJYvKCq9cnNDA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@vercel/ncc@0.38.3':
+    resolution: {integrity: sha512-rnK6hJBS6mwc+Bkab+PGPs9OiS0i/3kdTO+CkI8V0/VrW3vmz7O2Pxjw/owOlmo6PKEIxRSeZKv/kuL9itnpYA==}
+    hasBin: true
 
   '@vitejs/plugin-react-swc@3.10.2':
     resolution: {integrity: sha512-xD3Rdvrt5LgANug7WekBn1KhcvLn1H3jNBfJRL3reeOIua/WnZOEV5qi5qIBq5T8R0jUDmRtxuvk4bPhzGHDWw==}
@@ -5999,6 +6024,19 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
+  '@midwayjs/bundle-helper@1.3.0': {}
+
+  '@midwayjs/core@3.20.4':
+    dependencies:
+      '@midwayjs/glob': 1.1.1
+      class-transformer: 0.5.1
+      picomatch: 2.3.1
+      reflect-metadata: 0.2.2
+
+  '@midwayjs/glob@1.1.1':
+    dependencies:
+      picomatch: 2.3.1
+
   '@mui/core-downloads-tracker@7.2.0': {}
 
   '@mui/icons-material@7.2.0(@mui/material@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)':
@@ -6942,6 +6980,8 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.36.0
       eslint-visitor-keys: 4.2.1
+
+  '@vercel/ncc@0.38.3': {}
 
   '@vitejs/plugin-react-swc@3.10.2(vite@7.0.3(@types/node@22.16.2)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1))':
     dependencies:
