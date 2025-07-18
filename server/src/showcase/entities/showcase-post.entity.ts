@@ -13,6 +13,7 @@ import { User } from '../../users/user.entity';
 import { Tag } from './tag.entity';
 import { Comment } from './comment.entity';
 import { CurioBox } from '../../curio-box/entities/curio-box.entity';
+import { PostLike } from './post-like.entity';
 
 @Entity('showcase_posts')
 export class ShowcasePost {
@@ -65,6 +66,9 @@ export class ShowcasePost {
 
     @OneToMany(() => Comment, (comment) => comment.post)
     comments: Comment[];
+
+    @OneToMany(() => PostLike, (like) => like.post)
+    likesList: PostLike[];
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     lastActivityAt: Date;

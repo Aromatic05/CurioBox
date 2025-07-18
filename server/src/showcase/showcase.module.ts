@@ -9,6 +9,7 @@ import { ShowcaseService } from './showcase.service';
 import { TagService } from './tag.service';
 import { CommentService } from './comment.service';
 import { AuthModule } from '../auth/auth.module';
+import { PostLike } from './entities/post-like.entity';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from '../auth/auth.module';
             Tag,
             Comment,
             BlocklistedToken,
+            PostLike,
         ]),
         AuthModule,
     ],

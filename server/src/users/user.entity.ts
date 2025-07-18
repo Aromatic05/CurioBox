@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { OneToMany } from 'typeorm';
 import { UserItem } from '../items/entities/user-item.entity';
+import { PostLike } from '../showcase/entities/post-like.entity';
 
 @Entity() // 标记这个类是一个实体
 export class User {
@@ -45,4 +46,7 @@ export class User {
 
     @OneToMany(() => UserItem, userItem => userItem.user)
     userItems: UserItem[];
+
+    @OneToMany(() => PostLike, (like) => like.user)
+    postLikes: PostLike[];
 }

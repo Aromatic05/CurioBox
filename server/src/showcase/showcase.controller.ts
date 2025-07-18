@@ -117,6 +117,60 @@ export class ShowcaseController {
         );
     }
 
+    // 点赞相关接口
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Like a post' })
+    @ApiResponse({ status: 200, description: 'Liked successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 400, description: 'Already liked.' })
+    @Post('posts/:id/like')
+    @UseGuards(JwtAuthGuard)
+    async likePost(
+        @Request() req: { user: { sub: number | string } },
+        @Param('id') id: string
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.showcaseService.likePost(Number(id), userId);
+    }
+
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Unlike a post' })
+    @ApiResponse({ status: 200, description: 'Unliked successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 400, description: 'Not liked yet.' })
+    @Delete('posts/:id/like')
+    @UseGuards(JwtAuthGuard)
+    async unlikePost(
+        @Request() req: { user: { sub: number | string } },
+        @Param('id') id: string
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.showcaseService.unlikePost(Number(id), userId);
+    }
+
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get all posts liked by current user' })
+    @ApiResponse({ status: 200, description: 'Returns a list of liked posts.' })
+    @Get('me/liked-posts')
+    @UseGuards(JwtAuthGuard)
+    async getLikedPosts(@Request() req: { user: { sub: number | string } }) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.showcaseService.getLikedPostsByUser(userId);
+    }
+
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Check if current user liked the post' })
+    @ApiResponse({ status: 200, description: 'Returns liked: true/false.' })
+    @Get('posts/:id/liked')
+    @UseGuards(JwtAuthGuard)
+    async isPostLiked(
+        @Request() req: { user: { sub: number | string } },
+        @Param('id') id: string
+    ) {
+        const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
+        return this.showcaseService.isPostLikedByUser(Number(id), userId);
+    }
+
     // 评论相关接口
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a new comment or reply' })

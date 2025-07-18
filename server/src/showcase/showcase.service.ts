@@ -5,6 +5,7 @@ import { ShowcasePost } from './entities/showcase-post.entity';
 import { Tag } from './entities/tag.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { QueryPostsDto, SortBy, TimeRange } from './dto/query-posts.dto';
+import { PostLike } from './entities/post-like.entity';
 
 @Injectable()
 export class ShowcaseService {
@@ -38,6 +39,8 @@ export class ShowcaseService {
         private postRepository: Repository<ShowcasePost>,
         @InjectRepository(Tag)
         private tagRepository: Repository<Tag>,
+        @InjectRepository(PostLike)
+        private postLikeRepository: Repository<PostLike>,
     ) { }
 
     async createPost(
@@ -195,5 +198,49 @@ export class ShowcaseService {
             default:
                 return new Date(0);
         }
+    }
+    /**
+     * 用户点赞帖子
+     */
+    async likePost(postId: number, userId: number) {
+        // 检查是否已点赞
+        const existed = await this.postLikeRepository.findOne({ where: { postId, userId } });
+        if (existed) {
+            throw new Error('You have already liked this post');
+        }
+        // 创建点赞
+        await this.postLikeRepository.save({ postId, userId });
+        // 更新帖子点赞数
+        await this.postRepository.increment({ id: postId }, 'likes', 1);
+        return { message: 'Liked successfully' };
+    }
+
+    /**
+     * 用户取消点赞帖子
+     */
+    async unlikePost(postId: number, userId: number) {
+        const existed = await this.postLikeRepository.findOne({ where: { postId, userId } });
+        if (!existed) {
+            throw new Error('You have not liked this post');
+        }
+        await this.postLikeRepository.remove(existed);
+        await this.postRepository.decrement({ id: postId }, 'likes', 1);
+        return { message: 'Unliked successfully' };
+    }
+
+    /**
+     * 获取用户点赞过的所有帖子
+     */
+    async getLikedPostsByUser(userId: number) {
+        const likes = await this.postLikeRepository.find({ where: { userId }, relations: ['post'] });
+        return likes.map(like => like.post);
+    }
+
+    /**
+     * 判断用户是否已点赞某帖子
+     */
+    async isPostLikedByUser(postId: number, userId: number): Promise<{ liked: boolean }> {
+        const existed = await this.postLikeRepository.findOne({ where: { postId, userId } });
+        return { liked: !!existed };
     }
 }

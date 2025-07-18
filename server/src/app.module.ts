@@ -17,6 +17,7 @@ import { UserBoxesModule } from './user-boxes/user-boxes.module';
 import { UserBox } from './user-boxes/entities/user-box.entity';
 import { UserItem } from './items/entities/user-item.entity';
 import { UsersModule } from './users/users.module';
+import { PostLike } from './showcase/entities/post-like.entity';
 
 @Module({
     imports: [
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module';
                 Tag,
                 UserBox,
                 UserItem,
+                PostLike,
             ],
             synchronize: true,
         }),
