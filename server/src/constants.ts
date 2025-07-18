@@ -1,2 +1,4 @@
 // server/src/constants.ts
-export const ENTRYDIR = require('path').dirname(require.main?.filename || __dirname);
+import path from 'path';
+
+export const ENTRYDIR = path.dirname((require.main?.filename ?? __dirname));
