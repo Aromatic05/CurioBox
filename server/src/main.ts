@@ -24,7 +24,8 @@ async function bootstrap() {
     // 启用 CORS，允许前端跨域访问
     app.enableCors({
         origin: ['http://localhost:5173', 'http://192.168.0.153:5173',
-                 'http://localhost:4173', 'http://192.168.0.153:4173'
+                 'http://localhost:4173', 'http://192.168.0.153:4173',
+                 'http://localhost:3000', 'http://192.168.0.153:3000'
         ], // 允许局域网访问
         credentials: true,
     });
