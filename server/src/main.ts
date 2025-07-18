@@ -9,6 +9,8 @@ async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
 
+    // 配置全局 API 路由前缀
+    app.setGlobalPrefix('api');
     // 配置静态资源目录（前端构建产物）
     app.useStaticAssets(join(__dirname, '.', 'public'), {
         prefix: '/',
@@ -43,6 +45,13 @@ async function bootstrap() {
         'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js',
         'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js'
       ]
+    });
+
+    // SPA fallback: 兜底所有非 API/静态资源的 GET 请求，返回前端 index.html
+    const { readFileSync } = await import('fs');
+    const expressApp = app.getHttpAdapter().getInstance();
+    expressApp.get(/^\/(?!api|static|uploads|public|favicon\.ico).*/, (req, res) => {
+      res.type('html').send(readFileSync(join(__dirname, '.', 'public', 'index.html'), 'utf-8'));
     });
 
     // 监听 0.0.0.0 允许局域网访问

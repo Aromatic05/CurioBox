@@ -4,7 +4,7 @@ import axios from "axios";
 // 自动适配本地和局域网访问
 const { protocol, hostname } = window.location;
 const apiPort = 3000; // 后端端口
-const baseURL = `${protocol}//${hostname}:${apiPort}/`;
+const baseURL = `${protocol}//${hostname}:${apiPort}/api`;
 
 const apiClient = axios.create({
     baseURL,
