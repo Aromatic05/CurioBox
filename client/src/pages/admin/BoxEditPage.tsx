@@ -168,7 +168,8 @@ const BoxEditPage: React.FC = () => {
             if (isEdit) {
                 await updateCurioBox(Number(id), payload);
             } else {
-                await createCurioBox(payload);
+                // 新建时必须传递boxCount
+                await createCurioBox({ ...payload, boxCount: Number(form.boxCount) });
             }
             navigate("/admin/boxes");
         } catch {
@@ -184,8 +185,8 @@ const BoxEditPage: React.FC = () => {
                 {isEdit ? "编辑盲盒" : "新建盲盒"}
             </Typography>
             <form onSubmit={handleSubmit}>
-                {/* 盲盒数量，仅编辑模式可见 */}
-                {isEdit && (
+                {/* 盲盒数量输入框：新建时可编辑，编辑时可单独修改 */}
+                {isEdit ? (
                     <Box sx={{ mb: 2 }}>
                         <TextField
                             label="盲盒数量"
@@ -204,6 +205,17 @@ const BoxEditPage: React.FC = () => {
                             修改数量
                         </Button>
                     </Box>
+                ) : (
+                    <TextField
+                        label="盲盒数量"
+                        name="boxCount"
+                        type="number"
+                        value={form.boxCount}
+                        onChange={handleChange}
+                        fullWidth
+                        sx={{ mb: 2 }}
+                        required
+                    />
                 )}
                 <TextField
                     label="盲盒名称"
