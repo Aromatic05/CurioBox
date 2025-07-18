@@ -110,6 +110,7 @@ export class CurioBoxController {
 
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a new curio box (Admin only)' })
+    @ApiBody({ type: CreateCurioBoxDto })
     @ApiResponse({ status: 201, description: 'Curio box created successfully.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
     @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -145,6 +146,7 @@ export class CurioBoxController {
 
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Update a curio box (Admin only)' })
+    @ApiBody({ type: UpdateCurioBoxDto })
     @ApiResponse({ status: 200, description: 'Curio box updated successfully.' })
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'Curio box not found.' })
