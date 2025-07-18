@@ -26,9 +26,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build all packages
-        run: pnpm build
-
       - name: Run server tests
         run: pnpm --filter server test:e2e
 
@@ -37,3 +34,15 @@ jobs:
 
       - name: Run server lint
         run: pnpm --filter server lint
+
+      - name: Build release bundle
+        run: pnpm bundle
+
+      - name: Package release artifact
+        run: tar -czf curiobox-release.tar.gz -C server/build .
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: curiobox-release
+          path: curiobox-release.tar.gz
