@@ -1,10 +1,13 @@
 import axios from "axios";
 
 // 1. 创建 Axios 实例
+// 自动适配本地和局域网访问
+const { protocol, hostname } = window.location;
+const apiPort = 3000; // 后端端口
+const baseURL = `${protocol}//${hostname}:${apiPort}/`;
+
 const apiClient = axios.create({
-    // ⚠️ 注意：如需在局域网访问，请将 baseURL 设置为后端服务器的内网 IP
-    // 例如：baseURL: "http://192.168.0.153:3000/"
-    baseURL: "http://192.168.0.153:3000/", // ← 修改为你的后端实际 IP
+    baseURL,
     timeout: 10000, // 请求超时时间 10 秒
     headers: {
         "Content-Type": "application/json",
