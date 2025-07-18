@@ -28,6 +28,7 @@ export class AuthController {
     @ApiResponse({ status: 201, description: 'User registered successfully.' })
     @ApiResponse({ status: 409, description: 'Username already exists.' })
     @ApiResponse({ status: 400, description: 'Bad Request.' })
+    @ApiBody({ type: CreateUserDto, description: '注册请求体，包含用户名、密码、可选角色' })
     @Post('register')
     signUp(@Body() createUserDto: CreateUserDto) {
         return this.authService.signUp(createUserDto);
@@ -36,6 +37,7 @@ export class AuthController {
     @ApiOperation({ summary: 'User login' })
     @ApiResponse({ status: 200, description: 'User logged in successfully, returns accessToken.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiBody({ type: LoginDto, description: '登录请求体，包含用户名和密码' })
     @Post('login')
     @HttpCode(HttpStatus.OK)
     signIn(@Body() loginDto: LoginDto) {
@@ -45,6 +47,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Refresh access token' })
     @ApiResponse({ status: 200, description: 'Access token refreshed successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiBody({ schema: { example: { refreshToken: 'string' } }, description: '刷新token请求体，包含refreshToken字段' })
     // @UseGuards(JwtAuthGuard)
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
@@ -56,6 +59,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Change password' })
     @ApiResponse({ status: 200, description: 'Password changed successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiBody({ type: ChangePasswordDto, description: '修改密码请求体，包含oldPassword和newPassword' })
     @UseGuards(JwtAuthGuard)
     @Post('change-password')
     @HttpCode(HttpStatus.OK)
