@@ -9,6 +9,7 @@ import {
     Request,
     Put,
     Delete,
+    HttpCode,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ShowcaseService } from './showcase.service';
@@ -123,14 +124,18 @@ export class ShowcaseController {
     @ApiResponse({ status: 200, description: 'Liked successfully.' })
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 400, description: 'Already liked.' })
+    @HttpCode(200)
     @Post('posts/:id/like')
     @UseGuards(JwtAuthGuard)
     async likePost(
         @Request() req: { user: { sub: number | string } },
-        @Param('id') id: string
+        @Param('id') id: string,
+        @Body() _body?: any
     ) {
         const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
-        return this.showcaseService.likePost(Number(id), userId);
+        const result = await this.showcaseService.likePost(Number(id), userId);
+        // 显式返回200
+        return { ...result };
     }
 
     @ApiBearerAuth()
