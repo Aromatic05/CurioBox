@@ -129,8 +129,7 @@ export class ShowcaseController {
     @UseGuards(JwtAuthGuard)
     async likePost(
         @Request() req: { user: { sub: number | string } },
-        @Param('id') id: string,
-        @Body() _body?: any
+        @Param('id') id: string
     ) {
         const userId = typeof req.user?.sub === 'number' ? req.user.sub : Number(req.user?.sub);
         const result = await this.showcaseService.likePost(Number(id), userId);
