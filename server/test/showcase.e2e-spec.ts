@@ -120,7 +120,8 @@ describe('ShowcaseController (e2e)', () => {
                 .set('Authorization', `Bearer ${userToken}`);
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body.some((p: any) => parseInt(p.id, 10) === testPostId)).toBe(true);
+            const likedPosts = response.body as Array<{ id: string | number }>;
+            expect(likedPosts.some(p => parseInt(p.id as string, 10) === testPostId)).toBe(true);
         });
 
         it('应该取消点赞', async () => {
