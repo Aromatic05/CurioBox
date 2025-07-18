@@ -173,3 +173,29 @@ export const deleteCommentById = (
 ): Promise<AxiosResponse<{ message: string }>> => {
     return apiClient.delete(`/showcase/comments/${id}`);
 };
+
+// 点赞帖子
+export const likePost = (
+    postId: string | number
+): Promise<AxiosResponse<{ message: string }>> => {
+    return apiClient.post(`/showcase/posts/${postId}/like`);
+};
+
+// 取消点赞帖子
+export const unlikePost = (
+    postId: string | number
+): Promise<AxiosResponse<{ message: string }>> => {
+    return apiClient.delete(`/showcase/posts/${postId}/like`);
+};
+
+// 获取当前用户点赞过的帖子
+export const getLikedPosts = (): Promise<AxiosResponse<IPost[]>> => {
+    return apiClient.get('/showcase/me/liked-posts');
+};
+
+// 判断当前用户是否点赞了某帖子
+export const isPostLiked = (
+    postId: string | number
+): Promise<AxiosResponse<{ liked: boolean }>> => {
+    return apiClient.get(`/showcase/posts/${postId}/liked`);
+};
