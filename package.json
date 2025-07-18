@@ -9,7 +9,8 @@
         "build": "pnpm -r build",
         "lint": "pnpm -r lint",
         "format": "prettier --tab-width 4 --write \"**/*.{ts,tsx,js,json,md,css}\"",
-        "bundle": "pnpm --filter server build && ncc build server/dist/main.js -o server/build",
+        "copy:client": "rm -rf server/build/public && mkdir -p server/build/public && cp -r client/dist/* server/build/public/",
+        "bundle": "pnpm --filter client build && pnpm copy:client && pnpm --filter server build && ncc build server/dist/main.js -o server/build",
         "bundle_start": "NODE_ENV=production node ./server/build/index.js"
     },
     "keywords": [],
