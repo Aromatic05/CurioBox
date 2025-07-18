@@ -15,7 +15,7 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { UnbanUserDto } from './dto/unban-user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from '../users/users.service';
-import { ENTRYDIR } from 'src/constants';
+import { ENTRYDIR } from '../constants';
 
 @ApiTags('Auth')
 @Controller('auth')

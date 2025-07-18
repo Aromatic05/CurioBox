@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { ENTRYDIR } from 'src/constants';
+import { ENTRYDIR } from '../src/constants';
 
 // 测试用 admin 和普通用户
 const adminUser = {
