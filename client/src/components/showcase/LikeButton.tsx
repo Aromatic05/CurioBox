@@ -21,7 +21,6 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, initialLiked = false, i
             .then(res => setLiked(res.data.liked))
             .catch(() => setLiked(false));
         setLikeCount(initialCount);
-        // eslint-disable-next-line
     }, [postId, initialCount]);
 
     const handleLike = async () => {
