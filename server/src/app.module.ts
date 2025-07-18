@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ENTRYDIR } from './constants';
+import { join } from 'path';
 import { CurioBoxModule } from './curio-box/curio-box.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -24,7 +25,7 @@ import { PostLike } from './showcase/entities/post-like.entity';
     imports: [
         TypeOrmModule.forRoot({
             type: 'sqlite',
-            database: 'curiobox.db',
+            database: join(ENTRYDIR, 'curiobox.db'),
             entities: [
                 User,
                 CurioBox,
