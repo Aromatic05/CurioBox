@@ -33,6 +33,7 @@
         "@midwayjs/core": "^3.20.4",
         "@nestjs/swagger": "^11.2.0",
         "multer": "^2.0.1",
+        "swagger-ui-dist": "^5.27.0",
         "swagger-ui-express": "^5.0.1"
     }
 }

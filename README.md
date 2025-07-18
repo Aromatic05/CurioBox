@@ -76,6 +76,18 @@ pnpm install
   pnpm format
   ```
 
+- 一键打包前后端 release 产物（适合生产部署）：
+  ```sh
+  pnpm bundle
+  ```
+  产物会输出到 `server/build/` 目录，包含后端可执行文件和前端静态资源。
+
+- 启动打包后的 release 产物：
+  ```sh
+  pnpm bundle_start
+  ```
+  生产环境下会自动运行 `server/build/index.js`，前端静态资源可通过同一端口访问。
+
 ### 前端 client/
 
 - 启动开发环境：
