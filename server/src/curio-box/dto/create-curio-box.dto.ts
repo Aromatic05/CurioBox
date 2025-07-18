@@ -1,5 +1,3 @@
-// /home/aromatic/Applications/CurioBox/server/src/curio-box/dto/create-curio-box.dto.ts
-
 import {
     IsString,
     IsNotEmpty,
@@ -12,20 +10,10 @@ import {
     IsDefined,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ItemProbabilityDto {
-    @IsNumberField()
-    @IsPositive()
-    itemId: number;
-
-    @IsNumberField()
-    probability: number;
-}
-
-// FIX: 创建一个辅助函数来安全地解析未知值到对象
-// 这个函数保证了返回类型是 `Record<string, unknown> | null`，而不是 `any`。
+// Helper function must be declared before usage
 function safeParseToObject(value: unknown): Record<string, unknown> | null {
-    // 如果已经是对象，直接返回
     if (typeof value === 'object' && value !== null) {
         return value as Record<string, unknown>;
     }
@@ -43,33 +31,52 @@ function safeParseToObject(value: unknown): Record<string, unknown> | null {
     return null; // 其他类型或解析失败
 }
 
+// Move ItemProbabilityDto to the top so it can be referenced below
+export class ItemProbabilityDto {
+    @ApiProperty({ description: 'ID of the item', example: 101 })
+    @IsNumberField()
+    @IsPositive()
+    itemId: number;
+
+    @ApiProperty({ description: 'Probability for this item (0~1)', example: 0.25 })
+    @IsNumberField()
+    probability: number;
+}
+
 export class CreateCurioBoxDto {
+    @ApiProperty({ description: 'Name of the curio box', example: 'Lucky Box' })
     @IsString()
     @IsNotEmpty()
     name: string;
 
+    @ApiProperty({ description: 'Description of the curio box', example: 'A box full of surprises.' })
     @IsString()
     @IsNotEmpty()
     description: string;
 
+    @ApiProperty({ description: 'Price of the curio box', example: 99.99 })
     @Transform(({ value }) => Number(value))
     @IsNumber()
     price: number;
 
+    @ApiProperty({ description: 'Total number of boxes available', example: 100 })
     @Transform(({ value }) => Number(value))
     @IsNumber()
     @IsPositive()
     @IsDefined()
     boxCount: number;
 
+    @ApiPropertyOptional({ description: 'Cover image URL', example: '/static/cover.jpg' })
     @IsOptional()
     // @IsUrl()
     coverImage?: string;
 
+    @ApiProperty({ description: 'Category of the curio box', example: 'toys' })
     @IsString()
     @IsNotEmpty()
     category: string;
 
+    @ApiPropertyOptional({ description: 'IDs of items in the box', example: [1, 2, 3], type: [Number] })
     @IsOptional()
     @Transform(({ value }) => {
         if (Array.isArray(value)) {
@@ -99,39 +106,26 @@ export class CreateCurioBoxDto {
     @IsNumberField({}, { each: true })
     itemIds?: number[];
 
+    @ApiPropertyOptional({ description: 'Item probabilities (itemId & probability)', type: [ItemProbabilityDto], example: [ { itemId: 101, probability: 0.25 }, { itemId: 102, probability: 0.75 } ] })
     @IsOptional()
     @Transform(({ value }) => {
-        // Case 1: 值已经是一个数组 (e.g., from multipart/form-data)
         if (Array.isArray(value)) {
-            // FIX: 使用辅助函数安全地映射每个元素，并过滤掉无效项。
-            // .map() 返回 (Record<string, unknown> | null)[]
-            // .filter(Boolean) 移除所有 null，最终返回类型为 Record<string, unknown>[]，这是类型安全的。
             return value.map(safeParseToObject).filter(Boolean);
         }
-
-        // Case 2: 值是一个字符串 (e.g., from x-www-form-urlencoded)
         if (typeof value === 'string') {
             try {
                 const parsed = JSON.parse(value) as unknown;
-
-                // 如果解析结果是一个数组
                 if (Array.isArray(parsed)) {
-                    // FIX: 同样，安全地处理这个数组，确保返回类型安全。
                     return parsed.map(safeParseToObject).filter(Boolean);
                 }
-
-                // 如果解析结果是一个单独的对象
                 const singleObject = safeParseToObject(parsed);
                 if (singleObject) {
                     return [singleObject];
                 }
             } catch {
-                // JSON 格式无效
                 return [];
             }
         }
-
-        // 所有其他情况
         return [];
     })
     @IsArray()
