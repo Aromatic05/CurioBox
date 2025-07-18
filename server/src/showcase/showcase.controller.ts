@@ -214,6 +214,7 @@ export class ShowcaseController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'Comment not found.' })
     @ApiBody({ type: UpdateCommentDto })
+    @ApiBody({ type: UpdateCommentDto, description: 'Update comment content', examples: { example: { summary: 'Update comment', value: { content: 'Updated comment content' } } } })
     @Put('comments/:id')
     @UseGuards(JwtAuthGuard)
     updateComment(
