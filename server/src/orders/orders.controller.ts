@@ -12,7 +12,7 @@ import {
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PurchaseCurioBoxDto } from './dto/purchase-curio-box.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Orders')
 @Controller()
@@ -26,6 +26,7 @@ export class OrdersController {
     @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @ApiResponse({ status: 404, description: 'Curio box not found.' })
     @ApiResponse({ status: 400, description: 'Bad Request (e.g., insufficient item stock).' })
+    @ApiBody({ type: PurchaseCurioBoxDto })
     @Post('orders/purchase')
     async purchase(
         @Body() purchaseCurioBoxDto: PurchaseCurioBoxDto,
