@@ -197,6 +197,9 @@ const PostDetailPage: React.FC = () => {
                             username={post.user?.username}
                             createdAt={post.createdAt}
                             views={post.views}
+                            likes={post.likes}
+                            postId={post.id}
+                            showLikeButton={true}
                         />
                         <Divider sx={{ my: 2 }} />
                         {post.images?.map((image, index) => (

@@ -11,11 +11,8 @@ import {
 } from "@mui/material";
 import type { IPost } from "../../api/showcaseApi";
 import { getCurioBoxById } from "../../api/curioBoxApi";
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import { likePost, unlikePost, isPostLiked } from '../../api/showcaseApi';
+import LikeButton from './LikeButton';
 
 interface PostCardProps {
     post: IPost;
@@ -25,39 +22,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const navigate = useNavigate();
     const [curioBoxName, setCurioBoxName] = useState<string | null>(null);
 
-    // 点赞相关
-    const [liked, setLiked] = useState<boolean>(false);
-    const [likeCount, setLikeCount] = useState<number>(post.likes || 0);
-    const [likeLoading, setLikeLoading] = useState(false);
 
-    useEffect(() => {
-        // 查询当前用户是否点赞
-        isPostLiked(post.id)
-            .then(res => setLiked(res.data.liked))
-            .catch(() => setLiked(false));
-        setLikeCount(post.likes || 0);
-    }, [post.id, post.likes]);
-
-    const handleLike = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (likeLoading) return;
-        setLikeLoading(true);
-        try {
-            if (liked) {
-                await unlikePost(post.id);
-                setLiked(false);
-                setLikeCount(c => Math.max(0, c - 1));
-            } else {
-                await likePost(post.id);
-                setLiked(true);
-                setLikeCount(c => c + 1);
-            }
-        } catch (err) {
-            // 可选：toast错误
-        } finally {
-            setLikeLoading(false);
-        }
-    };
 
     useEffect(() => {
         // 如果 curioBoxId 存在且没有 curioBox.name，则前端查一次
@@ -145,22 +110,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         </span>
                     </Tooltip>
                 )}
-                {/* 点赞按钮和数量 */}
-                <Tooltip title={liked ? '取消点赞' : '点赞'}>
-                    <span>
-                        <IconButton
-                            color={liked ? 'error' : 'default'}
-                            onClick={handleLike}
-                            disabled={likeLoading}
-                            size="small"
-                        >
-                            {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                        </IconButton>
-                    </span>
-                </Tooltip>
-                <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
-                    {likeCount}
-                </Typography>
+                {/* 点赞按钮和数量组件化 */}
+                <LikeButton postId={post.id} initialCount={post.likes || 0} size="small" />
             </CardActions>
         </Card>
     );
