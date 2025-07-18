@@ -28,6 +28,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ENTRYDIR } from '../constants';
 
 @ApiTags('CurioBox')
 @Controller('curio-boxes') // 路由前缀统一为复数形式
@@ -79,7 +80,7 @@ export class CurioBoxController {
     @UseInterceptors(
         FileInterceptor('coverImage', {
             storage: diskStorage({
-                destination: './uploads',
+                destination: require('path').join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)
@@ -230,7 +231,7 @@ export class CurioBoxController {
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
-                destination: './uploads',
+                destination: require('path').join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)

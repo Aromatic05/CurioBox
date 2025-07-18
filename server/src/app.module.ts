@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ENTRYDIR } from './constants';
 import { CurioBoxModule } from './curio-box/curio-box.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -48,6 +49,11 @@ import { PostLike } from './showcase/entities/post-like.entity';
         UsersModule,
     ],
     controllers: [],
-    providers: [],
+    providers: [
+        {
+            provide: ENTRYDIR,
+            useValue: ENTRYDIR,
+        },
+    ],
 })
 export class AppModule {}

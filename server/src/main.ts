@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ENTRYDIR } from './constants';
 
 async function bootstrap() {
     // 需要显式指定类型为 NestExpressApplication
@@ -12,16 +13,16 @@ async function bootstrap() {
     // 配置全局 API 路由前缀
     app.setGlobalPrefix('api');
     // 配置静态资源目录（前端构建产物）
-    app.useStaticAssets(join(__dirname, '.', 'public'), {
+    app.useStaticAssets(join(ENTRYDIR, 'public'), {
         prefix: '/',
     });
     // 配置静态资源目录（上传文件）
-    app.useStaticAssets(join(__dirname, '.', 'uploads'), {
+    app.useStaticAssets(join(ENTRYDIR, 'uploads'), {
         prefix: '/static/',
     });
 
-    console.log('Static assets dir:', join(__dirname, '..', 'uploads'));
-    console.log('Frontend public dir:', join(__dirname, '..', 'public'));
+    console.log('Static assets dir:', join(ENTRYDIR, 'uploads'));
+    console.log('Frontend public dir:', join(ENTRYDIR, 'public'));
 
     // 启用 CORS，允许前端跨域访问
     app.enableCors({

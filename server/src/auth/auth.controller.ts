@@ -15,6 +15,7 @@ import { BanUserDto } from './dto/ban-user.dto';
 import { UnbanUserDto } from './dto/unban-user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from '../users/users.service';
+import { ENTRYDIR } from 'src/constants';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -117,7 +118,7 @@ export class AuthController {
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
-                destination: './uploads',
+                destination: require('path').join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)

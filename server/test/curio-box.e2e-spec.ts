@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { ENTRYDIR } from 'src/constants';
 
 // 测试用 admin 和普通用户
 const adminUser = {
@@ -55,7 +56,7 @@ describe('CurioBoxController (e2e)', () => {
 
         app = moduleFixture.createNestApplication<NestExpressApplication>();
         // 注册静态资源目录，兼容 e2e 测试图片访问
-        app.useStaticAssets(join(__dirname, '../uploads'), {
+        app.useStaticAssets(join(ENTRYDIR, 'uploads'), {
             prefix: '/static/',
         });
         app.useGlobalPipes(new ValidationPipe());

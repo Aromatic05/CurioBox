@@ -19,6 +19,7 @@ import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ENTRYDIR } from '../constants';
 
 @ApiTags('Items')
 @Controller('items')
@@ -56,7 +57,7 @@ export class ItemsController {
     @UseInterceptors(
         FileInterceptor('image', {
             storage: diskStorage({
-                destination: './uploads',
+                destination: require('path').join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)
@@ -106,7 +107,7 @@ export class ItemsController {
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
-                destination: './uploads',
+                destination: require('path').join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)
