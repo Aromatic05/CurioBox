@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
     IsString,
     IsNotEmpty,
@@ -8,27 +9,33 @@ import {
 import { Transform } from 'class-transformer';
 
 export class CreateItemDto {
+    @ApiProperty({ description: 'Name of the item', example: 'Teddy Bear' })
     @IsString()
     @IsNotEmpty()
     name: string;
 
+    @ApiPropertyOptional({ description: 'Image URL of the item', example: '/static/item1.jpg' })
     @IsOptional()
     // @IsUrl()
     image?: string;
 
+    @ApiProperty({ description: 'Category of the item', example: 'toys' })
     @IsString()
     @IsNotEmpty()
     category: string;
 
+    @ApiProperty({ description: 'Stock of the item', example: 100 })
     @Transform(({ value }) => Number(value))
     @IsNumber()
     @IsNotEmpty()
     stock: number;
 
+    @ApiProperty({ description: 'Rarity of the item', example: 'rare' })
     @IsString()
     @IsNotEmpty()
     rarity: string;
 
+    @ApiPropertyOptional({ description: 'IDs of curio boxes this item belongs to', example: [1, 2, 3], type: [Number] })
     @IsOptional()
     @Transform(({ value }) => {
         const toNumber = (v: unknown): number | undefined => {
