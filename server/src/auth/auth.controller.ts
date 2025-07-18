@@ -2,7 +2,7 @@ import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request, Get, 
 import { UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import path, { extname } from 'path';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -118,7 +118,7 @@ export class AuthController {
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
-                destination: require('path').join(ENTRYDIR, 'uploads'),
+                destination: path.join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)

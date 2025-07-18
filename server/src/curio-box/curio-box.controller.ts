@@ -26,7 +26,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import path, { extname } from 'path';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ENTRYDIR } from '../constants';
 
@@ -80,7 +80,7 @@ export class CurioBoxController {
     @UseInterceptors(
         FileInterceptor('coverImage', {
             storage: diskStorage({
-                destination: require('path').join(ENTRYDIR, 'uploads'),
+                destination: path.join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)
@@ -231,7 +231,7 @@ export class CurioBoxController {
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
-                destination: require('path').join(ENTRYDIR, 'uploads'),
+                destination: path.join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)

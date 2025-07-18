@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import path, { extname } from 'path';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './dto/create-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
@@ -57,7 +57,7 @@ export class ItemsController {
     @UseInterceptors(
         FileInterceptor('image', {
             storage: diskStorage({
-                destination: require('path').join(ENTRYDIR, 'uploads'),
+                destination: path.join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)
@@ -107,7 +107,7 @@ export class ItemsController {
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
-                destination: require('path').join(ENTRYDIR, 'uploads'),
+                destination: path.join(ENTRYDIR, 'uploads'),
                 filename: (req, file, cb) => {
                     const randomName = Array(32)
                         .fill(null)
