@@ -7,9 +7,15 @@ import {
     CardMedia,
     Typography,
     Box,
+    CardActions,
 } from "@mui/material";
 import type { IPost } from "../../api/showcaseApi";
 import { getCurioBoxById } from "../../api/curioBoxApi";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import { likePost, unlikePost, isPostLiked } from '../../api/showcaseApi';
 
 interface PostCardProps {
     post: IPost;
@@ -18,6 +24,40 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const navigate = useNavigate();
     const [curioBoxName, setCurioBoxName] = useState<string | null>(null);
+
+    // 点赞相关
+    const [liked, setLiked] = useState<boolean>(false);
+    const [likeCount, setLikeCount] = useState<number>(post.likes || 0);
+    const [likeLoading, setLikeLoading] = useState(false);
+
+    useEffect(() => {
+        // 查询当前用户是否点赞
+        isPostLiked(post.id)
+            .then(res => setLiked(res.data.liked))
+            .catch(() => setLiked(false));
+        setLikeCount(post.likes || 0);
+    }, [post.id, post.likes]);
+
+    const handleLike = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (likeLoading) return;
+        setLikeLoading(true);
+        try {
+            if (liked) {
+                await unlikePost(post.id);
+                setLiked(false);
+                setLikeCount(c => Math.max(0, c - 1));
+            } else {
+                await likePost(post.id);
+                setLiked(true);
+                setLikeCount(c => c + 1);
+            }
+        } catch (err) {
+            // 可选：toast错误
+        } finally {
+            setLikeLoading(false);
+        }
+    };
 
     useEffect(() => {
         // 如果 curioBoxId 存在且没有 curioBox.name，则前端查一次
@@ -38,7 +78,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     component="img"
                     height="180"
                     image={
-                        post.images?.[0] || 
+                        post.images?.[0] ||
                         `https://via.placeholder.com/300x180?text=No+Image`
                     }
                     alt={post.title}
@@ -68,20 +108,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                             ))}
                         </Box>
                     )}
-                    {/* 盲盒信息展示 */}
-                    {post.curioBoxId && (
-                        <Box sx={{ mb: 1 }}>
-                            <Typography variant="body2" color="primary">
-                                盲盒：
-                                <span
-                                    style={{ textDecoration: "underline", color: "#1976d2", cursor: "pointer" }}
-                                    onClick={() => navigate(`/box/${post.curioBoxId}`)}
-                                >
-                                    {curioBoxName || `ID: ${post.curioBoxId}`}
-                                </span>
-                            </Typography>
-                        </Box>
-                    )}
+                    {/* 盲盒信息展示（已移至CardActions） */}
                     <Box
                         sx={{
                             display: "flex",
@@ -98,6 +125,43 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     </Box>
                 </CardContent>
             </CardActionArea>
+            <CardActions sx={{ pl: 1, pt: 0, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }} disableSpacing>
+                {/* 盲盒链接 */}
+                {post.curioBoxId && (
+                    <Tooltip title="查看盲盒详情">
+                        <span>
+                            <Typography
+                                variant="body2"
+                                color="primary"
+                                sx={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
+                                onClick={e => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    navigate(`/box/${post.curioBoxId}`);
+                                }}
+                            >
+                                盲盒: {curioBoxName || `ID: ${post.curioBoxId}`}
+                            </Typography>
+                        </span>
+                    </Tooltip>
+                )}
+                {/* 点赞按钮和数量 */}
+                <Tooltip title={liked ? '取消点赞' : '点赞'}>
+                    <span>
+                        <IconButton
+                            color={liked ? 'error' : 'default'}
+                            onClick={handleLike}
+                            disabled={likeLoading}
+                            size="small"
+                        >
+                            {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                    </span>
+                </Tooltip>
+                <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
+                    {likeCount}
+                </Typography>
+            </CardActions>
         </Card>
     );
 };

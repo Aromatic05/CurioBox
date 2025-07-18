@@ -37,12 +37,18 @@ export interface IPost {
         username: string;
     };
     createdAt: string;
+    updatedAt?: string;
     curioBoxId?: number;
     curioBox?: {
         id: number;
         name: string;
     };
     views: number;
+    likes: number;
+    commentCount: number;
+    score?: number;
+    hotScore?: number;
+    lastActivityAt?: string;
 }
 
 export interface IComment {
