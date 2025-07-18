@@ -70,6 +70,7 @@ export const uploadAvatar = async (
         headers: { "Content-Type": "multipart/form-data" },
     });
     let baseURL = apiClient.defaults.baseURL || "";
+    baseURL = baseURL.replace(/\/api$/, "");
     if (baseURL.endsWith("/")) baseURL = baseURL.slice(0, -1);
     const url = res.data.url.startsWith("/")
         ? baseURL + res.data.url

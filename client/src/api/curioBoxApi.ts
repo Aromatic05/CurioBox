@@ -107,6 +107,7 @@ export const uploadCurioBoxImage = async (
     });
     // 自动补全 baseURL，避免重复斜杠
     let baseURL = apiClient.defaults.baseURL || "";
+    baseURL = baseURL.replace(/\/api$/, "");
     if (baseURL.endsWith("/")) baseURL = baseURL.slice(0, -1);
     const url = res.data.url.startsWith("/")
         ? baseURL + res.data.url

@@ -72,9 +72,12 @@ export const uploadItemImage = async (
     });
     // 自动补全 baseURL，避免重复斜杠
     let baseURL = apiClient.defaults.baseURL || "";
+    baseURL = baseURL.replace(/\/api$/, "");
     if (baseURL.endsWith("/")) baseURL = baseURL.slice(0, -1);
+    console.log(baseURL, res.data.url);
     const url = res.data.url.startsWith("/")
         ? baseURL + res.data.url
         : res.data.url;
+    console.log("上传物品图片返回的完整URL:", url);
     return { ...res, data: { url } };
 };
