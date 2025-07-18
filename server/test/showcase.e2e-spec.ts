@@ -91,6 +91,54 @@ describe('ShowcaseController (e2e)', () => {
             testPostId = parseInt(postBody.id as string, 10);
         }, 10000);
 
+        it('应该点赞帖子', async () => {
+            const response = await request(app.getHttpServer() as http.Server)
+                .post(`/showcase/posts/${testPostId}/like`)
+                .set('Authorization', `Bearer ${userToken}`);
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('message');
+        });
+
+        it('应该返回已点赞状态', async () => {
+            const response = await request(app.getHttpServer() as http.Server)
+                .get(`/showcase/posts/${testPostId}/liked`)
+                .set('Authorization', `Bearer ${userToken}`);
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ liked: true });
+        });
+
+        it('重复点赞应该报错', async () => {
+            const response = await request(app.getHttpServer() as http.Server)
+                .post(`/showcase/posts/${testPostId}/like`)
+                .set('Authorization', `Bearer ${userToken}`);
+            expect(response.status).toBe(400);
+        });
+
+        it('应该获取当前用户点赞过的帖子', async () => {
+            const response = await request(app.getHttpServer() as http.Server)
+                .get('/showcase/me/liked-posts')
+                .set('Authorization', `Bearer ${userToken}`);
+            expect(response.status).toBe(200);
+            expect(Array.isArray(response.body)).toBe(true);
+            expect(response.body.some((p: any) => parseInt(p.id, 10) === testPostId)).toBe(true);
+        });
+
+        it('应该取消点赞', async () => {
+            const response = await request(app.getHttpServer() as http.Server)
+                .delete(`/showcase/posts/${testPostId}/like`)
+                .set('Authorization', `Bearer ${userToken}`);
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('message');
+        });
+
+        it('取消点赞后应该返回未点赞状态', async () => {
+            const response = await request(app.getHttpServer() as http.Server)
+                .get(`/showcase/posts/${testPostId}/liked`)
+                .set('Authorization', `Bearer ${userToken}`);
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ liked: false });
+        });
+
         it('应该修改帖子内容', async () => {
             const newTitle = testPostTitle + ' updated';
             const response = await request(app.getHttpServer() as http.Server)

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ShowcasePost } from './entities/showcase-post.entity';
@@ -206,7 +207,7 @@ export class ShowcaseService {
         // 检查是否已点赞
         const existed = await this.postLikeRepository.findOne({ where: { postId, userId } });
         if (existed) {
-            throw new Error('You have already liked this post');
+            throw new BadRequestException('You have already liked this post');
         }
         // 创建点赞
         await this.postLikeRepository.save({ postId, userId });
@@ -221,7 +222,7 @@ export class ShowcaseService {
     async unlikePost(postId: number, userId: number) {
         const existed = await this.postLikeRepository.findOne({ where: { postId, userId } });
         if (!existed) {
-            throw new Error('You have not liked this post');
+            throw new BadRequestException('You have not liked this post');
         }
         await this.postLikeRepository.remove(existed);
         await this.postRepository.decrement({ id: postId }, 'likes', 1);
