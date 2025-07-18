@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsNotEmpty } from 'class-validator';
 
 export class BanUserDto {
-    @ApiProperty({ description: 'ID of the user to ban' })
+    @ApiProperty({ description: 'ID of the user to ban', example: 2 })
+    @IsNotEmpty()
     @IsNumber()
     userId: number;
 }
