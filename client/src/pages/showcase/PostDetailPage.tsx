@@ -115,7 +115,7 @@ const PostDetailPage: React.FC = () => {
                 setComments(commentsResponse.data);
 
                 // 批量获取所有评论用户信息
-                const userIds = Array.from(new Set(commentsResponse.data.map((c: any) => c.user.id)));
+                const userIds = Array.from(new Set(commentsResponse.data.map((c: IComment) => c.user.id)));
                 const userResults = await Promise.all(userIds.map((uid) => getUserById(uid).then(r => r.data).catch(() => null)));
                 const userMapObj: Record<number, IUser> = {};
                 userResults.forEach(u => { if (u) userMapObj[u.id] = u; });
