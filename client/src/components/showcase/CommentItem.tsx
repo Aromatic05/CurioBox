@@ -2,16 +2,18 @@ import React from "react";
 import Markdown from "markdown-to-jsx";
 import { Typography, Box, Paper, TextField, Button } from "@mui/material";
 import type { CommentTree } from "./buildCommentTree";
+import type { IUser } from "../../api/userApi";
 
-export interface CommentItemProps {
+export type CommentItemProps = {
     comment: CommentTree;
     depth: number;
     onReply: (parentId: number, content: string) => Promise<void>;
     onDelete: (commentId: number) => void;
     currentUserId?: number;
-}
+    userMap?: Record<number, IUser> | null;
+};
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDelete, currentUserId }) => {
+const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDelete, currentUserId, userMap }) => {
     const [showReply, setShowReply] = React.useState(false);
     const [localReplyContent, setLocalReplyContent] = React.useState("");
     const [localReplySubmitting, setLocalReplySubmitting] = React.useState(false);
@@ -33,27 +35,47 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDe
         }
     };
 
+    // 优先用 userMap 里的头像
+    const userInfo = userMap?.[comment.user.id];
+    const avatar = userInfo?.avatar;
+    const displayName = userInfo?.nickname || userInfo?.username || comment.user?.username;
     return (
         <Box sx={{ ml: depth * 3, mb: 2 }}>
             <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                 <Box sx={{ width: 40, height: 40, mr: 2 }}>
-                    <Box
-                        sx={{
-                            width: 40,
-                            height: 40,
-                            bgcolor: "grey.300",
-                            borderRadius: "50%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <Typography variant="h6" color="text.secondary">
-                            {comment.user?.username
-                                ? comment.user.username[0].toUpperCase()
-                                : "匿"}
-                        </Typography>
-                    </Box>
+                    {avatar ? (
+                        <Box
+                            component="img"
+                            src={avatar}
+                            alt={comment.user.username || "用户头像"}
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                bgcolor: "grey.200",
+                                border: "1px solid #eee",
+                            }}
+                        />
+                    ) : (
+                        <Box
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                bgcolor: "grey.300",
+                                borderRadius: "50%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <Typography variant="h6" color="text.secondary">
+                                {displayName
+                                    ? displayName[0].toUpperCase()
+                                    : "匿"}
+                            </Typography>
+                        </Box>
+                    )}
                 </Box>
                 <Paper
                     elevation={2}
@@ -67,7 +89,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDe
                 >
                     <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                            {comment.user?.username || "匿名"}
+                            {displayName || "匿名"}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
                             {new Date(comment.createdAt).toLocaleString()}
@@ -115,7 +137,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDe
                                 variant="outlined"
                                 value={localReplyContent}
                                 onChange={(e) => setLocalReplyContent(e.target.value)}
-                                placeholder={`回复 @${comment.user?.username || "匿名"}`}
+                                placeholder={`回复 @${displayName || "匿名"}`}
                                 disabled={localReplySubmitting}
                                 sx={{ mb: 1 }}
                             />
@@ -149,6 +171,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth, onReply, onDe
                             onReply={onReply}
                             onDelete={onDelete}
                             currentUserId={currentUserId}
+                            userMap={userMap}
                         />
                     ))}
                 </Box>

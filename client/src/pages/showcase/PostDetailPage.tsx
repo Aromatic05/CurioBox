@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Markdown from "markdown-to-jsx";
 import { useParams } from "react-router-dom";
 import { getPostById, getCommentsByPostId, addCommentToPost, updatePostById, deleteCommentById } from "../../api/showcaseApi";
+import { getUserById } from "../../api/userApi";
+import type { IUser } from "../../api/userApi";
 import { getCurioBoxById } from "../../api/curioBoxApi";
 import type { IComment, IPost } from "../../api/showcaseApi";
 import {
@@ -39,6 +41,7 @@ const PostDetailPage: React.FC = () => {
     }, [post?.curioBoxId]);
     const { id } = useParams<{ id: string }>();
     const [comments, setComments] = useState<IComment[]>([]);
+    const [userMap, setUserMap] = useState<Record<number, IUser> | null>(null);
     const [commentContent, setCommentContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
@@ -110,6 +113,13 @@ const PostDetailPage: React.FC = () => {
                 ]);
                 setPost(postResponse.data);
                 setComments(commentsResponse.data);
+
+                // 批量获取所有评论用户信息
+                const userIds = Array.from(new Set(commentsResponse.data.map((c: any) => c.user.id)));
+                const userResults = await Promise.all(userIds.map((uid) => getUserById(uid).then(r => r.data).catch(() => null)));
+                const userMapObj: Record<number, IUser> = {};
+                userResults.forEach(u => { if (u) userMapObj[u.id] = u; });
+                setUserMap(userMapObj);
             } catch (err) {
                 console.log(err);
                 setError("无法加载帖子详情。");
@@ -272,6 +282,7 @@ const PostDetailPage: React.FC = () => {
                             onReply={handleReplySubmit}
                             onDelete={handleDeleteComment}
                             currentUserId={currentUser?.id}
+                            userMap={userMap}
                         />
                     ))
                 )}
