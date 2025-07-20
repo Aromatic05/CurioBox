@@ -205,6 +205,7 @@ const PostDetailPage: React.FC = () => {
                         {/* 帖子作者与元信息展示组件 */}
                         <PostMeta
                             username={post.user?.username}
+                            nickname={userMap?.[post.user?.id || 0]?.nickname}
                             createdAt={post.createdAt}
                             views={post.views}
                             likes={post.likes}

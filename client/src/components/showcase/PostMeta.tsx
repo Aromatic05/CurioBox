@@ -4,6 +4,7 @@ import LikeButton from './LikeButton';
 
 interface PostMetaProps {
     username?: string;
+    nickname?: string;
     createdAt: string;
     views?: number;
     likes?: number;
@@ -12,29 +13,32 @@ interface PostMetaProps {
 }
 
 
-const PostMeta: React.FC<PostMetaProps> = ({ username, createdAt, views, likes, postId, showLikeButton }) => (
-    <Box sx={{ mb: 2, color: "text.secondary", display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-        <Typography variant="body2" component="span">
-            作者: {username || "Anonymous"}
-        </Typography>
-        <Typography variant="body2" component="span" sx={{ ml: 2 }}>
-            发布于: {new Date(createdAt).toLocaleString()}
-        </Typography>
-        <Typography variant="body2" component="span" sx={{ ml: 2 }}>
-            浏览量: {views ?? 0}
-        </Typography>
-        {showLikeButton && postId ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-                <LikeButton postId={postId} initialCount={likes ?? 0} size="small" />
-            </Box>
-        ) : (
-            typeof likes === 'number' && (
-                <Typography variant="body2" component="span" sx={{ ml: 2 }}>
-                    点赞: {likes}
-                </Typography>
-            )
-        )}
-    </Box>
-);
+const PostMeta: React.FC<PostMetaProps> = ({ username, nickname, createdAt, views, likes, postId, showLikeButton }) => {
+    const displayName = nickname || username;
+    return (
+        <Box sx={{ mb: 2, color: "text.secondary", display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="body2" component="span">
+                作者: {displayName || "Anonymous"}
+            </Typography>
+            <Typography variant="body2" component="span" sx={{ ml: 2 }}>
+                发布于: {new Date(createdAt).toLocaleString()}
+            </Typography>
+            <Typography variant="body2" component="span" sx={{ ml: 2 }}>
+                浏览量: {views ?? 0}
+            </Typography>
+            {showLikeButton && postId ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
+                    <LikeButton postId={postId} initialCount={likes ?? 0} size="small" />
+                </Box>
+            ) : (
+                typeof likes === 'number' && (
+                    <Typography variant="body2" component="span" sx={{ ml: 2 }}>
+                        点赞: {likes}
+                    </Typography>
+                )
+            )}
+        </Box>
+    );
+};
 
 export default PostMeta;
